@@ -11,6 +11,7 @@
 %include "boot/i386/mboot_tables.asm"
 %include "boot/i386/fat_header.asm"
 %include "boot/i386/const.asm"
+%include "boot/i386/midt.asm"
 
 ; new line (\n)
 %define ENDL 0x0D, 0x0A
@@ -44,28 +45,13 @@ _start:
     mov sp, 0x7000
 
     mov [boot_drive], dl
-
-    ; mov ax, PARTITION_ENTRY_SEGMENT
-    ; mov es, ax
-    ; mov di, PARTITION_ENTRY_OFFSET
-    ; mov cx, 16
-
-    ; mov ax, 0
-    ; mov ds, ax
-    ; mov es, ax
-
-    ; mov ss, ax
-    ; mov sp, 0x7C00 
-
-    ; mov bx, 0x100000
-    ; mov es, bx
-    ; int 13h
-
     mov  bx, str_real 
     call print
     call print_nl
-
+ 
     call load_kernel
+    call setup_idt
+    call disable_timer
     jmp switch
 
     jmp $
@@ -77,7 +63,7 @@ load_kernel:
     call print_nl
 
     mov	bx, 0x1000
-    mov es, ax 
+    mov es, bx 
     xor bx, bx
 
     mov	dl, [boot_drive]
@@ -115,6 +101,7 @@ protected_mode:
     push eax
     movzx eax, byte [boot_drive] 
 
+    cli
     jmp kernel_offset
     jmp $ 
 
