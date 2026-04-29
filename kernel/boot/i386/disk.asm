@@ -27,8 +27,10 @@ disk_load:
     push si 
     push di
 
+    push bp
+    mov bp, sp
+
     mov ah, 0x02
-    mov al, dh 
     mov ch, 0x00
     mov dl, 0x00
     mov dh, 0x00 
@@ -37,10 +39,11 @@ disk_load:
     int 0x13
     jc disk_error
 
+    pop dx
     cmp al, dh
     jne sectors_error
 
-    call disk_done
+    jmp disk_done
 
 disk_done:
     popa 
@@ -48,7 +51,8 @@ disk_done:
     pop si 
     pop dx
     pop cx
-    pop dx 
+    pop bx 
+    pop bp
     pop eax
     ret
 
