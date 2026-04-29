@@ -15,8 +15,12 @@ typedef unsigned int status_t;
 #define KERNEL_STACK_SIZE 0x8000
 #define NUMSIGNS 38 // numder of signals
 #define USER_ROOT_UID (user_t)0
-#define IRQ_OFF { asm volatile ("cli"); }
-#define PAUSE { asm volatile ("hlt"); }
+#define IRQ_OFF { __asm__ volatile ("cli"); }
+#define PAUSE   { __asm__ volatile ("hlt"); }
+
+#define SEEK_SET    0
+#define SEEK_CUR    1
+#define SEEK_END    2
 
 /*---structures---*/
 typedef struct page {
@@ -133,5 +137,26 @@ typedef struct process {
     struct Timeval start;
     uint8_t suspended;
 } sys_process_t;
+
+void initProcTree(void);
+sys_process_t *spawnInit(void);
+sys_process_t *spawnKIdle(void);
+void initializeProcessTree(void);
+void switchPageDirectory(page_dir_t *dir);
+void taskingInstall(void);
+void taskExit(int retval);
+int __attribute((noreturn)) sysExit(int retval);
+int sysGeteuid(void);
+int sysOpen(const char *file, int flgas, int mode);
+int sysRead(int fd, char *ptr, int len);
+int sysWrite(int fd, char *ptr, int len);
+int sysClose(int fd);
+int sysCreate(const char *file, mode_t mode);
+off_t lseek(int fd, off_t offset, int whence);
+void syscallInstall(void);
+tree_t *treeCreate(void);
+tree_node_t *treeNodeCreate(void *value);
+void treeSetRoot(tree_t *tree, void *value);
+void shmInstall(void);
 
 #endif
