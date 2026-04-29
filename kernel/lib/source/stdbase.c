@@ -8,7 +8,7 @@ FILE _iob[OPEN_MAX];
 static Header base;
 static Header *freep = NULL;
 static char *dataStart = (char *)0x100000;
-static char *dataEnd = &dataStart;
+static char *dataEnd = (char *)&dataStart;
 uint32_t freeMemAddr = 0x10000;
 const char g_hex_chars[] = "0123456789abcdef";
 
