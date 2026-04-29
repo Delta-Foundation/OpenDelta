@@ -57,6 +57,7 @@
 #define SYS_SETSID 62
 #define SYS_SETPGID 63
 #define SYS_GETPGID 64
+#define SYS_CREATE 65
 
 #define SYSCALL_PRINT_CHAR 0
 #define SYSCALL_PRINT_STRING 1
