@@ -3,6 +3,7 @@
 #include "../string.h"
 #include "../../fs/headers/fs.h"
 #include "../stdarg.h"
+#include "../system.h"
 
 FILE _iob[OPEN_MAX];
 static Header base;
@@ -474,4 +475,47 @@ int getline(char *line, int max)
     else {
         return strlen(line);
     }
+}
+
+FILE *fopen(char *name, char *mode) 
+{
+    int fd;
+    FILE *fp;
+
+    if (*mode != 'r' && *mode != 'w' && *mode != 'a') {
+        return NULL;
+    }
+
+    for (fp = _iob; fp < _iob + OPEN_MAX; fp++) {
+        if ((fp->flag & (_READ | _WRITE)) == 0) {
+            break;
+        }
+    }
+
+    if (fp >= _iob + OPEN_MAX) {
+        return NULL;
+    }
+
+    if (*mode == 'w') {
+        fd = sysCreate(name, PERMS);
+    }
+    else if (*mode == 'a') {
+        if ((fd == sysOpen(name, O_WRONLY, 0)) == -1) {
+            fd = sysCreate(name, PERMS);
+        }
+        lseek(fd, 0L, 2);
+    }
+    else {
+        fd = sysOpen(name, O_RDONLY, 0);
+    }
+
+    if (fd == -1) {
+        return NULL;
+    }
+
+    fp->fd = fd;
+    fp->cnt = 0;
+    fp->base = NULL;
+    fp->flag = (*mode == 'r') ? _READ : _WRITE;
+    return fp; 
 }
