@@ -92,15 +92,45 @@ typedef struct {
 #define PRINTF_LENGTH_LONG          3
 #define PRINTF_LENGTH_LONG_LONG     4
 
+#define O_RDONLY    00000000  
+#define O_WRONLY    00000001  
+#define O_RDWR      00000002  
+
+#define O_CREAT     00000100  
+#define O_TRUNC     00001000  
+#define O_APPEND    00002000  
+
+#define S_IRWXU     00700     
+#define S_IRUSR     00400     
+#define S_IWUSR     00200     
+#define S_IXUSR     00100     
+
+#define S_IRWXG     00070     
+#define S_IRGRP     00040     
+#define S_IWGRP     00020     
+#define S_IXGRP     00010     
+
+#define S_IRWXO     00007     
+#define S_IROTH     00004     
+#define S_IWOTH     00002     
+#define S_IXOTH     00001     
+
+#define S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
+
+#define PERMS 0666
+
 /*---структуры---*/
 typedef struct _iobuf {
     uint16_t port;
     uint8_t buf[BUFSIZE];
+    int buf_pos;
+    int buf_size[BUFSIZE];
     int cnt;
     char *ptr;
     char *base;
     int flag;
     int fd;
+    int error;
 } FILE;
 
 typedef struct {
@@ -115,11 +145,13 @@ typedef struct {
 
 /*---перечисление---*/
 enum _flags {
-    _READ = 01,
-    _WRITE = 02,
-    _UNBUF = 04,
-    _EOF = 010,
-    _ERR = 020
+    _READ   =    01,
+    _WRITE  =    02,
+    _UNBUF  =    04,
+    _EOF    =    010,
+    _ERR    =    020,
+    _RDONLY =    0x01,
+    _CREAT  =    0x02
 };
 
 /*---типы---*/
@@ -156,6 +188,7 @@ char *fgets(char *s, int n, FILE * iop);
 void fcopy(FILE *ifp, FILE *ofp);
 int getline(char *line, int max);
 int _fputs(char *s, FILE *iop);
+FILE *fopen(char *name, char *mode);
 
 /*---input-output---*/
 uint8_t inb(uint16_t port);
