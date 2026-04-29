@@ -32,6 +32,22 @@ typedef signed      int     int32_t;
 typedef unsigned long uintptr_t;
 typedef signed long intptr_t;
 
+/*---mode_t-type-realization---*/
+typedef unsigned int mode_t;
+
+/*--off_t-type-realization---*/
+#if defined(__LP64__) || defined(__LLP64__) || defined(_WIN64)
+    typedef long off_t;
+    #define OFF_T_MAX LONG_MAX
+    #define OFF_T_MIN LONG_MIN
+#elif defined(__ILP32__) || defined(_WIN32)
+    typedef int off_t;
+    #define OFF_T_MAX LLONG_MAX
+    #define OFF_T_MIN LLONG_MIN
+#else
+    #error "Unsupported architecture for off_t"
+#endif
+
 #ifndef __SIZE_T_DEFINED__
 #define __SIZE_T_DEFINED__
 
@@ -50,15 +66,15 @@ typedef signed long intptr_t;
 #define SIZE_IS_ZERO(x) ((x) == 0)
 #define SIZE_MIN 0
 
-size_t size_add(size_t a, size_t b, int* overflow);
-size_t size_mul(size_t a, size_t b, int* overf);
-size_t size_sub(size_t a, size_t b, int* underf);
-int size_cmp(size_t a, size_t b);
+size_t sizeAdd(size_t a, size_t b, int* overflow);
+size_t sizeMul(size_t a, size_t b, int* overf);
+size_t sizeSub(size_t a, size_t b, int* underf);
+int sizeCmp(size_t a, size_t b);
 
 #endif
 
 int atoi(char s[]);
 long atol(const char *s);
-int lower(int c);
 
 #endif
+
