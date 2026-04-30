@@ -519,3 +519,12 @@ FILE *fopen(char *name, char *mode)
     fp->flag = (*mode == 'r') ? _READ : _WRITE;
     return fp; 
 }
+
+int fclose(FILE *file) {
+    if (!file) {
+        return -1;
+    }
+
+    int ret = sysClose(file->fd);
+    return ret;
+}
