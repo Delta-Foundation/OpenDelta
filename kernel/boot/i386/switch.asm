@@ -1,5 +1,4 @@
 [bits 16]
-
 switch:
     cli
     lgdt [gdt_descriptor]
