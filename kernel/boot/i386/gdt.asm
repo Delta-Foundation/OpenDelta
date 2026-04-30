@@ -6,8 +6,8 @@ gdt_start:
         dw 0xFFFF       ; Лимит 0-15
         dw 0x0          ; База 0-15
         db 0x0          ; База 16-23
-        db 0x9A         ; Флаги: Present, Ring 0, Code, Exec/Read
-        db 0xCF         ; Флаги: Granularity, 32-bit, Лимит 16-19
+        db 0x9A         ; Present, Ring 0, Code, Exec/Read
+        db 0xCF         ; Granularity, 32-bit, Лимит 16-19
         db 0x0          ; База 24-31
 
     gdt_data:
