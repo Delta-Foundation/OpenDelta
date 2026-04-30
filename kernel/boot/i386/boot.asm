@@ -2,16 +2,16 @@
 [org 0x7C00]
 
 ; includes like .h in C
+%include "boot/i386/gdt.asm"
+%include "boot/i386/midt.asm"
 %include "boot/i386/disk.asm"
 %include "boot/i386/print.asm"
 %include "boot/i386/print_pmode.asm"
-%include "boot/i386/gdt.asm"
 %include "boot/i386/switch.asm"
 %include "boot/i386/print_hex.asm"
 %include "boot/i386/mboot_tables.asm"
 %include "boot/i386/fat_header.asm"
 %include "boot/i386/const.asm"
-%include "boot/i386/midt.asm"
 
 ; new line (\n)
 %define ENDL 0x0D, 0x0A
@@ -48,10 +48,11 @@ _start:
     mov  bx, str_real 
     call print
     call print_nl
- 
+    
     call load_kernel
     call setup_idt
     call disable_timer
+    ; call load_kernel
     jmp switch
 
     jmp $
@@ -84,7 +85,7 @@ read_error:
 
 [bits 32]
 protected_mode:
-    mov ax, 0x10
+    mov ax, DATA_SEG
     mov ds, ax
     mov es, ax
     mov fs, ax
