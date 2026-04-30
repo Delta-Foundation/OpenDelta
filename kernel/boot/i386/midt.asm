@@ -17,11 +17,7 @@ setup_idt:
 
 [bits 16]
 disable_timer:
-    pushf
-
     mov al, 0xFF
     out 0x21, al 
     out 0xA1, al
-
-    popf
     ret
