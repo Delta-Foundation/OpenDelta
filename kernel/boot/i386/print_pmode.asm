@@ -10,7 +10,7 @@ print_pmode:
 print_pmode_loop:
 	mov al, [ebx]  
 	mov ah, WHITE_ON_BLACK 
-	cmp al, 0x0      
+	test al, al      
 	jz  print_pmode_end
 
 	mov [edx], ax   
