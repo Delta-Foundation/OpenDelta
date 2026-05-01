@@ -4,6 +4,7 @@
 /*---includes---*/
 #include "../../lib/types.h"
 #include "../../lib/string.h"
+#include "../../lib/stdbase.h"
 
 #pragma once
 
@@ -13,12 +14,6 @@
 #define PATH_UP  ".."
 #define PATH_DOT "."
 
-#define O_RDONLY     0x0000
-#define O_WRONLY     0x0001
-#define O_RDWR       0x0002
-#define O_APPEND     0x0008
-#define O_CREAT      0x0200
-#define O_TRUNC      0x0400
 #define O_EXCL       0x0800
 #define O_NOFOLLOW   0x1000
 #define O_PATH       0x2000
@@ -49,7 +44,7 @@ typedef uint32_t (*read_type_t) (struct fs_node *, uint64_t, uint32_t, uint8_t *
 typedef uint32_t (*write_type_t) (struct fs_node *, uint64_t, uint32_t, uint8_t *);
 typedef void (*open_type_t) (struct fs_node *, unsigned int flags);
 typedef void (*close_type_t) (struct fs_node *);
-typedef struct dirent *(*readdir_type_t) (struct fs_node *, uint32_t);
+typedef struct DirentFs *(*readdir_type_t) (struct fs_node *, uint32_t);
 typedef struct fs_node *(*finddir_type_t) (struct fs_node *, char *name);
 typedef int (*create_type_t) (struct fs_node *, char *name, uint16_t permission);
 typedef int (*unlink_type_t) (struct fs_node *, char *name);
@@ -76,7 +71,7 @@ typedef struct fs_node {
 	uint32_t length;		// size of the file
 	uint32_t impl;			// Used to keep track which fs it belongs to
 	uint32_t open_flags;		// Flags padded to open
-	
+
 	uint32_t atime;			// Accessed
 	uint32_t mtime;			// Modified
 	uint32_t ctime;			// Created
@@ -115,7 +110,7 @@ typedef struct {
     uint8_t is_dir;
 } fs_entry_t;
 
-struct Dirent {
+struct DirentFs {
 	uint32_t ino;
 	char name[256];
 };
