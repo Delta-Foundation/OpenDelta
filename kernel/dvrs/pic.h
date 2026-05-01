@@ -79,7 +79,7 @@ boolean probe(void) {
     return get_mask() == 0x1337;
 }
 
-static const PICDriver g_pic_driver = {
+static const pic_driver_t g_pic_driver = {
     .name = "8259 PIC",
     .probe = &probe,
     .init = &pic_configure,
@@ -88,6 +88,7 @@ static const PICDriver g_pic_driver = {
     .mask = &mask,
     .unmask = &unmask,
 }; 
-const PICDriver* pic_driver() {
+
+const pic_driver_t* pic_driver() {
     return &g_pic_driver;
 }
