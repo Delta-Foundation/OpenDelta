@@ -47,12 +47,12 @@ typedef struct {
     void (*send_end_of_int)(int irq);
     void (*mask)(int irq);
     void (*unmask)(int irq);
-} PICDriver;
+} pic_driver_t;
 
 static uint16_t g_pic_mask = 0xffff;
 static boolean *g_auto_eoi = FALSE;
 
-const PICDriver* pic_driver(void);
+const pic_driver_t* pic_driver(void);
 
 void set_mask(uint16_t new_mask);
 uint16_t get_mask(void);
