@@ -71,6 +71,9 @@ extern void irq15(void);
 #define IRQ14	46
 #define IRQ15	47
 
+#define PIC_REMAP_OFFSET 0x20
+#define MODULE "PIC"
+
 typedef struct {
 	uint32_t ds;
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
@@ -78,13 +81,16 @@ typedef struct {
 	uint32_t eip, cs, eflags, useresp, ss;
 } regs_t;
 
+typedef void (*isr_t)(regs_t);
+
 uint8_t __attribute__((cdecl)) enable_ints(void);
 uint8_t __attribute__((cdecl)) disable_ints(void);
 void __attribute__((cdecl)) panic(void);
 void isr_install(void);
 void isr_handler(regs_t r);
+void irq_init(void);
+void irq_regs_handler(int irq, isr_t handler);
 
-typedef void (*isr_t)(regs_t);
 void register_interrupt_handler(uint8_t n, isr_t handler);
 
 #endif
