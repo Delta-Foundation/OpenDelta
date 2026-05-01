@@ -10,6 +10,7 @@ OBJCOPY = llvm-objcopy
 # source code
 SRCS = kernel.c
 KERNEL_OBJ = obj/kernel.o
+KERNEL_ELF = img/kernel.elf
 KERNEL_BIN = img/kernel.bin
 ENTRY = obj/entry.o
 ENTRY_SRC = kernel_entry.asm
@@ -69,8 +70,8 @@ FLAGS = -m32 -march=i386 -std=c17 -fno-pie -ffreestanding -nostdlib -Wall -Wextr
 img = img/open-delta.img
 
 # qemu
-QEMU = qemu-system-x86_64
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int
+QEMU = qemu-system-i386
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset
 
 all: run
 
@@ -90,7 +91,7 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 	$(AS) $< -f elf -o $@
 
 $(KERNEL_BIN):  $(ENTRY) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
-	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld -Ttext 0x10000 $^ --oformat elf32-i386
+	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld -Ttext 0x10000 $^ -Map kernel.map --oformat elf32-i386
 
 $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
@@ -162,8 +163,8 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=$(KERNEL_BIN) of=$@ conv=ascii bs=2048 count=1
 	cat img/kernel.bin img/boot.bin > img/open-delta.img
 
-run: img/open-delta.img img/kernel.bin
-	$(QEMU) -drive format=raw,file=img/boot.bin -hdd $<  $(QEMU_FLAGS)
+run: img/open-delta.img
+	$(QEMU) -drive format=raw,file=img/open-delta.img -kernel ./img/kernel.bin -hdd $<  $(QEMU_FLAGS)
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
