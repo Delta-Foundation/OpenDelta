@@ -72,8 +72,9 @@ void entry_point(void)
 
     delay();
 
-    prints("[info]: [initializing isr]\n", WHITE);
+    prints("[info]: [initializing isr and irq]\n", WHITE);
     isr_install();
+    irq_init();
 
     __asm__ volatile ( "int $2" );
     __asm__ volatile ( "int $3" );
