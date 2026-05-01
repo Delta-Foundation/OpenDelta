@@ -1,5 +1,5 @@
-#ifndef UTIL_FAT_H
-#define UTIL_FAT_H
+#ifndef TOOLS_FAT_H
+#define TOOLS_FAT_H
 
 #include "../../lib/stdbase.h"
 #include "../../lib/stdlib.h"
