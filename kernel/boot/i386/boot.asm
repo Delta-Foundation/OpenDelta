@@ -86,11 +86,11 @@ read_error:
 [bits 32]
 protected_mode:
     mov ax, DATA_SEG
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+    mov ds, eax
+    mov es, eax
+    mov fs, eax
+    mov gs, eax
+    mov ss, eax
     mov esp, 0x90000
 
     mov ebx, str_pmode
@@ -102,9 +102,7 @@ protected_mode:
     push eax
     movzx eax, byte [boot_drive] 
 
-    cli
     jmp kernel_offset
-    jmp $ 
 
 times 510 - ($-$$) db 0
 dw 0xAA55
