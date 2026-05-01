@@ -9,6 +9,7 @@
 #include "./lib/idt.h"
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
+#include "./lib/pic.h"
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
@@ -17,7 +18,7 @@ extern void load_idt(uintptr_t *idt_ptr);
 IDTEntry IDT[IDT_SIZE];
 struct Multiboot *mboot = NULL;
 
-static void panic(const char *panic_msg) {
+static void kpanic(const char *panic_msg) {
     prints("KERNEL PANIC: ", WHITE);
     prints(panic_msg, WHITE);
     prints("\n", WHITE);
@@ -95,6 +96,7 @@ void entry_point(void)
     prints("[info]: [install fpu driver]\n", WHITE);
     fpu_install();
     syscallInstall();
+    pic_driver();
     
     return;
 }
