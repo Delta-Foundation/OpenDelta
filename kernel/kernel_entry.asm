@@ -1,16 +1,17 @@
 [bits 32]
 
+section .multiboot
+    align 4
+    dd 0x1BADB002
+    dd 0x00
+    dd - (0x1BADB002 - 0x00)
+
 section .data
     nl db 'W', 0x0A
 
 section .text 
     extern entry_point
     extern kmain
-
-    align 4
-    dd 0x1BADB002
-    dd 0x00
-    dd - (0x1BADB002 - 0x00)
 
 global _start
 global readp  ; read port 
@@ -35,16 +36,21 @@ load_idt:
     ret
 
 _start:
-    cli
+    mov dword [0xB8000], 0x0F4B0F4B
+
+    mov ebp, 0x90000
+    mov esp, 0x90000
+
     mov esp, stack_space
     call entry_point
 
     mov ecx, nl
-    mov edx, 0x41
-    cmp edx, ecx
-    je _exit
+   ; mov edx, 0x41
+   ; cmp edx, ecx
+   ; je _exit
 
     call kmain 
+    cli
     hlt
 
     jmp $ 
@@ -54,38 +60,7 @@ _exit:
     mov eax, 1
     int 0x80
 
-stack_space:
-    resb 2048
-
-[bits 64]
-long_mode_entry:
-    mov ax, 0x10000
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov gs, ax
-    mov ss, ax
-
-    cli 
-
-    xor rax, rax 
-    xor rbx, rbx
-    xor rcx, rcx
-    xor rdx, rdx
-    xor rdi, rdi
-
-    lea rsp, [rel stack64_top]
-    and rsp, -16
-
-    mov rdi, rbx
-    call kmain
-
-.hang64:
-    hlt
-    jmp .hang64
-
 section .bss
-align 32
-stack64_bottom:
-    resb 65536
-stack64_top:
+stack_space:
+    resb 8129
+stack_top
