@@ -4,6 +4,7 @@ cd ~/OpenDelta/kernel/
 
 mkdir -p img/
 mkdir -p obj/
+
 function build_x86_64 {
     nasm boot/x86_64/boot.asm -f bin -o img/boot64.bin
     nasm kernel_entry.asm -f elf -o obj/entry.o
@@ -24,10 +25,21 @@ function build_x86_64 {
     clang -m64 -fno-pie -ffreestanding -nostdlib -c fs/list.c -o obj/list.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c fs/pipe.c -o obj/pipe.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c fs/fs.c -o obj/fs.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c drvs/pic.c -o obj/pic.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c syscall/syscall.c -o obj/sys.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c syscall/task.c -o obj/task.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c syscll/proc.c -o obj/proc.o
 
-    ld.lld -m elf_x64_64 -s obj/kernel.o obj/entry.o obj/idt.o obj/mem.o obj/shm.o obj/fs.o 
-        \ obj/list.o obj/pipe.o obj/stdbase.o obj/tty.o obj/ctype.o obj/gdtc.o obj/gdta.os 
-        \ obj/string.o obj/types.o obj/ports.o obj/screen.o -o img/kernel.bin -z noexecstack -T link.ld -Ttext 0x10000 --oformat binary
+
+    ld.lld -m elf_x64_64 -s obj/kernel.o 
+        \ obj/entry.o obj/idt.o obj/mem.o 
+        \ obj/shm.o obj/fs.o obj/list.o 
+        \ obj/pipe.o obj/stdbase.o obj/tty.o 
+        \ obj/ctype.o obj/gdtc.o obj/gdta.o 
+        \ obj/string.o obj/types.o obj/ports.o 
+        \ obj/sys.o obj/proc.o obj/task.o 
+        \ obj/fpu.o obj/pic.o obj/screen.o 
+        \ -o img/kernel.bin -z noexecstack -T link.ld --oformat elf_x86_64
 
     dd if=/dev/zero/ of=img/open-delta.img bs=512 count=32516 status=none
     mkfas.fat -F32 img/open-delta.img
