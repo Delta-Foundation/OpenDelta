@@ -173,5 +173,6 @@ clean:
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
+	rm -f kernel.map
 
 .PHONY: $(BOOT) $(KERNEL_BIN) $(img) run clean
