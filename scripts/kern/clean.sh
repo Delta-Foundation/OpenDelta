@@ -9,7 +9,8 @@ function clean {
         \ obj/gdtasm.o obj/ints.o obj/isr.o obj/tty.o 
         \ obj/ctype.o obj/ports.o obj/entry.o
         \ obj/shm.o obj/fs.o obj/list.o obj/pipe.o
-        \ obj/idta.o
+        \ obj/idta.o obj/pic.o obj/fpu.o obj/sys.o
+        \ obj/proc.o obj/task.o
 
     echo "clean .bin and .img binaries"
     rm -f img/kernel.bin img/boot.bin img/open-delta.img
