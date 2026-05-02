@@ -39,7 +39,7 @@ function build_x86_64 {
         \ obj/string.o obj/types.o obj/ports.o 
         \ obj/sys.o obj/proc.o obj/task.o 
         \ obj/fpu.o obj/pic.o obj/screen.o 
-        \ -o img/kernel.bin -z noexecstack -T link.ld --oformat elf_x86_64
+        \ -o img/kernel.bin -z noexecstack -T link64.ld --oformat elf_x86_64
 
     dd if=/dev/zero/ of=img/open-delta.img bs=512 count=32516 status=none
     mkfas.fat -F32 img/open-delta.img
