@@ -10,13 +10,15 @@ section .data
     nl db 'W', 0x0A
 
 section .text 
+    ; C functions
     extern entry_point
     extern kmain
-
-global _start
-global readp  ; read port 
-global writep ; write port
-global load_idt
+    
+    ; ASM functions
+    global _start
+    global readp  ; read port 
+    global writep ; write port
+    global load_idt
 
 readp:
     mov edx, [esp + 4]
@@ -45,9 +47,9 @@ _start:
     call entry_point
 
     mov ecx, nl
-   ; mov edx, 0x41
-   ; cmp edx, ecx
-   ; je _exit
+    mov edx, 0x41
+    cmp edx, ecx
+    je _exit
 
     call kmain 
     cli
