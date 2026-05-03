@@ -12,6 +12,7 @@ section .data
 	no_cpuid_str: dq "[ERR FATAL]: [CPU does not support CPUID.]"
 	no_longmode_str: dq "[ERR FATAL]: [CPU does not support long mode.]"
 
+	disk: db 0x00
 
 section .boot
     global 	startup
@@ -37,15 +38,19 @@ flush_segments:
 
 check_cpuid:
 	pushfd
+
 	pop eax
 	mov ecx, eax
 	xor eax, (1 << 21)
 	push eax
+	
 	popfd
+	
 	pushfd
 	pop eax
 	push ecx
 	popfd
+	
 	xor eax, ecx
 	jz no_cpuid
 
@@ -63,12 +68,14 @@ check_cpuid:
 no_cpuid:
 	mov si, no_cpuid_str
 	call printstr_rmode
+	
 	cli
 	hlt
 
 no_longmode:
 	mov si, no_longmode_str
 	call printstr_rmode
+	
 	cli
 	hlt
 
@@ -79,12 +86,13 @@ printstr_rmode:
 	mov ah, 0x0E
 	int 10h
 	jmp printstr_rmode
+
 .done:
 	ret
 
 dummy_IDT:
-	dw 0x00
-	dq 0x00
+	dw 	0x00
+	dq 	0x00
 
 [bits 64]
 long_mode:
@@ -128,9 +136,7 @@ GDT:
 GDT_END:
 GDT_PTR:
 	dw GDT_END - GDT - 1
-	dd GDT
+	dq GDT
 
-
-disk: db 0x00
 times 510 - (. - startup), 0
-dd 0xAA55
+dw 0xAA55
