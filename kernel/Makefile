@@ -71,7 +71,7 @@ img = img/open-delta.img
 
 # qemu
 QEMU = qemu-system-i386
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset -bios /usr/share/qemu/bios.bin 
 
 all: run
 
@@ -90,8 +90,11 @@ $(IDT_ASM): $(IDT_ASM_SRC)
 $(INTS_ASM): $(INTS_ASM_SRC)
 	$(AS) $< -f elf -o $@
 
-$(KERNEL_BIN):  $(ENTRY) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
+$(KERNEL_ELF):  $(ENTRY) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map --oformat elf32-i386
+
+$(KERNEL_BIN): $(KERNEL_ELF)
+	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
 
 $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
@@ -161,10 +164,9 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	mkfs.fat -F32 img/open-delta.img
 	dd if=$(BOOT) of=$@ conv=ascii bs=1024 count=1
 	dd if=$(KERNEL_BIN) of=$@ conv=ascii bs=2048 count=1
-	cat img/kernel.bin img/boot.bin > img/open-delta.img
 
 run: img/open-delta.img
-	$(QEMU) -kernel ./img/kernel.bin -hdd $<  $(QEMU_FLAGS)
+	$(QEMU) -drive format=raw,file=img/boot.bin -kernel ./img/kernel.bin -hdd $<  $(QEMU_FLAGS)
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
