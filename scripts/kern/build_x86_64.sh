@@ -9,9 +9,12 @@ function build_x86_64 {
     nasm boot/x86_64/boot.asm -f bin -o img/boot64.bin
     nasm kernel_entry.asm -f elf -o obj/entry.o
     nasm arch/gdt/gdt.asm -f elf -o obj/gdta.o
+    nasm cpu/asm/ints.asm -f elf -o obj/intsa.o
+    nasm cpu/asm/idt.asm -f elf -o obj/idta.o
 
     clang -m64 -fno-pie -ffreestanding -nostdlib -c kernel.c -o obj/kernel.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c cpu/idt.c -o obj/idt.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c cpu/isr.c -o obj/isr.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c lib/source/stdbase.c -o obj/stdbase.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c lib/source/string.c -o obj/string.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c lib/source/types.c -o obj/types.o
@@ -29,9 +32,9 @@ function build_x86_64 {
     clang -m64 -fno-pie -ffreestanding -nostdlib -c syscall/syscall.c -o obj/sys.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c syscall/task.c -o obj/task.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c syscll/proc.c -o obj/proc.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c fpu/fpu.c -o obj/fpu.o
 
-
-    ld.lld -m elf_x64_64 -s obj/kernel.o 
+    ld.lld -m elf_x86_64 -s obj/kernel.o 
         \ obj/entry.o obj/idt.o obj/mem.o 
         \ obj/shm.o obj/fs.o obj/list.o 
         \ obj/pipe.o obj/stdbase.o obj/tty.o 
@@ -39,6 +42,7 @@ function build_x86_64 {
         \ obj/string.o obj/types.o obj/ports.o 
         \ obj/sys.o obj/proc.o obj/task.o 
         \ obj/fpu.o obj/pic.o obj/screen.o 
+        \ obj/idta.o obj/intsa.o obj/isr.o
         \ -o img/kernel.bin -z noexecstack -T link64.ld --oformat elf_x86_64
 
     dd if=/dev/zero/ of=img/open-delta.img bs=512 count=32516 status=none
