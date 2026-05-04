@@ -35,7 +35,7 @@ SECTIONS
         *(.rodata*)
     } :text 
 
-    .bss ALIGN(32) (NOLOAD) : {
+    .bss ALIGN(32) : {
         __bss_start = .;
         *(.bss)
         *(.bss*)
@@ -43,7 +43,7 @@ SECTIONS
         __bss_end = .;
     } :data 
 
-    .heap ALIGN(4096) (NOLOAD) : {
+    .heap ALIGN(4096) : {
         _heap_start = .;
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
