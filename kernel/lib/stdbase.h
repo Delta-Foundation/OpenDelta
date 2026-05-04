@@ -166,6 +166,7 @@ union header {
     Align x;
 };
 
+/*---functions---*/
 char sbrk(int incr);
 void fputc(char c, FILE *file);
 void fputs(const char *str, FILE *file);
@@ -181,7 +182,7 @@ void fprintf_unsigned(FILE *file, unsigned int num, int radix);
 void fprintf_signed(FILE *file, long long num, int radix);
 void fprintf_bu(FILE *file, const char* msg, const void* buf, uint32_t count);
 void vfprintf(FILE *file, const char *fmt, va_list args);
-void fprtinf(FILE *file, const char *fmt, ...);
+void fprintf(FILE *file, const char *fmt, ...);
 void printf(const char* fmt, ...);
 void *free(void *ap);
 char *fgets(char *s, int n, FILE * iop);
