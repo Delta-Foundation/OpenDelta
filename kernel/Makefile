@@ -64,14 +64,14 @@ PIC = obj/pic.o
 PIC_SRC = drvs/pic.c
 
 # clang flags for build on i386
-FLAGS = -m32 -march=i386 -std=c17 -fno-pie -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
+FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
 
 # image file
 img = img/open-delta.img
 
 # qemu
 QEMU = qemu-system-i386
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset -bios /usr/share/qemu/bios.bin 
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset 
 
 all: run
 
@@ -163,10 +163,10 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=32516 status=none
 	mkfs.fat -F32 img/open-delta.img
 	dd if=$(BOOT) of=$@ conv=ascii bs=1024 count=1
-	dd if=$(KERNEL_BIN) of=$@ conv=ascii bs=2048 count=1
+	dd if=$(KERNEL_BIN) of=$@ conv=ascii seek=1 bs=2048
 
 run: img/open-delta.img
-	$(QEMU) -drive format=raw,file=img/boot.bin -kernel ./img/kernel.bin -hdd $<  $(QEMU_FLAGS)
+	$(QEMU) -drive file=img/boot.bin,format=raw,if=ide -hdd $<  $(QEMU_FLAGS)
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
