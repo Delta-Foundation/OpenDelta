@@ -1,5 +1,5 @@
-#ifndef TOOLS_FAT_H
-#define TOOLS_FAT_H
+#ifndef _TOOLS_FAT_H
+#define _TOOLS_FAT_H
 
 #include "../../lib/stdbase.h"
 #include "../../lib/stdlib.h"
@@ -43,6 +43,7 @@ typedef struct {
     uint8_t _reversed;
     uint8_t signature;
     uint32_t vol_id;
+
     uint8_t vol_label[11];
     uint8_t sys_id[8];
 } __attribute__((packed)) boot_sect_t;
@@ -63,6 +64,17 @@ typedef struct {
 } __attribute__((packed)) dir_entry_t;
 
 #pragma pack(pop)
+
+typedef struct {
+    uint8_t order;
+    uint16_t chars1[5];
+    uint8_t attribute;
+    uint8_t long_entry_type;
+    uint8_t checksum;
+    int16_t chars2[6];
+    uint16_t _always_zero;
+    int16_t chars3[2];
+} __attribute__((packed)) fat_long_file_entry_t;
 
 typedef struct {
     int handle;
