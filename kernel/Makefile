@@ -62,6 +62,8 @@ PROC = obj/proc.o
 PROC_SRC = syscall/proc.c
 PIC = obj/pic.o
 PIC_SRC = drvs/pic.c
+TOOLS = obj/toolsa.o
+TOOLS_SRC = tools/fat/asm/tools.asm 
 
 # clang flags for build on i386
 FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
@@ -90,7 +92,10 @@ $(IDT_ASM): $(IDT_ASM_SRC)
 $(INTS_ASM): $(INTS_ASM_SRC)
 	$(AS) $< -f elf -o $@
 
-$(KERNEL_ELF):  $(ENTRY) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
+$(TOOLS): $(TOOLS_SRC)
+	$(AS) $< -f elf -o $@
+
+$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map --oformat elf32-i386
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -173,7 +178,7 @@ clean:
 		  $(STDBASE) $(TYPES) $(MEM) $(STRING) $(IDT)   \
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
-		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC)
+		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
