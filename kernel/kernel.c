@@ -113,9 +113,8 @@ void kmain(void)
 
     while (TRUE) {
         // entry_point();
-        for (volatile uint32_t i = 0; i < 10000; i++) {
+        for (volatile uint32_t i = 0; i < 100000; i++) {
             __asm__ __volatile__ ("hlt");
         }
     }
 }
-
