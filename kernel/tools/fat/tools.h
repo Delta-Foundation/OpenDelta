@@ -36,4 +36,6 @@ boolean ASMCALL disk_read(uint8_t drive,
         uint8_t count,
         void* lower_data_out);
 
+int ASMCALL get_next_block(e820_mem_block* block, uint32_t* continuation_id);
+
 #endif 
