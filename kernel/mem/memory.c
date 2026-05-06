@@ -1,9 +1,9 @@
 #include "../lib/string.h"
 #include "../lib/system.h"
 #include "./header/memory.h"
-
-#define INDEX_FROM_BIT(b) (b / 0x20)
-#define OFFSET_FROM_BIT(b) (b % 0x20)
+#include "../lib/bootparams.h"
+#include "../tools/fat/tools.h"
+#include "../lib/stdbase.h"
 
 void *end;
 uint32_t *frames;
@@ -12,6 +12,8 @@ uintptr_t placementPointer = (uintptr_t)&end;
 uintptr_t heapEnd = (uintptr_t)NULL;
 page_dir_t *currentDir;
 page_dir_t *kernelDir;
+mem_region_t mem_regions[MAX_REGIONS];
+int mem_region_count;
 
 void append(char s[], char n)
 {
@@ -71,6 +73,31 @@ void *memset(void *str, int c, size_t n)
 	return str;
 }
 
+void memdetect(mem_info_t* mem_info)
+{
+   e820_mem_block block;
+   uint32_t continuation = 0;
+   int ret;
+
+   mem_region_count = 0;
+   ret = get_next_block(&block, &continuation);
+
+   while (ret > 0 && continuation != 0) {
+        mem_regions[mem_region_count].begin = block.base;
+        mem_regions[mem_region_count].length = block.len;
+        mem_regions[mem_region_count].type = block.type;
+        mem_regions[mem_region_count].ACPI = block.ACPI;
+        ++mem_region_count;
+
+        printf("[INFO E820]: [base=0x%llx length=0x%llx type=0x%x\n", block.base, block.len, block.type);
+
+        ret = get_next_block(&block, &continuation);
+    }
+
+    mem_info->region_count = mem_region_count;
+    mem_info->regions = mem_regions;
+}
+
 void memoryCopy(unsigned char *source, unsigned char *dest, int nbytes)
 {
 	int i;
@@ -85,6 +112,12 @@ void memorySet(uint8_t *dest, uint8_t val, uint32_t len)
 	for( ; len != 0; len--) {
 		*temp++ = val;
 	}
+}
+
+void* segoffset_to_linear(void* addr) {
+    uint32_t offset = (uint32_t)(addr) & 0xFFFF;
+    uint32_t seg = (uint32_t)(addr) >> 16;
+    return (void *)(seg * 16 + offset);
 }
 
 void paggingInstall(uint32_t memsize)
