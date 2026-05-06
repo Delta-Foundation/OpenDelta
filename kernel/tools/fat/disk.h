@@ -16,5 +16,6 @@ typedef struct {
 
 boolean disk_init(DISK *disk, const char *filename);
 void disk_lba2chs(DISK* disk, uint32_t lba, uint16_t* cylinder_out, uint16_t* sector_out, uint16_t head_out);
+boolean disk_read_sects(DISK* disk, uint32_t lba, uint8_t sectors, void* data_out);
 
 #endif 
