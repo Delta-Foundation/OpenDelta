@@ -1,24 +1,22 @@
 %macro ENTER_REAL_MODE 0
     [bits 32]
-    jmp dw 0x18:.pmode16
+    jmp 0x18:%%pmode16
 
-.pmode16:
+%%pmode16:
     [bits 16]
     mov eax, cr0
     and al, ~1
     mov cr0, eax
 
-    jmp dw 0x00:.rmode
+    jmp 0x00:%%rmode
 
-.rmode:
+%%rmode:
     mov ax, 0
     mov ds, ax
     mov ss, ax
 
     sti
-
 %endmacro
-
 
 %macro ENTER_PROTECTED_MODE 0
     cli
@@ -27,15 +25,14 @@
     or al, 1
     mov cr0, eax
 
-    jmp dd 0x8:.pmode32
+    jmp 0x8:%%pmode32
 
-.pmode32:
+%%pmode32:
     [bits 32]
-    
+
     mov ax, 0x10
     mov ds, ax
     mov ss, ax
-
 %endmacro
 
 %macro LINEAR_TO_SEG_OFFSET 4
@@ -48,12 +45,13 @@
 
 %endmacro
 
-global disk_get_drive_params
-global disk_reset
-global disk_read
-global get_next_block
+section .text
+    global disk_get_drive_params
+    global disk_reset   
+    global disk_read
+    global get_next_block
 
-e820_sign equ 0x534D4150
+    e820_sign equ 0x534D4150
 
 disk_get_drive_params:
     [bits 32]
