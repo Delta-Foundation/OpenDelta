@@ -6,9 +6,8 @@ PHDRS {
     data PT_LOAD FLAGS(6);
 }
 
-SECTIONS 
-{
-    . = 0x100000;
+SECTIONS {
+    . = 0x00100000;
 
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
