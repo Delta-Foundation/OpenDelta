@@ -1,6 +1,16 @@
+section .text 
+    [bits 32]
+
+    global disk_get_drive_params
+    global disk_reset   
+    global disk_read
+    global get_next_block
+
+    e820_sign equ 0x534D4150
+
 %macro ENTER_REAL_MODE 0
     [bits 32]
-    jmp 0x18:%%pmode16
+    jmp 18h:%%pmode16
 
 %%pmode16:
     [bits 16]
@@ -8,7 +18,7 @@
     and al, ~1
     mov cr0, eax
 
-    jmp 0x00:%%rmode
+    jmp 00h:%%rmode
 
 %%rmode:
     mov ax, 0
@@ -25,7 +35,7 @@
     or al, 1
     mov cr0, eax
 
-    jmp 0x8:%%pmode32
+    jmp 08h:%%pmode32
 
 %%pmode32:
     [bits 32]
@@ -44,14 +54,6 @@
     and %3, 0xf
 
 %endmacro
-
-section .text
-    global disk_get_drive_params
-    global disk_reset   
-    global disk_read
-    global get_next_block
-
-    e820_sign equ 0x534D4150
 
 disk_get_drive_params:
     [bits 32]
@@ -73,7 +75,7 @@ disk_get_drive_params:
     mov di, 0           ; es:di - 0000:0000
     mov es, di
     stc
-    int 0x13
+    int 13h 
 
     mov eax, 1
     sbb eax, 0
@@ -90,7 +92,7 @@ disk_get_drive_params:
     mov [es:si], bx
 
     xor ch, ch          ; sectors - lower 5 bits in cl
-    and cl, 0x3F
+    and cl, 3Fh
     
     LINEAR_TO_SEG_OFFSET [bp + 20], es, esi, si
     mov [es:si], cx
@@ -129,7 +131,7 @@ disk_reset:
     mov ah, 0
     mov dl, [bp + 8]
     stc 
-    int 0x13
+    int 13h 
 
     mov eax, 1
     sbb eax, 0
@@ -161,7 +163,7 @@ disk_read:
     shl cl, 6
     
     mov al, [bp + 16]    ; cl - sector to bits 0-5
-    and al, 0x3F
+    and al, 3Fh
     or cl, al
 
     mov dh, [bp + 20]   ; dh - head
@@ -170,9 +172,9 @@ disk_read:
 
     LINEAR_TO_SEG_OFFSET [bp + 28], es, ebx, bx
 
-    mov ah, 0x02
+    mov ah, 02h 
     stc
-    int 0x13
+    int 13h 
 
     mov eax, 1
     sbb eax, 0           ; 1 on success, 0 on fail   
