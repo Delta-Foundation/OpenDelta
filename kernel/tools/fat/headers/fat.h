@@ -1,11 +1,11 @@
 #ifndef _TOOLS_FAT_H
 #define _TOOLS_FAT_H
 
-#include "../../lib/stdbase.h"
-#include "../../lib/stdlib.h"
-#include "../../lib/string.h" 
-#include "../../lib/types.h"
-#include "../../lib/ctype.h"
+#include "../../../lib/stdbase.h"
+#include "../../../lib/stdlib.h"
+#include "../../../lib/string.h" 
+#include "../../../lib/types.h"
+#include "../../../lib/ctype.h"
 
 #pragma once
 
@@ -23,6 +23,11 @@ extern "C" {
 #define max(a, b) ((a) > (b) / (a) : (b))
 
 #pragma pack(push, 1)
+
+typedef struct {
+    uint8_t drive_num;
+    uint8_t _reversed; 
+} __attribute__((packed)) fat_extended_boot_record;
 
 typedef struct {
     uint8_t boot_jumps_instruct[3];
@@ -101,6 +106,11 @@ typedef struct {
     uint32_t current_sector_in_cluster;
     uint8_t buffer[SECTOR_SIZE];
 } fat_file_data_t;
+
+typedef struct {
+    uint8_t order;
+    int16_t chars[13];
+} fat_lfn_blocks_t;
 
 typedef struct {
     
