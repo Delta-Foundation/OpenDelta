@@ -4,12 +4,14 @@
 #include "../../fs/headers/fs.h"
 #include "../stdarg.h"
 #include "../system.h"
+#include "../ctype.h"
 
 FILE _iob[OPEN_MAX];
 static Header base;
 static Header *freep = NULL;
 static char *dataStart = (char *)0x100000;
 static char *dataEnd = (char *)&dataStart;
+static ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
 uint32_t freeMemAddr = 0x10000;
 const char g_hex_chars[] = "0123456789abcdef";
 
@@ -400,6 +402,29 @@ void printf(const char* fmt, ...) {
     va_end(args);
 }
 
+void printf_buffer(const char* fmt, const void* buf, uint32_t count) {
+    fprintf_buffer((FILE *)stdout, fmt, buf, count);
+}
+
+void debugc(char c) {
+    fputc(c, (FILE *)debug);
+}
+
+void debugs(const char* str) {
+    fputs(str, (FILE *)debug);
+}
+
+void debugf(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf((FILE *)debug, fmt, args);
+    va_end(args);
+}
+
+void debug_buffer(const char* msg, const void* buf, uint32_t count) {
+    fprintf_buffer((FILE* )debug, msg, buf, count);
+}
+
 void fputs(const char *str, FILE *file) {
     while (*str) {
         fputc(*str, file);
@@ -419,6 +444,15 @@ int _getc(FILE *stream)
     else {
         return _fillbuf(stream);
     }
+}
+
+int ngetc(FILE* stream) {
+    if (ungetc_buf.has_buf && ungetc_buf.stream == stream) {
+        ungetc_buf.has_buf = 0;
+        return ungetc_buf.buf;
+    }
+
+    return fgetc(stream);
 }
 
 int _putc(char c, FILE *stream)
@@ -447,6 +481,30 @@ char *fgets(char *s, int n, FILE * iop)
     return (c == EOF && cs == s) ? NULL : s;
 }
 
+int fgetc(FILE* file) 
+{
+    if (!file || file->error) {
+        return EOF;
+    }   
+    
+    if (file->buf_pos >= file->buf_size) {
+        if (file->flag) {
+            return EOF;
+        }
+
+        unsigned int bytes_read = sysRead(file->fd, file->buf, BUFSIZE);
+        if (bytes_read < 0) {
+            file->error = 1;
+            return EOF;
+        }
+
+        file->buf_size = (unsigned int)bytes_read;
+        file->buf_pos = 0;
+    }
+
+    unsigned char ch = (unsigned char)file->buf[file->buf_pos++];
+    return (int)ch;
+}
 
 int _fputs(char *s, FILE *iop)
 {
@@ -527,4 +585,133 @@ int fclose(FILE *file) {
 
     int ret = sysClose(file->fd);
     return ret;
+}
+
+int ungetc(int c, FILE* stream) 
+{
+    if (c == EOF) {
+        return EOF;
+    }
+
+    if (ungetc_buf.has_buf) {
+        return EOF;
+    }
+
+    ungetc_buf.buf = c;
+    ungetc_buf.has_buf = 1;
+    ungetc_buf.stream = stream;
+}
+
+void skip_whitespace(FILE* stream) 
+{
+    int c;
+    while ((c = _getc(stream)) != EOF && isspace(c)) { ; }
+
+    if (c != EOF) {
+        ungetc(c, stream);
+    }
+}
+
+int scanf(const char *fmt, ...) 
+{
+    va_list args;
+    va_start(args, fmt);
+
+    int count = 0;
+    FILE* stream = stdin;
+    
+    while (*fmt != '\0') {
+        if (*fmt == ' ') {
+            skip_whitespace(stream);
+            fmt++;
+            continue;
+        }
+
+        if (*fmt != '%') {
+            int c = ngetc(stream);
+            if (c != *fmt) {
+                ungetc(c, stream);
+                break;
+            }
+            fmt++;
+            continue;
+        }
+        
+        fmt++;
+        
+        int width = 0;
+        while (isdigit((unsigned char)*fmt)) {
+            width = width * 10 + (*fmt - '0');
+            fmt++;
+        }
+
+        char type = *fmt;
+        fmt++;
+        
+        switch (type) {
+            case 'd': {
+                int *num = va_arg(args, int*);
+                int val = 0;
+                int sign = 1;
+                int c;
+                int digit_count = 0;
+    
+                skip_whitespace(stream);
+
+                c = ngetc(stream);
+                if (c == '-') {
+                    sign = -1;
+                    c = ngetc(stream);
+                }
+                else if (c == '+') {
+                    c = ngetc(stream);
+                } 
+
+                while (isdigit(c) && (width == 0 || digit_count < width)) {
+                    val = val * 10 + (c - '0');
+                    c = ngetc(stream);
+                    digit_count++;
+                }
+                
+                ungetc(c, stream);
+
+                *num = sign * val;
+                count++;
+                break;
+            }
+            
+            case 's': {
+                char *str = va_arg(args, char*);
+                int i = 0;
+                int c;
+
+                skip_whitespace(stream);
+                
+                while ((c = ngetc(stream)) != EOF && !isspace((unsigned char)c) && (width == 0 || i < width)) {
+                    str[i++];                    
+                }
+                str[i] = '\0';
+                
+                if (c != EOF) { 
+                    ungetc(c, stream);
+                }
+                
+                count++;
+                break;
+            }
+            
+            case 'c': {
+                char *ch = va_arg(args, char*);
+                *ch = (char)ngetc(stream);
+                count++;
+                break;
+            }
+            
+            default:
+            break;
+        }
+    }
+
+    va_end(args);
+    return count;
 }
