@@ -1,6 +1,5 @@
-#include "./mbr.h"
+#include "./headers/mbr.h"
 #include "../../mem/header/memory.h"
-#include "../../lib/stdbase.h"
 
 void mbr_detect_part(partition_t* part, DISK* disk, void* part_entry) 
 {
