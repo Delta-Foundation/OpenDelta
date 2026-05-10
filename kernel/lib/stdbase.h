@@ -124,7 +124,7 @@ typedef struct _iobuf {
     uint16_t port;
     uint8_t buf[BUFSIZE];
     int buf_pos;
-    int buf_size[BUFSIZE];
+    int buf_size;
     int cnt;
     char *ptr;
     char *base;
@@ -142,6 +142,12 @@ typedef struct {
     int fd;
     Dirent d;
 } DIR;
+
+typedef struct {
+    int buf;
+    int has_buf;
+    FILE* stream;
+} ungetc_buf_t;
 
 /*---перечисление---*/
 enum _flags {
@@ -184,13 +190,23 @@ void fprintf_bu(FILE *file, const char* msg, const void* buf, uint32_t count);
 void vfprintf(FILE *file, const char *fmt, va_list args);
 void fprintf(FILE *file, const char *fmt, ...);
 void printf(const char* fmt, ...);
+void printf_buffer(const char* fmt, const void* buf, uint32_t count);
+void debugc(char c);
+void debugs(const char* str);
+void debugf(const char* fmt, ...);
+void debug_buffer(const char* mgs, const void* buf, uint32_t count);
 void *free(void *ap);
 char *fgets(char *s, int n, FILE * iop);
+int fgetc(FILE* file);
+int ngetc(FILE* stream);
 void fcopy(FILE *ifp, FILE *ofp);
 int getline(char *line, int max);
 int _fputs(char *s, FILE *iop);
 FILE *fopen(char *name, char *mode);
 int fclose(FILE *file);
+int ungetc(int c, FILE* stream);
+int scanf(const char *fmt, ...);
+void skip_whitespace(FILE* stream);
 
 /*---input-output---*/
 uint8_t inb(uint16_t port);
