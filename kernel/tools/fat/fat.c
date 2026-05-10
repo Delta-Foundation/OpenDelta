@@ -1,4 +1,4 @@
-#include "./fat.h"
+#include "./headers/fat.h"
 
 boot_sect_t g_boot_sect;
 uint8_t* g_fat = NULL;
@@ -8,3 +8,6 @@ static fat_data_t g_actual_data;
 static fat_data_t g_data;
 static uint8_t *_g_fat = NULL;
 static uint32_t g_data_sect_lba;
+
+int fat_compare_lfn_blocks(const void* block_a, const void* block_b) {
+}
