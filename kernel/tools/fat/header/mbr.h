@@ -4,7 +4,7 @@
 #pragma once
 
 #include "disk.h"
-#include "../../lib/types.h"
+#include "../../../lib/types.h"
 
 typedef struct {
     DISK* disk;
