@@ -1,8 +1,8 @@
 #ifndef _TOOLS_DISK_H
 #define _TOOLS_DISK_H
 
-#include "../../lib/stdbase.h"
-#include "../../lib/types.h"
+#include "../../../lib/stdbase.h"
+#include "../../../lib/types.h"
 
 #pragma once
 
