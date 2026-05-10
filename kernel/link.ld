@@ -4,18 +4,31 @@ ENTRY(_start)
 PHDRS {
     text      PT_LOAD FLAGS(5);
     data      PT_LOAD FLAGS(6);
-    text.real PT_LOAD FLAGS(5);
 }
 
 SECTIONS {
-    . = 0x00100000;
+    . = 0x100000;
 
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
     } :text  
  
-    .fsjump : { *(.fsjump) }
-    .fsheaders : { *(.fsheaders) }
+    .fsjump : { 
+        *(.fsjump)
+        *(.fsjump*) 
+    }
+    
+    .fsheaders : { 
+        *(.fsheaders) 
+        *(.fsheaders*)
+    }
+
+    .text.real ALIGN(16) : {
+        __text_real_start = .;
+        *(.text.real)
+        *(.text.real*)
+        __text_real_end = .;
+    } :text
 
     .text ALIGN(4096) : {
         __text_start = .;
@@ -48,13 +61,6 @@ SECTIONS {
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
     } :data
-
-    .text.real ALIGN(4096) : {
-        __text_real_start = .;
-        *(.text.real)
-        *(.text.real*)
-        __text_real_end = .;
-    } :text.real 
 
     __end = .;
 }
