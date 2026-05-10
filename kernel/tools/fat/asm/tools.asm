@@ -27,8 +27,7 @@ disk_get_drive_params:
     push es 
 
     mov [pmode_stack_backup], esp 
-    ENTER_REAL_MODE
-    jmp 0x00:rmode_disk_get_drive_params
+    jmp enter_real_mode
 
 pmode_disk_get_drive_params:
     ENTER_PROTECTED_MODE
@@ -55,8 +54,7 @@ disk_reset:
     push es 
 
     mov [pmode_stack_backup], esp 
-    ENTER_REAL_MODE
-    jmp 0x00:rmode_disk_reset
+    jmp enter_real_mode
 
 pmode_disk_reset:
     ENTER_PROTECTED_MODE
@@ -83,8 +81,7 @@ disk_read:
     push es 
 
     mov [pmode_stack_backup], esp 
-    ENTER_REAL_MODE
-    jmp 0x00:rmode_disk_read
+    jmp enter_real_mode
 
 pmode_disk_read:
     ENTER_PROTECTED_MODE
@@ -115,8 +112,7 @@ get_next_block:
     push es 
 
     mov [pmode_stack_backup], esp
-    ENTER_REAL_MODE 
-    jmp 0x00:rmode_get_next_block
+    jmp enter_real_mode
 
 pmode_get_next_block:
     ENTER_PROTECTED_MODE
@@ -137,13 +133,32 @@ pmode_get_next_block:
 section .text.real 
     [bits 16]
 
+enter_real_mode: 
+    cli
+    mov eax, cr0
+    and al, 0xFE
+    mov cr0, eax
+    jmp .rmode_start
+.rmode_start:
+    mov ax, 0
+    mov ds, ax
+    mov es, ax
+    mov ss, ax 
+    mov sp, 0x7000
+    sti
+
+    jmp near rmode_disk_get_drive_params
+    jmp near rmode_disk_read
+    jmp near rmode_disk_reset
+    jmp near rmode_get_next_block
+
 rmode_disk_get_drive_params:
     mov dl, [bp + 8]
-    mov ah, 08h
+    mov ah, 0x08
     xor di, di 
     mov es, di 
     stc 
-    int 13h 
+    int 0x13
     mov eax, 1
     sbb eax, 0
 
@@ -158,7 +173,7 @@ rmode_disk_get_drive_params:
     mov [es:si], bx 
 
     xor ch, ch 
-    and cl, 3Fh 
+    and cl, 0x3F 
     LINEAR_TO_SEG_OFFSET [bp + 20], es, esi, si 
     mov [es:si], cx
 
@@ -168,17 +183,17 @@ rmode_disk_get_drive_params:
     mov [es:si], cx 
 
     push eax 
-    jmp pmode_disk_get_drive_params  
+    jmp near pmode_disk_get_drive_params  
 
 rmode_disk_reset:
     mov dl, [bp + 8]
-    mov ah, 00h
+    mov ah, 0x00
     stc 
-    int 13h 
+    int 0x13
     mov eax, 1 
     sbb eax, 0
     push eax 
-    jmp pmode_disk_reset
+    jmp near pmode_disk_reset
 
 rmode_disk_read:
     mov dl, [bp + 8]
@@ -186,20 +201,20 @@ rmode_disk_read:
     mov cl, [bp + 13]
     shl cl, 6 
     mov al, [bp + 16]
-    and al, 3Fh 
+    and al, 0x3F 
     or cl, al 
     mov dh, [bp + 20]
     mov al, [bp + 24]
 
     LINEAR_TO_SEG_OFFSET [bp + 28], es, ebx, bx 
-    mov ah, 02h 
+    mov ah, 0x02
     stc 
-    int 13h 
+    int 0x13
 
     mov eax, 1 
     sbb eax, 0
     push eax 
-    jmp pmode_disk_read
+    jmp near pmode_disk_read
 
 rmode_get_next_block:
     LINEAR_TO_SEG_OFFSET [bp + 8], es, edi, di
@@ -209,7 +224,7 @@ rmode_get_next_block:
     mov eax, 0xE820
     mov edx, e820_sign
     mov ecx, 24
-    int 15h
+    int 0x15
 
     cmp eax, e820_sign
     jne .e820_fail
@@ -224,4 +239,4 @@ rmode_get_next_block:
 
 .e820_end:
     push eax
-    jmp pmode_get_next_block
+    jmp near pmode_get_next_block
