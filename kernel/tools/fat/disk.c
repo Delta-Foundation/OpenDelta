@@ -1,5 +1,5 @@
-#include "./disk.h"
-#include "./tools.h"
+#include "./headers/disk.h"
+#include "./headers/tools.h"
 
 boolean disk_init(DISK *disk, const char *filename) {
     disk->file = fopen((const char *)filename, "r");
