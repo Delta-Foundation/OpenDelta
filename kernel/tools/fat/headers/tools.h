@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../lib/types.h"
+#include "../../../lib/types.h"
 
 #define ASMCALL __attribute__((cdecl))
 
