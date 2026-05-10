@@ -11,22 +11,6 @@
     pop %4    
 %endmacro
 
-%macro ENTER_REAL_MODE 0
-    cli
-    mov eax, cr0
-    and al, 0xFE
-    mov cr0, eax
-    jmp 0x00:%%rmode_start
-%%rmode_start:
-    [bits 16]
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    mov ss, ax 
-    mov sp, 0x7C00
-    sti
-%endmacro
-
 %macro ENTER_PROTECTED_MODE 0
     cli
     mov eax, cr0 
