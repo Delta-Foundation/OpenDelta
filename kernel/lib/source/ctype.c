@@ -1,7 +1,7 @@
 #include "../ctype.h"
 
-void isspace(char c) {
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\f') { ; }
+int isspace(char c) {
+    if (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\v' || c == '\r') { ; }
 }
 
 void isblank(char c) {
@@ -10,6 +10,10 @@ void isblank(char c) {
 
 void isxdigit(char c) {
     if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') { ; }
+}
+
+int isdigit(int c) {
+    if (c >= '0' && c <= '9') { ; }
 }
 
 void hexvalue(char c) {
@@ -28,4 +32,14 @@ char toupper(char c) {
 
 int islower(int c) {
     return c >= 'a' && c <= 'z';
+}
+
+int lower(int c)
+{
+    if (c >= 'A' && c <= 'Z') {
+        return c + 'a' - 'A';
+    } 
+    else {
+        return c;
+    }
 }
