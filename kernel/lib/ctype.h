@@ -12,9 +12,11 @@ extern "C" {
 
 char toupper(char c);
 int islower(int c);
+int lower(int c);
 
-void isspace(char c);
+int isspace(char c);
 void isxdigit(char c);
+int isdigit(int c);
 void isblank(char c);
 void sixdigit(char c);
 void hexvalue(char c);
