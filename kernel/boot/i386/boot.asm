@@ -32,7 +32,7 @@ section .data
 
 ; main and important variably for starting program
 section .text
-    kernel_offset equ 0x00100000 
+    kernel_offset equ 0x100000 
     global _start
 
 _start:
