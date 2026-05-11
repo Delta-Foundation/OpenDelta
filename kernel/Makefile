@@ -64,6 +64,12 @@ PIC = obj/pic.o
 PIC_SRC = drvs/pic.c
 TOOLS = obj/toolsa.o
 TOOLS_SRC = tools/fat/asm/tools.asm 
+FAT = obj/fat.o 
+FAT_SRC = tools/fat/fat.c
+DISK = obj/disk.o 
+DISK_SRC = tools/fat/disk.c 
+MBR = obj/mbr.o 
+MBR_SRC = tools/fat/mbr.c 
 
 # clang flags for build on i386
 FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
@@ -95,7 +101,7 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf -o $@
 
-$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC)
+$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map --oformat elf32-i386
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -105,6 +111,15 @@ $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(SHM): $(SHM_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(FAT): $(FAT_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(DISK): $(DISK_SRC)
+	$(CC) $(FLAGS) -c $< -o $@ 
+
+$(MBR): $(MBR_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(PIC): $(PIC_SRC)
@@ -178,7 +193,8 @@ clean:
 		  $(STDBASE) $(TYPES) $(MEM) $(STRING) $(IDT)   \
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
-		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)
+		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
+		  $(FAT) $(DISK) $(MBR) 
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
