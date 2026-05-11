@@ -6,6 +6,7 @@
 #include "../../../lib/string.h" 
 #include "../../../lib/types.h"
 #include "../../../lib/ctype.h"
+#include "./mbr.h"
 
 #pragma once
 
@@ -18,6 +19,8 @@ extern "C" {
 #define MAX_FILE_HANDLES    10
 #define ROOT_DIR_HANDLE     -1
 #define MEMORY_FAT_SIZE     0x10000
+#define FAT_CACHE_SIZE      5
+#define FAT_LFN_LAST        0x40
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) / (a) : (b))
@@ -26,8 +29,23 @@ extern "C" {
 
 typedef struct {
     uint8_t drive_num;
-    uint8_t _reversed; 
-} __attribute__((packed)) fat_extended_boot_record;
+    uint8_t _reversed;
+    uint8_t sign;
+    uint8_t vol_id;
+    uint8_t vol_label[11];
+    uint8_t sys_id;
+} __attribute__((packed)) fat_ext_boot_record;
+
+typedef struct {
+    uint32_t sectors_per_fat;
+    uint16_t flags;
+    uint16_t fat_ver;
+    uint32_t root_dir_cluster;
+    uint16_t fs_info_sector;
+    uint16_t backup_boot_sector;
+    uint8_t _reversed[12];
+    fat_ext_boot_record ebr; 
+} __attribute__((packed)) fat32_ext_boot_record;
 
 typedef struct {
     uint8_t boot_jumps_instruct[3];
@@ -36,6 +54,7 @@ typedef struct {
     uint8_t sects_per_cluster;
     uint16_t reversed_sects;
     uint8_t fat_count;
+    uint16_t dir_entry_count;
     uint16_t total_sects;
     uint8_t media_desc_type;
     uint16_t sects_per_fat;
@@ -43,14 +62,11 @@ typedef struct {
     uint16_t heads;
     uint32_t hidden_sects;
     uint32_t large_sects_count;
-
-    uint8_t drive_num;
-    uint8_t _reversed;
-    uint8_t signature;
-    uint32_t vol_id;
-
-    uint8_t vol_label[11];
-    uint8_t sys_id[8];
+    
+    union {
+        fat_ext_boot_record EBR1216;
+        fat32_ext_boot_record EBR32;
+    };
 } __attribute__((packed)) boot_sect_t;
 
 typedef struct {
@@ -121,8 +137,19 @@ typedef struct {
 
     fat_file_data_t root_dir;
     fat_file_data_t opened_files[MAX_FILE_HANDLES];
-
+    uint8_t fat_cache[FAT_CACHE_SIZE + SECTOR_SIZE];
+    uint32_t fat_cache_pos;
+    fat_lfn_blocks_t lfn_blocks[FAT_LFN_LAST];
+    int lfn_count;
 } fat_data_t;
+
+int fat_compare_lfn_blocks(const void* block_a, const void* block_b);
+boolean fat_read_boot_sect(partition_t* disk);
+boolean fat_read_fat(partition_t* disk, unsigned int lba_index);
+void fat_detect(partition_t* disk);
+uint32_t fat_cluster_to_lba(uint32_t cluster);
+boolean fat_init(partition_t* disk);
+fat_file_t* fat_open_entry(partition_t* disk, dir_entry_t* entry);
 
 #ifdef __cplusplus
 }
