@@ -149,3 +149,239 @@ fat_file_t* fat_open_entry(partition_t* disk, dir_entry_t* entry)
     fd->opened = *TRUE;
     return &fd->fspublic;
 }
+
+uint32_t fat_next_cluster(partition_t* disk, uint32_t current_cluster) 
+{
+    uint32_t fat_index;
+    
+    if (fat_type == 12) {
+        fat_index = current_cluster * 3 / 2;
+    }
+    else if (fat_type == 16) {
+        fat_index = current_cluster * 2;
+    }
+    else {
+        fat_index = current_cluster * 4;
+    }
+
+    uint32_t fat_index_sector = fat_index / SECTOR_SIZE;
+    if (fat_index_sector < data->fat_cache_pos 
+        || fat_index_sector >= data->fat_cache_pos + FAT_CACHE_SIZE) {
+        fat_read_fat(disk, fat_index_sector);
+        data->fat_cache_pos = fat_index_sector;
+    }
+
+    fat_index -= (data->fat_cache_pos * SECTOR_SIZE);
+
+    uint32_t next_cluster;
+    if (fat_type == 12) {
+        
+        if (current_cluster % 2 == 0) {
+            next_cluster = (*(uint16_t*)(data->fat_cache + fat_index)) & 0x0FFF;
+        }
+        else {
+            next_cluster = (*(uint16_t*)(data->fat_cache + fat_index)) >> 4;
+        }
+
+        if (next_cluster >= 0xFF8) {
+            next_cluster |= 0xFFFFF000;
+        }
+    }
+
+    else if (fat_type == 16)  {
+        next_cluster = *(uint16_t*)(data->fat_cache + fat_index);
+        if (next_cluster >= 0xFFF8) {
+            next_cluster = 0xFFFF0000;
+        }
+    }
+    
+    else {
+        next_cluster = *(uint16_t*)(data->fat_cache + fat_index);
+    }
+
+    return next_cluster;
+}
+
+uint32_t fat_read(partition_t* disk, fat_file_t* file, uint32_t byte_count, void* data_out)
+{
+    fat_file_data_t* fd = (file->handle == ROOT_DIR_HANDLE) 
+        ? &data->root_dir
+        : &data->opened_files[file->handle];
+
+    uint8_t* u8DataOut = (uint8_t*)data_out;
+
+    if (!fd->fspublic.is_dir || (fd->fspublic.is_dir && fd->fspublic.size != 0)) {
+        byte_count = min(byte_count, fd->fspublic.size - fd->fspublic.position);
+    }
+
+    while (byte_count > 0) {
+        uint32_t left_in_buffer = SECTOR_SIZE - (fd->fspublic.position % SECTOR_SIZE);
+        uint32_t take = min(byte_count, left_in_buffer);
+
+        memcpy(u8DataOut, fd->buffer + fd->fspublic.position % SECTOR_SIZE, take);
+        u8DataOut += take;
+        fd->fspublic.position += take;
+        byte_count -= take;
+
+        if (left_in_buffer == take) {
+            if (fd->fspublic.handle == ROOT_DIR_HANDLE) {
+                ++fd->current_cluster;
+
+                if (!part_read_sectors(disk, fd->current_cluster, 1, fd->buffer)) 
+                {
+                    prints("[FATAL FAT ERROR]: [FAT: read error!]\r\n", RED);
+                    break;
+                }
+            }
+            else {
+                if (++fd->current_sector_in_cluster >= data->BS.boot_sect.sects_per_cluster) {
+                    fd->current_sector_in_cluster = 0;
+                    fd->current_cluster = fat_next_cluster(disk, fd->current_cluster);
+                }
+
+                if (fd->current_cluster >= 0xFFFFFFF8) {
+                    fd->fspublic.size = fd->fspublic.position;
+                    break;
+                }
+
+                if (!part_read_sectors(disk, fat_cluster_to_lba(fd->current_cluster) + fd->current_sector_in_cluster, 1, fd->buffer)) 
+                {
+                    prints("[FATAL FAT ERROR]: [read error!]\r\n", RED);
+                    break;
+                }
+            }
+        }
+    }
+
+    return u8DataOut - (uint8_t*)data_out;
+}
+
+boolean fat_read_entry(partition_t* disk, fat_file_t* file, dir_entry_t* dir_entry) {
+    return fat_read(disk, file, sizeof(dir_entry_t), dir_entry) == sizeof(dir_entry_t);
+}
+
+void fat_close(fat_file_t* file) {
+    if (file->handle == ROOT_DIR_HANDLE) {
+        file->position = 0;
+        data->root_dir.current_cluster = data->root_dir.first_cluster;
+    }
+    else {
+        data->opened_files[file->handle].opened = (int)FALSE;
+    }
+}
+
+void fat_get_short_name(const char* name, char short_name[12])
+{
+    memset(short_name, ' ', 12);
+    short_name[11] = '\0';
+
+    const char* ext = strchar(name, '.');
+    if (ext == NULL) {
+        ext = name + 11;
+    }
+
+    for (int i = 0; i < 8 && name[i] && name + i < ext; i++)
+        short_name[i] = toupper(name[i]);
+
+    if (ext != name + 11) {
+        for (int i = 0; i < 3 && ext[i + 1]; i++) {
+            short_name[i + 8] = toupper(ext[i + 1]);
+        }
+    }
+}
+
+boolean fat_find_file(partition_t* disk, fat_file_t* file, const char* name, dir_entry_t* entry_out)
+{
+    char short_name[12];
+    char long_name[256];
+    dir_entry_t entry;
+
+    fat_get_short_name(name, short_name);
+
+    while (fat_read_entry(disk, file, &entry)) {
+        if (entry.attributes == FAT_ATTR_LFN) {
+            fat_long_file_entry_t* lfn = (fat_long_file_entry_t*)&entry;
+
+            int idx = data->lfn_count;
+            data->lfn_blocks[idx].order = lfn->order & (FAT_LFN_LAST - 1);
+            memcpy(data->lfn_blocks[idx].chars, lfn->chars1, sizeof(lfn->chars1));
+            memcpy(data->lfn_blocks[idx].chars + 5, lfn->chars2, sizeof(lfn->chars2));
+            memcpy(data->lfn_blocks[idx].chars + 11, lfn->chars1, sizeof(lfn->chars3));
+
+            if ((lfn->order & FAT_LFN_LAST) != 0) {
+                qsort(data->lfn_blocks, data->lfn_count, sizeof(fat_lfn_blocks_t), fat_compare_lfn_blocks);
+                char* namePos = long_name;
+                for (int i = 0; i < data->lfn_count; i++) {
+                    int16_t* chars = data->lfn_blocks[i].chars;
+                    int16_t* chars_limit = chars + 13;
+
+                    while (chars < chars_limit && *chars != 0) {
+                        int codepoint;
+                        chars = (int16_t*)utf16_to_codepoint((_wchar_t *)chars, &codepoint);
+                        namePos = codepoint_to_utf8(codepoint, namePos);
+                    }
+                }
+                *namePos = 0;
+                printf("LFN: %s\n", long_name);
+            }
+        }
+
+        if (memcmp(short_name, entry.name, 11) == 0) {
+            *entry_out = entry;
+            return *TRUE;
+        }
+    }
+    
+    return *FALSE;
+}
+
+fat_file_t* fat_open(partition_t* disk, const char* path)
+{
+    char name[MAX_PATH_SIZE];
+
+    if (path[0] == '/') {
+        path++;
+    }
+
+    fat_file_t* current = &data->root_dir.fspublic;
+
+    while (*path) {
+        boolean is_last = *FALSE;
+        const char* delim = strchar(path, '/');
+        
+        if (delim != NULL) {
+            memcpy(name, path, delim - path);
+            name[delim - path] = '\0';
+            path = delim + 1;
+        }
+        else {
+            unsigned len = strlen(path);
+            memcpy(name, path, len);
+            name[len + 1] = '\0';
+            path += len;
+            is_last = *TRUE;
+        }
+
+        dir_entry_t entry;
+        if (fat_find_file(disk, current, name, &entry))
+        {
+            fat_close(current);
+
+            if (!is_last && entry.attributes & FAT_ATTR_DIR == 0) {
+                printf("[FAT]: [%s not a directory]\r\n", name);
+                return NULL;
+            }
+
+            // open new directory entry
+            current = fat_open_entry(disk, &entry);
+        }
+        else {
+            fat_close(current);
+
+            printf("[FAT]: [%s not found]\r\n", name);
+            return NULL;
+        }
+    }
+
+    return current;
+}
