@@ -11,6 +11,7 @@
 typedef struct {
     uint8_t magic[4];
     uint8_t bitness;
+    uint8_t endianness;
     uint8_t elf_header_version;
     uint8_t ABI;
     uint8_t _padding[8];
@@ -80,5 +81,7 @@ enum ELFProgramType {
     ELF_PROGRAM_TYPE_LOPROC = 0x70000000,
     ELF_PROGRAM_TYPE_HIPROC = 0x7FFFFFFF,
 };
+
+boolean elf_read(partition_t* part, const char* path, void** entry_point);
 
 #endif 
