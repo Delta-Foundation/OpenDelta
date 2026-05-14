@@ -16,8 +16,10 @@ ENTRY = obj/entry.o
 ENTRY_SRC = kernel_entry.asm
 BOOT = img/boot.bin
 BOOT_SRC = boot/i386/boot.asm
-STDBASE = obj/kernel_base.o
+STDBASE = obj/stdbase.o
 STDBASE_SRS = lib/source/stdbase.c
+STDLIB = obj/stdlib.o 
+STDLIB_SRC = lib/source/stdlib.c 
 TYPES = obj/types.o
 TYPES_SRC = lib/source/types.c
 STRING = obj/string.o
@@ -101,7 +103,7 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf -o $@
 
-$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
+$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(STDLIB) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map --oformat elf32-i386
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -167,6 +169,9 @@ $(STRING): $(STRING_SRC)
 $(STDBASE): $(STDBASE_SRS)
 	$(CC) $(FLAGS) -c $< -o $@
 
+$(STDLIB): $(STDLIB_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
 $(TYPES): $(TYPES_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
@@ -194,7 +199,7 @@ clean:
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
-		  $(FAT) $(DISK) $(MBR) 
+		  $(FAT) $(DISK) $(MBR) $(STDLIB)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
