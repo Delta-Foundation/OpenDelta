@@ -34,6 +34,18 @@ int bitcount(unsigned x);
 int binsearch(int x, int v[], int n);
 unsigned getbits(unsigned x, int p, int n);
 
+void qsort_internal(void* base,
+            unsigned int num,
+            unsigned int size,
+            unsigned int left,
+            unsigned int right,
+            int (*compar)(const void*, const void*));
+
+void qsort(void* base,
+        unsigned int num,
+        unsigned int size,
+        int (*compar)(const void*, const void*));
+
 #ifdef __cplusplus
 }
 #endif
