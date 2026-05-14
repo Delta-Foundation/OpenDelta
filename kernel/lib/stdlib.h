@@ -12,11 +12,6 @@ extern "C" {
 
 #define MAXLINE 1000
 
-/* переменные для использования вне функций */
-uint64_t next = 1;
-char line[MAXLINE];
-char longest[MAXLINE];
-
 int rand(void);
 void srand(uint32_t seed);
 
