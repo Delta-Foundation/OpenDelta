@@ -130,6 +130,9 @@ void qsort_internal(void* base,
         i++;
         j--;
     }
+
+    qsort_internal(base, num, size, left, i - 1, compar);
+    qsort_internal(base, num, size, j + 1, right, compar);
 }
 
 void qsort(void* base,
