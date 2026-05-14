@@ -2,20 +2,33 @@ OUTPUT_FORMAT(elf_x86_64)
 ENTRY(_start)
 
 PHDRS {
-    text PT_LOAD FLAGS(5);
-    data PT_LOAD FLAGS(6);
+    text    PT_LOAD FLAGS(5);
+    data    PT_LOAD FLAGS(6);
 }
 
-SECTIONS 
-{
-    . = 0x100000;
+SECTIONS  {
+    . = 0x10000;
 
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
     } :text  
  
-    .fsjump : { *(.fsjump) }
-    .fsheaders : { *(.fsheaders) }
+    .fsjump : { 
+        *(.fsjump) 
+        *(.fsjump*)
+    }
+
+    .fsheaders : { 
+        *(.fsheaders) 
+        *(.fsheaders*)    
+    }
+
+    .text.real ALIGN(16) : {
+        __text_real_start = .;
+        *(.text.real)
+        *(.text.real*)
+        __text_real_end = .;
+    } :text
 
     .text ALIGN(4096) : {
         __text_start = .;
@@ -35,7 +48,7 @@ SECTIONS
         *(.rodata*)
     } :text 
 
-    .bss ALIGN(32) (NOLOAD) : {
+    .bss ALIGN(32) : {
         __bss_start = .;
         *(.bss)
         *(.bss*)
@@ -43,7 +56,7 @@ SECTIONS
         __bss_end = .;
     } :data 
 
-    .heap ALIGN(4096) (NOLOAD) : {
+    .heap ALIGN(4096) : {
         _heap_start = .;
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
