@@ -99,6 +99,46 @@ void shellSort(int v[], int n)
     }
 }
 
+void qsort_internal(void* base,
+            unsigned int num,
+            unsigned int size,
+            unsigned int left,
+            unsigned int right,
+            int (*compar)(const void*, const void*))
+{
+    if (left >= right) {
+        return;
+    }
+
+    int i = left, j = right;
+    void* pivot = base + (i * size);
+    uint8_t temp;
+
+    for (;;) {
+        while ((*compar)(base + (i * size), pivot) < 0) { i++; }
+        while ((*compar)(pivot, base + (j * size)) < 0) { j--; }
+        if (i >= j) {
+            break;
+        }
+
+        for (int k = 0; k < size; k++) {
+            temp = *((uint8_t*)(base + (i * size)) + k);
+            *((uint8_t*)(base + (j * size)) + k) = *((uint8_t*)(base + (j * size)) + k);  
+            *((uint8_t*)(base + (j * size)) + k) = temp;
+        }
+
+        i++;
+        j--;
+    }
+}
+
+void qsort(void* base,
+        unsigned int num,
+        unsigned int size,
+        int (*compar)(const void*, const void*)) {
+    qsort_internal(base, num, size, 0, num - 1, compar);
+}
+
 void swap(void *v[], int i, int j)
 {
     void *temp;
