@@ -19,6 +19,22 @@ int strindex(char s[], char t[])
     return -1;
 }
 
+const char* strchar(const char* str, char ch) {
+	if (str = NULL) {
+		return NULL;
+	}
+
+	while (*str) {
+		if (*str == ch) {
+			return str;
+		}
+
+		++str;
+	} 
+
+	return NULL;
+}
+
 int strcmp(const char *stra, const char *strb)
 {
 	unsigned int i;
@@ -155,4 +171,43 @@ int sprintf(char *buf, const char *fmt)
 {
 	int out = s_vasprintf(buf, fmt);//, args);
 	return out;
+}
+
+_wchar_t* utf16_to_codepoint(_wchar_t* string, int* codepoint) {
+	int c1 = *string;
+	++string;
+
+	if (c1 >= 0xd800 && c1 < 0xdc00) {
+		int c2 = *string;
+		++string;
+		*codepoint = ((c1 & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000;
+	}
+
+	*codepoint = c1;
+
+	return string;
+}
+
+char* codepoint_to_utf8(int codepoint, char* string_out) 
+{
+    if (codepoint <= 0x7F) {
+        *string_out = (char)codepoint;
+    }
+    else if (codepoint <= 0x7FF) {
+        *string_out++ = 0xC0 | ((codepoint >> 6) & 0x1F);
+        *string_out++ = 0x80 | (codepoint & 0x3F);
+    }
+    else if (codepoint <= 0xFFFF) {
+        *string_out++ = 0xE0 | ((codepoint >> 12) & 0xF);
+        *string_out++ = 0x80 | ((codepoint >> 6) & 0x3F);
+        *string_out++ = 0x80 | (codepoint & 0x3F); 
+    }
+    else if (codepoint <= 0x1FFFFF) {
+        *string_out++ = 0xF0 | ((codepoint >> 18) & 0x7);
+        *string_out++ = 0x80 | ((codepoint >> 12) & 0x3F);
+        *string_out++ = 0x80 | ((codepoint >> 6) & 0x3F);
+        *string_out++ = 0x80 | (codepoint & 0x3F);
+    }
+
+    return string_out;
 }
