@@ -16,24 +16,22 @@
 ; new line (\n)
 %define ENDL 0x0D, 0x0A
 
-; data, strings, messages...
-section .data
-    str_real db "Started in 16-bit real mode", ENDL, 0
-    str_pmode db "Landed in 32-bit protected mode", ENDL, 0
-    str_load db "Loading dltkernel from the disk", ENDL, 0
+    ; data, strings, messages...
+str_real db "Started in 16-bit real mode", ENDL, 0
+str_pmode db "Landed in 32-bit protected mode", ENDL, 0
+str_load db "Loading dltkernel from the disk", ENDL, 0
     
-    boot_drive db 0
-    boot_part_seg dw 0
-    boot_part_off dw 0
+boot_drive db 0
+boot_part_seg dw 0
+boot_part_off dw 0
     
     ; errors
-    str_returned_kernel db "Returned from kernel. Error?", 0
-    str_read_fail db "[err]: [read failed!]", 0
+str_returned_kernel db "Returned from kernel. Error?", ENDL, 0
+str_read_fail db "[err]: [read failed!]", ENDL, 0
 
-; main and important variably for starting program
-section .text
-    kernel_offset equ 0x100000 
-    global _start
+    ; main and important variably for starting program
+kernel_offset equ 0x100000 
+global _start
     
 _start:
     cli 
@@ -70,9 +68,9 @@ load_kernel:
     mov cl, 2
     mov dh, 0 
 
-    mov bx, 0x0000
-    mov es, bx
-    mov bx, 0x10000
+    mov ax, 0x1000
+    mov es, ax 
+    xor bx, bx
 
     int 0x13
     jc read_error
