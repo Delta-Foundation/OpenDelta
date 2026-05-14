@@ -111,7 +111,7 @@ enum FAT_Attributes {
     FAT_ATTR_VOLUME_ID = 0x08,
     FAT_ATTR_DIR = 0x10,
     FAT_ATTR_ARCHIVE = 0x20,
-    FAT_ATTR_LEN = FAT_ATTR_READ_ONLY | FAT_ATTR_HIDDEN | FAT_ATTR_SYSTEM | FAT_ATTR_VOLUME_ID
+    FAT_ATTR_LFN = FAT_ATTR_READ_ONLY | FAT_ATTR_HIDDEN | FAT_ATTR_SYSTEM | FAT_ATTR_VOLUME_ID
 };
 
 typedef struct {
@@ -150,6 +150,13 @@ void fat_detect(partition_t* disk);
 uint32_t fat_cluster_to_lba(uint32_t cluster);
 boolean fat_init(partition_t* disk);
 fat_file_t* fat_open_entry(partition_t* disk, dir_entry_t* entry);
+uint32_t fat_next_cluster(partition_t* disk, uint32_t current_cluster);
+uint32_t fat_read(partition_t* disk, fat_file_t* file, uint32_t byte_count, void* data_out);
+boolean fat_read_entry(partition_t* disk, fat_file_t* file, dir_entry_t* dir_entry);
+void fat_close(fat_file_t* file);
+void fat_get_short_name(const char* name, char short_name[12]);
+boolean fat_find_file(partition_t* disk, fat_file_t* file, const char* name, dir_entry_t* entry_out);
+fat_file_t* fat_open(partition_t* disk, const char* path);
 
 #ifdef __cplusplus
 }
