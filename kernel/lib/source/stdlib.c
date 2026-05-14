@@ -3,6 +3,7 @@
 
 #define MAXLINE 1000
 
+uint64_t next = 1;
 char line[MAXLINE];
 char longest[MAXLINE];
 
