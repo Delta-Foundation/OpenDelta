@@ -10,6 +10,11 @@
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
 #include "./lib/pic.h"
+#include "./tools/fat/headers/disk.h"
+#include "./tools/fat/headers/mbr.h"
+#include "./tools/fat/headers/fat.h"
+#include "./tools/fat/headers/elf.h"
+#include "./lib/bootparams.h"
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
@@ -17,8 +22,11 @@ extern void load_idt(uintptr_t *idt_ptr);
 
 IDTEntry IDT[IDT_SIZE];
 struct Multiboot *mboot = NULL;
+boot_params_t *boot_drive;
+boot_params_t *boot_params;
+void* partition;
 
-static void kpanic(const char *panic_msg) {
+static void kpanic(const char *panic_msg, ...) {
     prints("KERNEL PANIC: ", WHITE);
     prints(panic_msg, WHITE);
     prints("\n", WHITE);
@@ -58,7 +66,7 @@ void IdtInit(void)
     load_idt(idt_ptr);
 }
 
-void entry_point(void)
+void __attribute__((cdecl)) entry_point(void)
 {
     const char *welcome = "Welcome to the OpenDelta!\n";
     const char *os_name = "OS: OpenDelta v0.1-a\n";
@@ -102,8 +110,39 @@ void entry_point(void)
     return;
 }
 
-void kmain(void)
+void start_disk(void) 
 {
+    DISK disk;
+    if (!disk_init(&disk, (const char *)boot_drive)) {
+        prints("[ERROR]: [Disk init error!]\r\n", RED);
+        goto end;
+    }
+
+    partition_t* part;
+    mbr_detect_part(part, &disk, partition);
+
+    if (!fat_init(part)) {
+        prints("[FAT ERROR]: [fat init error]\r\n", RED);
+        goto end;
+    }
+
+    boot_params->boot_device = (unsigned long)boot_drive;
+    if (!elf_read(part, "/boot/bin/kernel.elf", (void**)entry_point)) {
+        prints("[FATAL ERROR]: [failed to read, booting halted!]", RED);
+        goto end;
+    }
+    
+end:
+    for (;;) {
+        __asm__ __volatile__ ("hlt");
+    }
+}
+
+void __attribute__((cdecl)) kmain(void)
+{
+    prints("[info]: [initializing disk]\n", WHITE);
+    start_disk();
+    
     prints("[info]: [Initializing IDT]\n", WHITE);
     IdtInit();
 
@@ -112,9 +151,11 @@ void kmain(void)
     delay();
 
     while (TRUE) {
-        // entry_point();
+        entry_point();
         for (volatile uint32_t i = 0; i < 100000; i++) {
             __asm__ __volatile__ ("hlt");
         }
     }
+
+    kpanic("[KERNEL PANIC]: [end of kernel main function]", CYAN);
 }
