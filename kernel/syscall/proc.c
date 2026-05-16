@@ -6,6 +6,10 @@ void initProcTree(void) {
     return;
 }
 
+void initProc(pid_t pid) {
+   return (void)pid; 
+}
+
 sys_process_t *spawnInit(void) {
     sys_process_t *init = malloc(sizeof(sys_process_t));
     return init;
