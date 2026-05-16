@@ -139,6 +139,7 @@ typedef struct process {
 } sys_process_t;
 
 void initProcTree(void);
+void initProc(pid_t pid);
 sys_process_t *spawnInit(void);
 sys_process_t *spawnKIdle(void);
 void initializeProcessTree(void);
