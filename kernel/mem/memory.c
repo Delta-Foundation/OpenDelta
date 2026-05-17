@@ -115,8 +115,8 @@ void memorySet(uint8_t *dest, uint8_t val, uint32_t len)
 }
 
 void* segoffset_to_linear(void* addr) {
-    uint32_t offset = (uint32_t)(addr) & 0xFFFF;
-    uint32_t seg = (uint32_t)(addr) >> 16;
+    uint64_t offset = (uint64_t)(addr) & 0xFFFF;
+    uint64_t seg = (uint64_t)(addr) >> 16;
     return (void *)(seg * 16 + offset);
 }
 
