@@ -1,6 +1,7 @@
 #include "./headers/fat.h"
 #include "./headers/mbr.h"
 #include "../../mem/header/memory.h"
+#include "../../lib/stdlib.h"
 
 boot_sect_t boot_sect;
 uint8_t* fat = NULL;
@@ -56,7 +57,7 @@ boolean fat_init(partition_t* disk)
 
     if (!fat_read_boot_sect(disk)) {
         prints("[FAT ERR]: [read boor sector failed!\r\n]", RED);
-        return *FALSE;
+        return FALSE;
     }
 
     data->fat_cache_pos = 0xFFFFFFFF;
@@ -71,7 +72,7 @@ boolean fat_init(partition_t* disk)
     sectors_per_fat = data->BS.boot_sect.sects_per_fat;
 
     if (sectors_per_fat == 0) {
-        is_fat32 = TRUE;
+        is_fat32 = (char *)TRUE;
         sectors_per_fat = data->BS.boot_sect.EBR32.sectors_per_fat;
     }
 
@@ -91,27 +92,27 @@ boolean fat_init(partition_t* disk)
     }
 
     data->root_dir.fspublic.handle = ROOT_DIR_HANDLE;
-    data->root_dir.fspublic.is_dir = *TRUE;
+    data->root_dir.fspublic.is_dir = TRUE;
     data->root_dir.fspublic.position = 0;
     data->root_dir.fspublic.size = sizeof(dir_entry_t) * data->BS.boot_sect.dir_entry_count;
-    data->root_dir.opened = *TRUE;
+    data->root_dir.opened = TRUE;
     data->root_dir.first_cluster = root_dir_lba;
     data->root_dir.current_cluster = root_dir_lba;
     data->root_dir.current_sector_in_cluster = 0;
 
     if (!part_read_sectors(disk, root_dir_lba, 1, data->root_dir.buffer)) {
         prints("[FAT ERR]: [read root directory failed!\r\n]", RED);
-        return *FALSE;
+        return FALSE;
     }
 
     fat_detect(disk);
 
     for (int i = 0; i < MAX_FILE_HANDLES; i++) {
-        data->opened_files[i].opened = *FALSE;
+        data->opened_files[i].opened = FALSE;
     }
     data->lfn_count = 0;
 
-    return *TRUE;
+    return TRUE;
 }
 
 fat_file_t* fat_open_entry(partition_t* disk, dir_entry_t* entry)
@@ -146,7 +147,7 @@ fat_file_t* fat_open_entry(partition_t* disk, dir_entry_t* entry)
         return (fat_file_t*)FALSE;
     }
 
-    fd->opened = *TRUE;
+    fd->opened = TRUE;
     return &fd->fspublic;
 }
 
@@ -328,11 +329,11 @@ boolean fat_find_file(partition_t* disk, fat_file_t* file, const char* name, dir
 
         if (memcmp(short_name, entry.name, 11) == 0) {
             *entry_out = entry;
-            return *TRUE;
+            return TRUE;
         }
     }
     
-    return *FALSE;
+    return FALSE;
 }
 
 fat_file_t* fat_open(partition_t* disk, const char* path)
@@ -346,7 +347,7 @@ fat_file_t* fat_open(partition_t* disk, const char* path)
     fat_file_t* current = &data->root_dir.fspublic;
 
     while (*path) {
-        boolean is_last = *FALSE;
+        boolean is_last = FALSE;
         const char* delim = strchar(path, '/');
         
         if (delim != NULL) {
@@ -359,7 +360,7 @@ fat_file_t* fat_open(partition_t* disk, const char* path)
             memcpy(name, path, len);
             name[len + 1] = '\0';
             path += len;
-            is_last = *TRUE;
+            is_last = TRUE;
         }
 
         dir_entry_t entry;
