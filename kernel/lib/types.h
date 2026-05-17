@@ -3,8 +3,8 @@
 
 // simple NULL and other realisation
 #define NULL    ((void *)0)
-#define FALSE   ((char *)0)
-#define TRUE    ((char *)1)
+#define FALSE   0
+#define TRUE    1
 
 typedef char boolean; 
 
