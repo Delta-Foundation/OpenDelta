@@ -165,7 +165,7 @@ void irq_init(void) {
 	}
 
 	printf(MODULE, "[INFO]: [found %s PIC.]", g_driver->name);
-	g_driver->init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8, *FALSE);
+	g_driver->init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8, (char)FALSE);
 
 	for (int i = 0; i < 16; i++) {
 		register_interrupt_handler(PIC_REMAP_OFFSET + i, *irq_handlers);
