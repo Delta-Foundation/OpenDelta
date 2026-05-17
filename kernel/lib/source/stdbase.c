@@ -12,7 +12,7 @@ static Header *freep = NULL;
 static char *dataStart = (char *)0x100000;
 static char *dataEnd = (char *)&dataStart;
 static ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
-uint32_t freeMemAddr = 0x10000;
+uint64_t freeMemAddr = 0x10000;
 const char g_hex_chars[] = "0123456789abcdef";
 
 int _fillbuf(FILE *stream)
@@ -23,7 +23,7 @@ int _fillbuf(FILE *stream)
 
     for (int i = 0; i < BUFSIZE; i++) {
         stream->buf[i] = inb(stream->port);
-        if (stream->buf[i] == EOF) {
+        if (stream->buf[i] == (unsigned char)EOF) {
             stream->cnt = i;
             break;
         }
@@ -34,7 +34,7 @@ int _fillbuf(FILE *stream)
         return EOF;
     }
 
-    stream->ptr = stream->base = stream->buf;
+    stream->ptr = stream->base = (char *)stream->buf;
     stream->cnt = BUFSIZE - 1;
 
     return (uint8_t)*stream->ptr++;
@@ -42,7 +42,7 @@ int _fillbuf(FILE *stream)
 
 int _flushbuf(int c, FILE *stream)
 {
-    if (stream->cnt == NULL) {
+    if (stream->cnt == (long)NULL) {
         outb(stream->port, *(stream->ptr)++);
         stream->cnt--;
         return c;
@@ -52,7 +52,7 @@ int _flushbuf(int c, FILE *stream)
         outb(stream->port, stream->buf[i]);
     }
 
-    stream->ptr = stream->base = stream->buf;
+    stream->ptr = stream->base = (char *)stream->buf;
     stream->cnt = BUFSIZE - 1;
 
     if (c != EOF) {
@@ -121,6 +121,7 @@ void *free(void *ap)
     }
 
     freep = p;
+    return 0;
 }
 
 void *malloc(unsigned nbytes)
@@ -289,7 +290,7 @@ void vfprintf(FILE *file, const char *fmt, va_list args)
                     break;
                     
                     case 's':
-                        fputc(va_arg(args, char), file);
+                        fputc((char)va_arg(args, int), file);
                     break;
 
                     case '%':   
@@ -299,14 +300,14 @@ void vfprintf(FILE *file, const char *fmt, va_list args)
                     case 'd':
                     case 'i':   
                         rad = 10;
-                        sign = TRUE; 
-                        num = TRUE;
+                        sign = (char *)TRUE; 
+                        num = (char *)TRUE;
                     break;
 
                     case 'u':   
                         rad = 10; 
                         sign = FALSE; 
-                        num = TRUE;
+                        num = (char *)TRUE;
                     break;
 
                     case 'X':
@@ -314,13 +315,13 @@ void vfprintf(FILE *file, const char *fmt, va_list args)
                     case 'p':   
                         rad = 16; 
                         sign = FALSE; 
-                        num = TRUE;
+                        num = (char *)TRUE;
                     break;
 
                     case 'o':   
                         rad = 8; 
                         sign = FALSE; 
-                        num = TRUE;
+                        num = (char *)TRUE;
                     break;
 
                     default:    break;
@@ -436,8 +437,7 @@ void fputc(char c, FILE *file) {
     vfs_write((fd_t *)file, (unsigned char *)&c, sizeof(c));
 }
 
-int _getc(FILE *stream)
-{
+int _getc(FILE *stream) {
     if (--(stream)->cnt >= 0) {
         return (unsigned char) *(stream)->ptr;
     }
@@ -455,8 +455,7 @@ int ngetc(FILE* stream) {
     return fgetc(stream);
 }
 
-int _putc(char c, FILE *stream)
-{
+int _putc(char c, FILE *stream) {
     if (--(stream)->cnt >= 0) {
         return *(stream)->ptr++ = (c);
     }
@@ -492,7 +491,7 @@ int fgetc(FILE* file)
             return EOF;
         }
 
-        unsigned int bytes_read = sysRead(file->fd, file->buf, BUFSIZE);
+        unsigned int bytes_read = sysRead(file->fd, (char *)file->buf, BUFSIZE);
         if (bytes_read < 0) {
             file->error = 1;
             return EOF;
@@ -537,7 +536,7 @@ int getline(char *line, int max)
 
 FILE *fopen(char *name, char *mode) 
 {
-    int fd;
+    signed int fd;
     FILE *fp;
 
     if (*mode != 'r' && *mode != 'w' && *mode != 'a') {
@@ -600,6 +599,8 @@ int ungetc(int c, FILE* stream)
     ungetc_buf.buf = c;
     ungetc_buf.has_buf = 1;
     ungetc_buf.stream = stream;
+
+    return 0;
 }
 
 void skip_whitespace(FILE* stream) 
