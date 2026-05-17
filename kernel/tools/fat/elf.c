@@ -14,12 +14,12 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     if ((read = fat_read(part, fd, sizeof(elf_header), header_buf)) != sizeof(elf_header)) 
     {
         prints("[FATAL ERROR]: [ELF load error!]\n", RED);
-        return *FALSE;
+        return FALSE;
     }
 
     file_pos += read;
 
-    boolean ok = *TRUE;
+    boolean ok = TRUE;
     elf_header* header = (elf_header*)header_buf;
     ok = ok && (memcmp(header->magic, ELF_MAGIC, 4) != 0);
     ok = ok && (header->bitness == ELF_BITNESS_32BIT);
@@ -40,7 +40,7 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     if ((read = fat_read(part, fd, prog_header_size, header_buf)) != prog_header_size) 
     {
         prints("[ELF ERROR]: [load error!]\r\n", RED);
-        return *FALSE;
+        return FALSE;
     }
 
     file_pos += read;
@@ -49,7 +49,7 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     for (uint32_t i = 0; i < prog_header_table_entry_count; i++) {
         elf_program_header* prog_hdr = (elf_program_header*)(header_buf + i * prog_header_table_entry_size);
         if (prog_hdr->type == ELF_PROGRAM_TYPE_LOAD) {
-            uint8_t* virt_address = (uint8_t*)prog_hdr->virt_address;
+            uint32_t* virt_address = (uint32_t*)prog_hdr->virt_address;
             memset(virt_address, 0, prog_hdr->memory_size);
 
             fd = fat_open(part, path);
@@ -60,7 +60,7 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
                 
                 if (read != should_read) {
                     prints("[ELF ERROR]: [load error!]\n", RED);
-                    return *FALSE;
+                    return FALSE;
                 }
 
                 prog_hdr->offset += read;
@@ -73,7 +73,7 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
 
                 if (read != should_read) {
                     prints("[ELF ERROR]: [load error!]\n", RED);
-                    return *FALSE;
+                    return FALSE;
                 }
 
                 prog_hdr->file_size -= read;
@@ -86,5 +86,5 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
         }
     }
 
-    return *TRUE;
+    return TRUE;
 }
