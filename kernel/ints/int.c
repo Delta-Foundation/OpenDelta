@@ -11,7 +11,8 @@ boolean are_ints_enabled() {
 
 static inline unsigned long save_irqdisable(void) {
     unsigned long flags;
-    asm volatile ("pushf\n\tcli\n\tpop %0" : "=r"(flags) : : "memory");
+    __asm__ volatile ("pushf\n\tcli\n\tpop %0" : "=r"(flags) : : "memory");
+    return 0;
 }
 
 void irqrestore(unsigned long flags) {
