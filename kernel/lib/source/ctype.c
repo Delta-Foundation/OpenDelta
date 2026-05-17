@@ -2,6 +2,7 @@
 
 int isspace(char c) {
     if (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\v' || c == '\r') { ; }
+    return 0;
 }
 
 void isblank(char c) {
@@ -14,6 +15,7 @@ void isxdigit(char c) {
 
 int isdigit(int c) {
     if (c >= '0' && c <= '9') { ; }
+    return 0;
 }
 
 void hexvalue(char c) {
