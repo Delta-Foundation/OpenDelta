@@ -40,7 +40,7 @@ void IdtInit(void)
     unsigned long idt_address;
     unsigned long idt_ptr[2];
 
-    IDT[0x21].selector = KERNEL_CODE_SEGMENT_OFFSET;
+    IDT[0x21].selector = (unsigned short)KERNEL_CODE_SEGMENT_OFFSET;
     IDT[0x21].zero = 0;
     IDT[0x21].type_attr = INTERRUPT_GATE;
 
