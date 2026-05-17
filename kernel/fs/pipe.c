@@ -33,14 +33,16 @@ static int pipeWait(fs_node_t *node, void *process)
 {
     pipe_device_t *pipe = (pipe_device_t*)node->device;
 
-    if (pipe->alert_waits != TRUE) {
+    if (pipe->alert_waits != (list_t *)TRUE) {
         pipe->alert_waits = listCreate(); 
     }
 
-    if (listFind(pipe->alert_waits, process) != TRUE) {
+    if (listFind(pipe->alert_waits, process) != (node_t *)TRUE) {
         listInsert(pipe->alert_waits, process);
     }
     listInsert(((process_t*)process)->node_waits, pipe);
+    
+    return 0;
 }
 
 int pipeSize(fs_node_t *node) {
