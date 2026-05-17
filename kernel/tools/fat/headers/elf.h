@@ -18,7 +18,7 @@ typedef struct {
     uint16_t type;
     uint16_t instruction_set;
     uint32_t elf_version;
-    uint32_t program_entry_position;
+    uint64_t program_entry_position;
     uint32_t program_header_table_pos;
     uint32_t section_header_table_pos;
     uint32_t flags;
@@ -33,7 +33,7 @@ typedef struct {
 typedef struct {
     uint32_t type;
     uint32_t offset;
-    uint32_t virt_address;
+    uint64_t virt_address;
     uint32_t phys_address;
     uint32_t file_size;
     uint32_t memory_size;
