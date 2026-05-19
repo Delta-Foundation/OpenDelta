@@ -35,6 +35,12 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 
+__attribute__((noreturn)) void __stack_chk_fail(void) {
+    while (1) {
+        __asm__ volatile ("hlt");
+    }
+}
+
 void IdtInit(void) 
 {
     unsigned long idt_address;
