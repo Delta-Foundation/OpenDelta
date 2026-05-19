@@ -5,7 +5,7 @@
 
 static sys_process_t *current_process = {0};
 
-int __attribute((noreturn)) sysExit(int retval) {
+int __attribute((noreturn)) *sysExit(int retval) {
     taskExit((retval & 0xFF) << 8);
     for (;;) { ; }
 }
@@ -75,13 +75,13 @@ off_t lseek(int fd, off_t offset, int whence) {
 }
 
 static int (*syscalls[]) = {
-    [SYS_EXT] = sysExit,
-    [SYS_GETEUID] = sysGeteuid,
-    [SYS_OPEN] = sysOpen,
-    [SYS_READ] = sysRead,
-    [SYS_WRITE] = sysWrite,
-    [SYS_CLOSE] = sysClose,
-    [SYS_CREATE] = sysCreate
+    [SYS_EXT] = (int *)sysExit,
+    [SYS_GETEUID] = (int *)sysGeteuid,
+    [SYS_OPEN] = (int *)sysOpen,
+    [SYS_READ] = (int *)sysRead,
+    [SYS_WRITE] = (int *)sysWrite,
+    [SYS_CLOSE] = (int *)sysClose,
+    [SYS_CREATE] = (int *)sysCreate
 };
 
 uint32_t num_syscalls = sizeof(syscalls) / sizeof(*syscalls);
