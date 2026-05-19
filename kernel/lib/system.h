@@ -146,7 +146,7 @@ void initializeProcessTree(void);
 void switchPageDirectory(page_dir_t *dir);
 void taskingInstall(void);
 void taskExit(int retval);
-int __attribute((noreturn)) sysExit(int retval);
+int __attribute((noreturn)) *sysExit(int retval);
 int sysGeteuid(void);
 int sysOpen(const char *file, int flgas, int mode);
 int sysRead(int fd, char *ptr, int len);
