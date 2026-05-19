@@ -193,7 +193,6 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=32516 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=2 bs=512
-	mkfs.fat -F12 img/open-delta.img
 
 run: img/open-delta.img
 	$(QEMU) -drive file=img/open-delta.img,format=raw,if=ide,readonly=off $(QEMU_FLAGS) -fda $<
