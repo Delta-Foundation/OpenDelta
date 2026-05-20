@@ -37,6 +37,7 @@ static void kpanic(const char *panic_msg, ...) {
 
 __attribute__((noreturn)) void __stack_chk_fail(void) {
     while (1) {
+        kpanic("[KERNEL PANIC]: [?????????? IDI NAHUY!]");
         __asm__ volatile ("hlt");
     }
 }
