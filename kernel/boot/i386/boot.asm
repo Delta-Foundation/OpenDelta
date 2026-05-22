@@ -92,9 +92,12 @@ switch:
     or al, 1
     mov cr0, eax
 
-    jmp CODE_SEG:protected_mode
+    jmp dword CODE_SEG:init
 
 [bits 32]
+init:
+    jmp CODE_SEG:protected_mode
+
 protected_mode:
     mov ax, DATA_SEG
     mov ds, ax
