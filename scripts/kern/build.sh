@@ -36,6 +36,7 @@ function build_i386 {
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/fat.c -o obj/fat.o
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/disk.c -o obj/disk.o
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/mbr.c -o obj/mbr.o
+    clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/elf.c -o obj/elf.o
 
 
     #---create-kernel-bin-file---#
@@ -44,14 +45,15 @@ function build_i386 {
         \ obj/pipe.o obj/types.o obj/screen.o  obj/gdt.o obj/gdtasm.o 
         \ obj/ints.o obj/isr.o obj/tty.o obj/ctype.o obj/ports.o 
         \ obj/entry.o obj/proc.o obj/sys.o obj/task.o obj/pic.o obj/fpu.o 
-        \ obj/tools.o obj/fat.o obj/disk.o obj/mbr.o
-        \ -o img/kernel.bin -z noexecstack -T link.ld --oformat elf32-i386
+        \ obj/tools.o obj/fat.o obj/disk.o obj/mbr.o obj/elf.o
+        \ -o img/kernel.elf -z noexecstack -T link.ld --oformat elf32-i386
+
+    llvm-objcopy -O binary img/kernel.elf img/kernel.bin 
 
     #---create-os-image---#
     dd if=/dev/zero of=img/open-delta.img bs=512 count=32516 status=none
-    dd if=img/boot.bin of=img/open-delta.img conv=ascii bs=1024 count=1
-    dd if=img/kernel.bin of=img/open-delta.img conv=ascii bs=2048 count=1
-    mkfs.fat -F12 img/open-delta.img
+    dd if=img/boot.bin of=img/open-delta.img conv=notruc bs=512 count=1
+    dd if=img/kernel.bin of=img/open-delta.img conv=notruc bs=512 seek=2
 }
 
 build_i386
