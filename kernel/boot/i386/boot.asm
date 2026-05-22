@@ -1,36 +1,6 @@
 [bits 16]
 [org 0x7C00]
 
-; includes like .h in C
-%include "boot/i386/gdt.asm"
-%include "boot/i386/midt.asm"
-%include "boot/i386/disk.asm"
-%include "boot/i386/print.asm"
-%include "boot/i386/print_pmode.asm"
-%include "boot/i386/switch.asm"
-%include "boot/i386/print_hex.asm"
-%include "boot/i386/mboot_tables.asm"
-%include "boot/i386/fat_header.asm"
-%include "boot/i386/const.asm"
-
-; new line (\n)
-%define ENDL 0x0D, 0x0A
-
-    ; data, strings, messages...
-str_real db "Started in 16-bit real mode", ENDL, 0
-str_pmode db "Landed in 32-bit protected mode", ENDL, 0
-str_load db "Loading dltkernel from the disk", ENDL, 0
-    
-boot_drive db 0
-boot_part_seg dw 0
-boot_part_off dw 0
-    
-    ; errors
-str_returned_kernel db "Returned from kernel. Error?", ENDL, 0
-str_read_fail db "[err]: [read failed!]", ENDL, 0
-
-    ; main and important variably for starting program
-kernel_offset equ 0x100000 
 global _start
     
 _start:
@@ -40,20 +10,48 @@ _start:
     mov ds, ax
     mov es, ax
     mov ss, ax 
-    mov sp, 0x7000
+    mov sp, 0x7c00
 
     mov [boot_drive], dl
-    mov  bx, str_real 
+    mov  si, str_real 
     call print
-    call print_nl
-    
+
     call load_kernel
-    ; call setup_idt
-    ; call disable_timer
-    ; call load_kernel
+
+    call setup_gdt
     call switch
 
     jmp $
+
+print:
+    pusha
+
+print_loop:
+    lodsb
+    test al, al
+    jz done
+
+    mov ah, 0x0E
+    mov bh, 0
+    int 0x10
+
+    jmp print_loop
+
+done:
+    popa
+    ret
+
+print_nl:
+    pusha
+
+    mov ah, 0x0E
+    mov al, 13
+    int 0x10
+    mov al, 10
+    int 0x10
+
+    popa
+    ret
 
 [bits 16]
 load_kernel:
@@ -62,24 +60,39 @@ load_kernel:
     call print_nl
 
     mov	dl, [boot_drive]
+    mov ax, 0x1000
+    mov es, ax
+    xor bx, bx
+
     mov ah, 0x02
     mov al, 32
     mov ch, 0
     mov cl, 2
     mov dh, 0 
 
-    mov ax, 0x1000
-    mov es, ax 
-    xor bx, bx
-
     int 0x13
     jc read_error
+
+    cmp al, 32
+    jne read_error
+
     ret
 
 read_error:
     mov bx, str_read_fail
     call print
     jmp $
+
+setup_gdt:
+    lgdt [gdt_descriptor]
+    ret
+
+switch:
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+
+    jmp CODE_SEG:protected_mode
 
 [bits 32]
 protected_mode:
@@ -95,6 +108,77 @@ protected_mode:
     call print_pmode
 
     jmp 0x10000
+
+[bits 32]
+
+VIDEO_MEMORY equ 0xb8000
+WHITE_ON_BLACK equ 0x0F
+
+print_pmode:
+	pusha
+    mov edx, VIDEO_MEMORY
+
+print_pmode_loop:
+	mov al, [ebx]
+	mov ah, WHITE_ON_BLACK
+	test al, al
+	jz  print_pmode_end
+
+	mov [edx], ax
+
+	add ebx, 1
+	add edx, 2
+
+	jmp print_pmode_loop
+
+print_pmode_end:
+	popa
+	ret
+
+gdt_start:
+    gdt_null:
+        dq 0x0
+
+    gdt_code:
+        dw 0xFFFF       ; Лимит 0-15
+        dw 0x0          ; База 0-15
+        db 0x0
+        db 0x9A         ; Present, Ring 0, Code, Exec/Read
+        db 0xCF         ; Granularity, 32-bit, Лимит 16-19
+        db 0x0          ; База 24-31
+
+    gdt_data:
+        dw 0xFFFF
+        dw 0x0
+        db 0x0
+        db 0x92         ; Present, Ring 0, Data, Read/Write
+        db 0xCF
+        db 0x0
+
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1  ; Лимит GDT
+    dd gdt_start                ; Базовый адрес GDT
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
+
+%define ENDL 0x0D, 0x0A
+
+    ; data, strings, messages...
+str_real db "Started in 16-bit real mode", ENDL, 0
+str_pmode db "Landed in 32-bit protected mode", ENDL, 0
+str_load db "Loading dltkernel from the disk", ENDL, 0
+
+boot_drive db 0
+boot_part_seg dw 0
+boot_part_off dw 0
+
+    ; errors
+str_returned_kernel db "Returned from kernel. Error?", ENDL, 0
+str_read_fail db "[err]: [read failed!]", ENDL, 0
+
 
 times 510 - ($-$$) db 0
 dw 0xAA55
