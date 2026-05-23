@@ -8,8 +8,8 @@ void cmos_dump(uint16_t *vals)
 {
     uint16_t index;
     for (index = 0; index < 128; index++) {
-        port_byte_out(0x70, index);
-        vals[index] = port_byte_in(0x71);
+        portByteOut(0x70, index);
+        vals[index] = portByteIn(0x71);
     }
 }
 
@@ -112,7 +112,7 @@ int GetTimeOfDay(struct Timeval *t, void *z)
     return 0;
 }
 
-uint32_t epoch_now()
+uint32_t epoch_now(void)
 {
     struct Timeval t;
     GetTimeOfDay(&t, NULL);
