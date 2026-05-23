@@ -192,7 +192,7 @@ $(KERNEL_OBJ): $(SRCS)
 $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=2048 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1
-	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=2 bs=512
+	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 run: img/open-delta.img
 	$(QEMU) $(QEMU_FLAGS) -hdd $<
