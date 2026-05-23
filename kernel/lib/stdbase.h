@@ -40,7 +40,12 @@ typedef enum {
     CYAN = 0x3,
     DGRAY = 0x8,   // Dark Gray
     LCYAN = 0xB,   // Light Cyan
-    LGRAY = 0x7    // Light Gray
+    LGRAY = 0x7,  // Light Gray
+    RED = 0x4,
+    MAGENTA = 0x5,
+    BROWN = 0x6,
+    GREEN = 0x2,
+    BLUE = 0x1
 } Colors;
 
 /*---structures-for-system---*/
@@ -77,8 +82,8 @@ typedef struct {
 
 #define e9_putc(c) outb(0xE9, c);
 
-#define getchar()   _getc(stdin)
-#define putchar(x)  _putc((x), stdout)
+#define getchar()   _getc((FILE *)stdin)
+#define putchar(x)  _putc((x), (FILE *)stdout)
 
 #define PRINTF_STATE_NORMAL         0
 #define PRINTF_STATE_LENGTH         1
