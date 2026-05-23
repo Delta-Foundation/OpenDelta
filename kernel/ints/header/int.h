@@ -3,7 +3,7 @@
 
 #include "../../lib/types.h"
 
-boolean are_ints_enabled();
+boolean are_ints_enabled(void);
 
 void intended_usage(void);
 void irqrestore(unsigned long flags);
