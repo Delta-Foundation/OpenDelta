@@ -5,7 +5,7 @@
 int getOffset(int col, int row);
 int getOffsetRow(int offset);
 int getOffsetCol(int offset);
-int getCursorOffset();
+int getCursorOffset(void);
 void setCursorOffset(int offset);
 
 int printChar(char c, int col, int row, Colors color)
@@ -84,7 +84,7 @@ int getOffsetCol(int offset) {
     return (offset - (getOffsetRow(offset) * 2 * COLUMNS_IN_LINE)) / 2;
 }
 
-int getCursorOffset() {
+int getCursorOffset(void) {
     portByteOut(REG_SCREEN_CTRL, 14);
     int offset = portByteIn(REG_SCREEN_DATA) << 8;
     portByteOut(REG_SCREEN_CTRL, 15);
