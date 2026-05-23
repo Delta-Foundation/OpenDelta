@@ -158,10 +158,7 @@ void __attribute__((cdecl)) kmain(void)
     delay();
 
     while (TRUE) {
-        entry_point();
-        for (volatile uint32_t i = 0; i < 100000; i++) {
-            __asm__ __volatile__ ("hlt");
-        }
+        __asm__ __volatile__ ("hlt");
     }
 
     kpanic("[KERNEL PANIC]: [end of kernel main function]", CYAN);
