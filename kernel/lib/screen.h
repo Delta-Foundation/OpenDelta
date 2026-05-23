@@ -1,12 +1,12 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-int print_char(char c, int col, int row, unsigned int color);
+int printChar(char c, int col, int row, unsigned int color);
 void kprint_at(const char *message, int col, int row, unsigned int color);
 void kprint(const char *message, unsigned int color);
 void kprintnl(void);
-void kprint_backspace(void);
-void clear_screen(void);
+void kprintb(void);
+void clearScreen(void);
 void delay(void);
 
 #endif
