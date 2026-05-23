@@ -89,6 +89,6 @@ static const pic_driver_t g_pic_driver = {
     .unmask = &unmask,
 }; 
 
-const pic_driver_t* pic_driver() {
+const pic_driver_t* pic_driver(void) {
     return &g_pic_driver;
 }
