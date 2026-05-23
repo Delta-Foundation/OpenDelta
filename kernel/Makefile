@@ -74,6 +74,10 @@ MBR = obj/mbr.o
 MBR_SRC = tools/fat/mbr.c 
 ELF = obj/elf.o
 ELF_SRC = tools/fat/elf.c 
+MIN_DLTSH = obj/mdltsh.o
+MIN_DLTSH_SRC = tty/min_dltsh.c
+INTS_C = obj/ints_c.o 
+INTS_C_SRC = ints/int.c 
 
 # clang flags for build on i386
 FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
@@ -105,7 +109,7 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf -o $@
 
-$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
+$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(INTS_C) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(MIN_DLTSH) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map --oformat elf32-i386
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -136,6 +140,12 @@ $(ELF): $(ELF_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(IDT): $(IDT_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(INTS_C): $(INTS_C_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(MIN_DLTSH): $(MIN_DLTSH_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(TASK): $(TASK_SRC)
@@ -203,7 +213,8 @@ clean:
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
-		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) 
+		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)            \
+		  $(MIN_DLTSH) $(INTS_C)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
