@@ -1,9 +1,13 @@
 #include "../string.h"
 #include "../stdlib.h"
+#include "../stdbase.h"
 
 #define MAXLINE 1000
 
 uint64_t next = 1;
+int sp = 0;
+double val[MAXVAL];
+
 char line[MAXLINE];
 char longest[MAXLINE];
 
@@ -72,6 +76,39 @@ int binsearch(int x, int v[], int n)
     }
 
     return -1;
+}
+
+double pop(void) {
+    if (sp > 0) {
+        return val[--sp];
+    }
+    else {
+        prints("[ERR]: [stack empty]\n", RED);
+        return 0.0;
+    }
+}
+
+void push(double f) {
+    if (sp < MAXVAL) {
+        val[sp++] = f;
+    }
+    else {
+        prints("[ERR]: [stack full, can't push %g]\n", RED, f);
+    }
+}
+
+void printd(int n) {
+
+    if (n < 0) {
+        putchar('-');
+        n = -n;
+    } 
+    
+    if (n / 10) {
+        printd(n / 10);
+    }
+
+    putchar(n % 10 + '0');
 }
 
 void copy(void)
