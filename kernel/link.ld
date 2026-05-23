@@ -1,4 +1,5 @@
 OUTPUT_FORMAT(elf32-i386)
+OUTPUT_ARCH(i386)
 ENTRY(_start)
 
 PHDRS {
@@ -7,7 +8,7 @@ PHDRS {
 }
 
 SECTIONS {
-   . = 0x10000;
+    . = 0x10000;
 
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
@@ -61,6 +62,11 @@ SECTIONS {
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
     } :data
+
+    . = ALIGN(4096);
+    stack_bot = .;
+    . += 0x4000;
+    stack_top = .;
 
     __end = .;
 }
