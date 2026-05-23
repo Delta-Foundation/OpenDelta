@@ -8,6 +8,19 @@
 #include "../ints/header/int.h"
 
 #define MCL 255
+#define MAX_USER_NAME_LENGTH 128
+#define MAX_OS_TITLE_LANGTH 128
+#define MAX_HOST_NAME_LENGTH 128
+
+typedef struct {
+    const char *user_name[MAX_USER_NAME_LENGTH];
+    const char *os_title[MAX_OS_TITLE_LANGTH];
+    const char *host_name[MAX_HOST_NAME_LENGTH];
+    const char *cpu[128];
+    const char *gpu[128];
+    double disk_memory[32768];
+} UserInfo;
+
 
 struct Console {
     char command[MCL];
@@ -16,12 +29,34 @@ struct Console {
 };
 
 void welcome_msg(void) {
-    prints("._________________________________________.\n", WHITE);
-    prints("|                                         |\n", WHITE);
-    prints("|                                         |\n", WHITE);
-    prints("|  Welcome To the DLTSH(minimal version)  |\n", WHITE);
-    prints("|                                         |\n", WHITE);
-    prints("|_________________________________________|\n", WHITE);
+    prints("._________________________________________.\n", CYAN);
+    prints("|                                         |\n", CYAN);
+    prints("|                                         |\n", CYAN);
+    prints("|  Welcome To the DLTSH(minimal version)  |\n", CYAN);
+    prints("|                                         |\n", CYAN);
+    prints("|_________________________________________|\n", CYAN);
+}
+
+void print_fetch(void)
+{
+    UserInfo user = {
+  	    .user_name = "User",
+  	    .host_name = "Host",
+  	    .os_title = "OpenDelta",
+  	    .cpu = "cpu",
+        .gpu = "ventilator 3000"
+    };
+  	
+    printf("        ____               User:        %s\n", CYAN, *user.user_name);
+    printf("       /   /               ---------------------------\n", CYAN);
+    printf("      /   / /\\             os:          %s\n", CYAN, *user.os_title);
+    printf("     /   / /  \\            kernel:      dltkernel\n", CYAN);
+    printf("    /   /  \\   \\           shell:       dltsh\n", CYAN);
+    printf("   /   /    \\   \\          packeges:    fpmcp (netu)\n", CYAN);
+    printf("  /   /  /\\  \\   \\         terminal:    TTY\n", CYAN);
+    printf(" /   /  /  \\  \\   \\        host:        %s\n", CYAN, *user.host_name);
+    printf("/   /  /    \\  \\   \\       cpu:         %s\n", CYAN, *user.cpu);
+    printf("\\__/  /______\\  \\__/       gpu:         %s\n", CYAN, *user.gpu);
 }
 
 void min_dltsh(void) 
@@ -53,6 +88,10 @@ void min_dltsh(void)
             APMInterfaceInit();
         }
 
+        else if (strcmp(console.command, "dlt-fetch") == 0) {
+            print_fetch();
+        }
+
         else if (strcmp(console.command, "poweroff") == 0) {
             prints("auf wiedersehen!", WHITE);
             
@@ -66,7 +105,7 @@ void min_dltsh(void)
         }
 
         else if (strcmp(console.command, "whoami") == 0) {
-            prints("HZHZ chyo za user\n", CYAN);
+            prints("[user]: [OpenDelta Root]\n", CYAN);
         }
 
         else {
