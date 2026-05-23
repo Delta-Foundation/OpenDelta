@@ -190,12 +190,12 @@ $(KERNEL_OBJ): $(SRCS)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(img): $(BOOT) $(KERNEL_BIN)
-	dd if=/dev/zero of=$@ bs=512 count=32516 status=none
+	dd if=/dev/zero of=$@ bs=512 count=2048 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=2 bs=512
 
 run: img/open-delta.img
-	$(QEMU) -drive file=img/open-delta.img,format=raw,if=ide,readonly=off $(QEMU_FLAGS) -hdd $<
+	$(QEMU) $(QEMU_FLAGS) -hdd $<
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
@@ -203,7 +203,7 @@ clean:
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
-		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)
+		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) 
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
