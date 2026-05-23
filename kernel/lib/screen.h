@@ -7,6 +7,6 @@ void kprint(const char *message, unsigned int color);
 void kprintnl(void);
 void kprint_backspace(void);
 void clear_screen(void);
-void delay();
+void delay(void);
 
 #endif
