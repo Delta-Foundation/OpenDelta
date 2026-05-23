@@ -1,16 +1,5 @@
 [bits 32]
 
-section .multiboot
-    align 4
-    dd 0x1BADB002
-    dd 0x00
-    dd - (0x1BADB002 - 0x00)
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-
 section .data
     nl db 'W', 0x0A
 
@@ -45,18 +34,12 @@ load_idt:
 _start:
     mov dword [0xB8000], 0x0F4B0F4B
 
-    mov ebp, 0x90000
-    mov esp, 0x90000
-
     mov esp, stack_space
+    mov ebp, esp
+
     call entry_point
-
-    mov ecx, nl
-    mov edx, 0x41
-    cmp edx, ecx
-    je _exit
-
     call kmain 
+
     cli
     hlt
 
@@ -68,6 +51,7 @@ _exit:
     int 0x80
 
 section .bss
-stack_space:
-    resb 8129
-stack_top
+    align 4096
+    stack_space:
+        resb 0x4000
+    stack_top:
