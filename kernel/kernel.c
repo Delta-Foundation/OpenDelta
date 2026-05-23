@@ -15,6 +15,7 @@
 #include "./tools/fat/headers/fat.h"
 #include "./tools/fat/headers/elf.h"
 #include "./lib/bootparams.h"
+#include "./tty/header/min_dltsh.h"
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
@@ -155,6 +156,10 @@ void __attribute__((cdecl)) kmain(void)
 
     prints("[info]: [starting TTY]\n", WHITE);
     terminalInit();
+
+    prints("[info]: [starting minimal dltsh]", WHITE);
+    min_dltsh();
+
     delay();
 
     while (TRUE) {
