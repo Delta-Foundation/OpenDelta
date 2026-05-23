@@ -43,7 +43,7 @@ int printChar(char c, int col, int row, Colors color)
     if (offset >= LINES * COLUMNS_IN_LINE * 2) {
         int i;
         for (i = 1; i < LINES; i++) {
-           memmoryCopy((unsigned char*)(getOffset(0, i) + vidptr),
+           memoryCopy((unsigned char*)(getOffset(0, i) + vidptr),
                 (unsigned char*)(getOffset(0, i - 1) + vidptr),
                 COLUMNS_IN_LINE * 2);
             
@@ -100,6 +100,6 @@ void setCursorOffset(int offset) {
     portByteOut(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
 }
 
-void delay() {
+void delay(void) {
     for (unsigned int n = 0; n < 500000000; n++) { ; }
 }
