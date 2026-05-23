@@ -12,6 +12,8 @@ _start:
     mov ss, ax 
     mov sp, 0x7c00
 
+    call clear_screen
+
     mov [boot_drive], dl
     mov  si, str_real 
     call print
@@ -53,6 +55,16 @@ print_nl:
     popa
     ret
 
+clear_screen:
+    pusha
+
+    mov ah, 0x00
+    mov al, 0x03 
+    int 0x10 
+    
+    popa 
+    ret 
+
 [bits 16]
 load_kernel:
     mov	bx, str_load
@@ -92,7 +104,7 @@ switch:
     or al, 1
     mov cr0, eax
 
-    jmp dword CODE_SEG:init
+    jmp CODE_SEG:init
 
 [bits 32]
 init:
@@ -111,11 +123,6 @@ protected_mode:
     call print_pmode
 
     jmp 0x10000
-
-[bits 32]
-
-VIDEO_MEMORY equ 0xb8000
-WHITE_ON_BLACK equ 0x0F
 
 print_pmode:
 	pusha
@@ -164,8 +171,12 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; Лимит GDT
     dd gdt_start                ; Базовый адрес GDT
 
+
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
+
+VIDEO_MEMORY equ 0xb8000
+WHITE_ON_BLACK equ 0x0F
 
 %define ENDL 0x0D, 0x0A
 
