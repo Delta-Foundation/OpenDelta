@@ -8,6 +8,6 @@ struct Timeval {
     uint32_t tv_usec;
 };
 
-uint32_t epoch_now();
+uint32_t epoch_now(void);
 
 #endif
