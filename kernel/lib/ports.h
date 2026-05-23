@@ -3,10 +3,10 @@
 
 #include "../lib/types.h"
 
-unsigned char port_byte_in(unsigned short port);
-void port_byte_out(unsigned int port, unsigned char data);
-unsigned short port_word_in(uint16_t port);
-void port_word_out(uint16_t port, uint16_t data);
-void APMInterface_Init();
+unsigned char portByteIn(unsigned short port);
+void portByteOut(unsigned int port, unsigned char data);
+unsigned short portWordIn(uint16_t port);
+void portWordOut(uint16_t port, uint16_t data);
+void APMInterfaceInit(void);
 
 #endif 
