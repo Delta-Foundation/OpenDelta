@@ -88,6 +88,7 @@ uint8_t __attribute__((cdecl)) disable_ints(void);
 void __attribute__((cdecl)) panic(void);
 void isr_install(void);
 void isr_handler(regs_t r);
+void irq_handler(regs_t r);
 void irq_init(void);
 void irq_regs_handler(int irq, isr_t handler);
 
