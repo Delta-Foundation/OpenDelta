@@ -211,7 +211,7 @@ void fprintf_signed(FILE *file, long long num, int radix)
 
 void prints(const char *fmt, Colors color, ...)
 {
-    char *video_mem = (char *)0xb8000;
+    volatile uint16_t *video_mem = (volatile uint16_t *)0xB8000;
     int i = 0;
     int pos = 0;
     while (fmt[i] != '\0') {
