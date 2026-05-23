@@ -71,9 +71,13 @@ clear_screen:
 
 [bits 16]
 load_kernel:
+    pusha 
+
     mov	si, str_load
     call print
     call print_nl
+    
+    push dx 
 
     mov ah, 0x02
     mov al, 32
@@ -81,17 +85,20 @@ load_kernel:
     mov dh, 0x00  
     mov dl, [boot_drive]
     mov cl, 0x02 
+    
+    int 0x13
+    jc read_error
+
+    pop dx
+    cmp al, 32
+    jne read_error
+
 
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
 
-    int 0x13
-    jc read_error
-
-    cmp al, 32
-    jne read_error
-
+    popa
     ret
 
 read_error:
