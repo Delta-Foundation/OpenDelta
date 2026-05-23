@@ -6,6 +6,7 @@
 #include "../lib/screen.h"
 #include "../lib/ports.h"
 #include "../ints/header/int.h"
+#include "./header/min_dltsh.h"
 
 #define MCL 255
 #define MAX_USER_NAME_LENGTH 128
