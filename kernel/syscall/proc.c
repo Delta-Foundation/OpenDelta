@@ -6,8 +6,10 @@ void initProcTree(void) {
     return;
 }
 
-void initProc(pid_t pid) {
-   return (void)pid; 
+void initProc(const char* pname, pid_t pid) {
+    printf("[pinfo]: [started %s process with %d PID]", pname, pid, LCYAN);
+    return (void)pid;
+    return (void)pname; 
 }
 
 sys_process_t *spawnInit(void) {
