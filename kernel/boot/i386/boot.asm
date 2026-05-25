@@ -49,11 +49,9 @@ print_nl:
     pusha
 
     mov ah, 0x0E
-    mov ah, 0x0D
-    mov ah, 0x0A
-    mov al, 13
+    mov al, 0x0D
     int 0x10
-    mov al, 10
+    mov al, 0x0A
     int 0x10
 
     popa
@@ -186,8 +184,7 @@ gdt_descriptor:
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
-
-VIDEO_MEMORY    equ 0xb8000
+VIDEO_MEMORY    equ 0xB8000
 WHITE_ON_BLACK  equ 0x0F
 
     ; data, strings, messages...
