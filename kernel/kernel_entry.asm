@@ -1,16 +1,32 @@
 [bits 32]
 
-section .data
-    nl db 'W', 0x0A
-
-section .text 
+section .entry
     ; C functions
     extern entry_point
     extern kmain
     
-    ; ASM functions
     global _start
-    global readp  ; read port 
+
+_start:
+    mov dword [0xB8000], 0x0F4B0F4B
+    mov dword [0xB8000 + 4], 0x0F4E0F4F
+
+    mov esp, stack_space
+    mov ebp, esp
+
+    call entry_point
+    call kmain 
+
+    cli
+    hlt
+
+    jmp $ 
+
+section .data
+    nl db 'W', 0x0A
+
+section .text
+    global readp  ; read port
     global writep ; write port
     global load_idt
 
@@ -30,20 +46,6 @@ load_idt:
     lidt [edx]
     sti
     ret
-
-_start:
-    mov dword [0xB8000], 0x0F4B0F4B
-
-    mov esp, stack_space
-    mov ebp, esp
-
-    call entry_point
-    call kmain 
-
-    cli
-    hlt
-
-    jmp $ 
 
 _exit:
     mov ebx, 0
