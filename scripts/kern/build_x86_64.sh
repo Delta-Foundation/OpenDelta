@@ -37,7 +37,8 @@ function build_x86_64 {
     clang -m64 -fno-pie -ffreestanding -nostdlib -c tools/fat/disk.c -o obj/disk.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c tools/fat/mbr.c -o obj/mbr.o
     clang -m64 -fno-pie -ffreestanding -nostdlib -c tools/fat/elf.c -o obj/elf.o
-
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c tty/min_dltsh.c -o obj/min_dltsh.o
+    clang -m64 -fno-pie -ffreestanding -nostdlib -c ints/int.c -o obj/ints_c.o
 
     #---create-kernel-bin-file---#
     ld.lld -m elf_x86_64 -s obj/kernel.o obj/stdbase.o obj/idt.o obj/idta.o
@@ -46,15 +47,15 @@ function build_x86_64 {
         \ obj/ints.o obj/isr.o obj/tty.o obj/ctype.o obj/ports.o 
         \ obj/entry.o obj/proc.o obj/sys.o obj/task.o obj/pic.o obj/fpu.o 
         \ obj/tools.o obj/fat.o obj/disk.o obj/mbr.o obj/elf.o
+        \ obj/min_dltsh.o obj/ints_c.o
         \ -o img/kernel.elf -z noexecstack -T link64.ld
 
     llvm-objcopy -O binary img/kernel.elf img/kernel.bin 
 
     #---create-os-image---#
-    dd if=/dev/zero of=img/open-delta.img bs=512 count=32516 status=none
+    dd if=/dev/zero of=img/open-delta.img bs=512 count=4096 status=none
     dd if=img/boot.bin of=img/open-delta.img conv=notruc bs=512 count=1
     dd if=img/kernel.bin of=img/open-delta.img conv=notruc bs=512 seek=2
-    mkfs.fat -F12 img/open-delta.img
 }
 
 build_x86_64
