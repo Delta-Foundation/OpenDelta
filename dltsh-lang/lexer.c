@@ -1,12 +1,15 @@
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/* будут использоваться свои библиотеки т.к этот скриптовый язык 
+    находится на стадии когда не собрана и не скачана musl libc 
+    так что только свои либы
+*/
+#include "../kernel/lib/stdbase.h"
+#include "../kernel/lib/string.h"
+#include "../kernel/lib/ctype.h"
+#include "../kernel/lib/types.h"
 
 #define MAX_LEN 100
 
-bool is_delimiter(char chr) {
+boolean is_delimiter(char chr) {
     return (chr == ' ' || chr == '+' || chr == '-'
             || chr == '*' || chr == '/' || chr == ','
             || chr == ';' || chr == '%' || chr == '>'
@@ -16,7 +19,7 @@ bool is_delimiter(char chr) {
     );
 }
 
-bool is_operator(char chr) {
+boolean is_operator(char chr) {
     return (chr == '+' || chr == '-' 
             || chr == '*' || chr == '/' 
             || chr == '>' || chr == '<'
@@ -24,7 +27,7 @@ bool is_operator(char chr) {
     );
 }
 
-bool is_valid_identifier(char* str) {
+boolean is_valid_identifier(char* str) {
     return (str[0] != '0' && str[0] != '1' && str[0] != '2'
             && str[0] != '3' && str[0] != '4'
             && str[0] != '5' && str[0] != '6'
@@ -33,7 +36,7 @@ bool is_valid_identifier(char* str) {
     );
 }
 
-bool is_keyword(char* str)
+boolean is_keyword(char* str)
 {
     const char* keywords[]
         = { "func",     "break",    "case",     "let",
@@ -47,16 +50,16 @@ bool is_keyword(char* str)
     for (int i = 0;
          i < sizeof(keywords) / sizeof(keywords[0]); i++) {
         if (strcmp(str, keywords[i]) == 0) {
-            return true;
+            return TRUE;
         }
     }
 
-    return false;
+    return FALSE;
 }
 
-bool is_int(char* str) {
+boolean is_int(char* str) {
     if (str == NULL || *str == '\0') {
-        return false;
+        return FALSE;
     }
 
     int i = 0;
