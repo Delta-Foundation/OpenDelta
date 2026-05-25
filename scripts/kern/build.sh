@@ -37,7 +37,8 @@ function build_i386 {
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/disk.c -o obj/disk.o
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/mbr.c -o obj/mbr.o
     clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tools/fat/elf.c -o obj/elf.o
-
+    clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c tty/min_dltsh.c -o obj/min_dltsh.o
+    clang -m32 -march=i386 -fno-pie -ffreestanding -nostdlib -c ints/int.c -o obj/ints_c.o
 
     #---create-kernel-bin-file---#
     ld.lld -m elf_i386 -s obj/kernel.o obj/stdbase.o obj/idt.o obj/idta.o
@@ -45,7 +46,8 @@ function build_i386 {
         \ obj/pipe.o obj/types.o obj/screen.o  obj/gdt.o obj/gdtasm.o 
         \ obj/ints.o obj/isr.o obj/tty.o obj/ctype.o obj/ports.o 
         \ obj/entry.o obj/proc.o obj/sys.o obj/task.o obj/pic.o obj/fpu.o 
-        \ obj/tools.o obj/fat.o obj/disk.o obj/mbr.o obj/elf.o
+        \ obj/tools.o obj/fat.o obj/disk.o obj/mbr.o obj/elf.o obj/min_dltsh.o 
+        \ obj/ints_c.o
         \ -o img/kernel.elf -z noexecstack -T link.ld --oformat elf32-i386
 
     llvm-objcopy -O binary img/kernel.elf img/kernel.bin 
