@@ -10,6 +10,11 @@ PHDRS {
 SECTIONS {
     . = 0x10000;
 
+    .entry ALIGN(4) : {
+        *(.entry)
+        *(.entry*)
+    } :text
+
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
     } :text  
