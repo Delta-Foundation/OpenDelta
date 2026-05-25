@@ -12,6 +12,7 @@ function clean {
         \ obj/idta.o obj/pic.o obj/fpu.o obj/sys.o
         \ obj/proc.o obj/task.o obj/isr.o obj/tools.o 
         \ obj/fat.o obj/disk.o obj/mbr.o obj/elf.o 
+        \ obj/min_dltsh.o obj/ints_c.o
 
     echo "clean kernel.map"
     rm -f kernel.map
