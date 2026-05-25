@@ -1,4 +1,5 @@
 OUTPUT_FORMAT(elf_x86_64)
+OUTPUT_ARCH(x86_64)
 ENTRY(_start)
 
 PHDRS {
@@ -8,6 +9,11 @@ PHDRS {
 
 SECTIONS  {
     . = 0x10000;
+
+    .entry ALIGN(4) : {
+        *(.entry)
+        *(.entry*)
+    } :text
 
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
@@ -61,6 +67,11 @@ SECTIONS  {
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
     } :data
+
+    . = ALIGN(4096);
+    stack_bot = .;
+    . += 0x4000;
+    stack_top = .;
 
     __end = .;
 }
