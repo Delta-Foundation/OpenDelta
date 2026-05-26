@@ -153,37 +153,47 @@ enter_real_mode:
     jmp near rmode_get_next_block
 
 rmode_disk_get_drive_params:
-    mov dl, [bp + 8]
-    mov ah, 0x08
-    xor di, di 
-    mov es, di 
-    stc 
+    mov dl, [bp + 8]      ; drive number (1 байт)
+    mov ah, 0x08         ; функция получения параметров
+    xor di, di
+    mov es, di
+    stc
     int 0x13
+
     mov eax, 1
     sbb eax, 0
 
-    LINEAR_TO_SEG_OFFSET [bp + 12], es, esi, si 
-    mov [es:si], bl 
+    ; Адрес для сохранения результата: [bp + 12] = сегмент, [bp + 14] = смещение
+    mov ax, [bp + 12]     ; сегмент (16 бит)
+    mov es, ax
+    mov di, [bp + 14]     ; смещение (16 бит)
+    mov [es:di], bl       ; сохранить количество секторов на дорожке
 
     mov bl, ch
-    mov bh, cl 
-    shr bh, 6 
-    inc bx 
-    LINEAR_TO_SEG_OFFSET [bp + 16], es, esi, si 
-    mov [es:si], bx 
+    mov bh, cl
+    shr bh, 6
+    inc bx
+    mov ax, [bp + 16]     ; сегмент
+    mov es, ax
+    mov di, [bp + 18]     ; смещение
+    mov [es:di], bx       ; сохранить количество дорожек
 
-    xor ch, ch 
-    and cl, 0x3F 
-    LINEAR_TO_SEG_OFFSET [bp + 20], es, esi, si 
-    mov [es:si], cx
+    xor ch, ch
+    and cl, 0x3F
+    mov ax, [bp + 20]     ; сегмент
+    mov es, ax
+    mov di, [bp + 22]     ; смещение
+    mov [es:di], cx       ; сохранить количество секторов
 
-    mov cl, dh 
-    inc cx 
-    LINEAR_TO_SEG_OFFSET [bp + 24], es, esi, si 
-    mov [es:si], cx 
+    mov cl, dh
+    inc cx
+    mov ax, [bp + 24]     ; сегмент
+    mov es, ax
+    mov di, [bp + 26]     ; смещение
+    mov [es:di], cx       ; сохранить количество головок
 
-    push eax 
-    jmp near pmode_disk_get_drive_params  
+    push eax
+    jmp near pmode_disk_get_drive_params
 
 rmode_disk_reset:
     mov dl, [bp + 8]
@@ -196,32 +206,38 @@ rmode_disk_reset:
     jmp near pmode_disk_reset
 
 rmode_disk_read:
-    mov dl, [bp + 8]
-    mov ch, [bp + 12]
-    mov cl, [bp + 13]
-    shl cl, 6 
-    mov al, [bp + 16]
-    and al, 0x3F 
-    or cl, al 
-    mov dh, [bp + 20]
-    mov al, [bp + 24]
+    mov dl, [bp + 8]      ; drive number
+    mov ch, [bp + 12]     ; cylinder (16 бит)
+    mov cl, [bp + 13]     ; cylinder high bits
+    shl cl, 6
+    mov al, [bp + 16]     ; sector count (16 бит)
+    and al, 0x3F
+    or cl, al
+    mov dh, [bp + 20]     ; head
+    mov al, [bp + 24]     ; sector count
 
-    LINEAR_TO_SEG_OFFSET [bp + 28], es, ebx, bx 
-    mov ah, 0x02
-    stc 
+    mov ax, [bp + 28]     ; сегмент
+    mov es, ax
+    mov bx, [bp + 30]     ; смещение
+
+    mov ah, 0x02          ; функция чтения
     int 0x13
 
-    mov eax, 1 
+    mov eax, 1
     sbb eax, 0
-    push eax 
+    push eax
     jmp near pmode_disk_read
 
 rmode_get_next_block:
-    LINEAR_TO_SEG_OFFSET [bp + 8], es, edi, di
-    LINEAR_TO_SEG_OFFSET [bp + 12], ds, esi, si
-    mov ebx, [ds:si]
+    mov ax, [bp + 8]      ; сегмент для es
+    mov es, ax
+    mov di, [bp + 10]     ; смещение
 
-    mov eax, 0xE820
+    mov ax, [bp + 12]     ; сегмент для ds
+    mov ds, ax
+    mov si, [bp + 14]     ; смещение
+
+    mov eax, 0xE820       ; функция e820
     mov edx, e820_sign
     mov ecx, 24
     int 0x15
@@ -230,7 +246,7 @@ rmode_get_next_block:
     jne .e820_fail
 
 .e820_ok:
-    mov eax, ecx 
+    mov eax, ecx
     mov [ds:si], ebx
     jmp .e820_end
 
