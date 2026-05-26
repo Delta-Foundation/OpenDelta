@@ -20,7 +20,7 @@ int strindex(char s[], char t[])
 }
 
 const char* strchar(const char* str, char ch) {
-	if (str = NULL) {
+	if (str == NULL) {
 		return NULL;
 	}
 
@@ -64,6 +64,8 @@ int strncmp(const char *cs, const char *ct, unsigned int n)
         }
     
     }
+
+    return 0;
 }
 
 unsigned int strlen(const char *str)
@@ -160,16 +162,12 @@ void hex_to_ascii(int n, char str[])
 		append(str, tmp + '0');
 	}
 }
-
-// These functions need to be built out
-unsigned int s_vasprintf(char *buf, const char *fmt)//, va_list args)
-{
+unsigned int s_vasprintf(char *buf, const char *fmt) {
 	return 1;
 }
 
-int sprintf(char *buf, const char *fmt)
-{
-	int out = s_vasprintf(buf, fmt);//, args);
+int sprintf(char *buf, const char *fmt) {
+	int out = s_vasprintf(buf, fmt);
 	return out;
 }
 
