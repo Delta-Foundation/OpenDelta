@@ -126,7 +126,7 @@ void start_disk(void)
         goto end;
     }
 
-    partition_t* part;
+    partition_t* part = NULL;
     mbr_detect_part(part, &disk, partition);
 
     if (!fat_init(part)) {
