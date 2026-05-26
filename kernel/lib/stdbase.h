@@ -120,8 +120,6 @@ typedef struct {
 #define S_IWOTH     00002     
 #define S_IXOTH     00001     
 
-#define S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
-
 #define PERMS 0666
 
 /*---структуры---*/
