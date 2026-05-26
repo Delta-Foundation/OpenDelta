@@ -1,11 +1,17 @@
 [bits 32]
 
-section .entry
+section .data
+    nl db 'W', 0x0A
+
+section .text
     ; C functions
     extern entry_point
     extern kmain
     
     global _start
+    global readp  ; read port
+    global writep ; write port
+    global load_idt
 
 _start:
     mov dword [0xB8000], 0x0F4B0F4B
@@ -21,14 +27,6 @@ _start:
     hlt
 
     jmp $ 
-
-section .data
-    nl db 'W', 0x0A
-
-section .text
-    global readp  ; read port
-    global writep ; write port
-    global load_idt
 
 readp:
     mov edx, [esp + 4]
