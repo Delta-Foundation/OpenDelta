@@ -140,11 +140,11 @@ enter_real_mode:
     mov cr0, eax
     jmp .rmode_start
 .rmode_start:
-    mov ax, 0
+    xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax 
-    mov sp, 0x7000
+    mov sp, 0x7c00
     sti
 
     jmp near rmode_disk_get_drive_params
