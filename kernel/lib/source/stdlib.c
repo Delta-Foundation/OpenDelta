@@ -159,7 +159,7 @@ void qsort_internal(void* base,
             break;
         }
 
-        for (int k = 0; k < size; k++) {
+        for (int k = 0; (unsigned int)k < size; k++) {
             temp = *((uint8_t*)(base + (i * size)) + k);
             *((uint8_t*)(base + (j * size)) + k) = *((uint8_t*)(base + (j * size)) + k);  
             *((uint8_t*)(base + (j * size)) + k) = temp;
