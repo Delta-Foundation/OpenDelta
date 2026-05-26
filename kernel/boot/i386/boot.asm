@@ -74,7 +74,7 @@ load_kernel:
     mov	si, str_load
     call print
     call print_nl
-    
+
     push dx 
 
     mov ah, 0x02
@@ -96,6 +96,10 @@ load_kernel:
     mov es, ax
     xor bx, bx
 
+    mov si, str_kernel_loaded
+    call print
+    call print_nl
+
     popa
     ret
 
@@ -104,57 +108,7 @@ read_error:
     call print
     jmp $
 
-setup_gdt:
-    lgdt [gdt_descriptor]
-    ret
-
-switch:
-    mov eax, cr0
-    or al, 1
-    mov cr0, eax
-
-    jmp CODE_SEG:init
-
-[bits 32]
-init:
-    jmp CODE_SEG:protected_mode
-
-protected_mode:
-    mov ax, DATA_SEG
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-
-    mov esp, 0x90000
-
-    lea ebx, str_pmode
-    call print_pmode
-
-    jmp $
-
-print_pmode:
-	pusha
-    mov edx, VIDEO_MEMORY
-
-print_pmode_loop:
-	mov al, [ebx]
-	mov ah, WHITE_ON_BLACK
-	test al, al
-	jz  print_pmode_end
-
-	mov [edx], ax
-
-	add ebx, 1
-	add edx, 2
-
-	jmp print_pmode_loop
-
-print_pmode_end:
-	popa
-	ret
-
+[bits 16]
 gdt_start:
     gdt_null:
         dq 0
@@ -178,9 +132,62 @@ gdt_start:
 gdt_end:
 
 gdt_descriptor:
-    dw gdt_end - gdt_start + 1  ; Лимит GDT
+    dw gdt_end - gdt_start - 1  ; Лимит GDT
     dd gdt_start                ; Базовый адрес GDT
 
+setup_gdt:
+    lgdt [gdt_descriptor]
+    ret
+
+[bits 32]
+switch:
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+
+    jmp CODE_SEG:init
+
+init:
+    jmp CODE_SEG:protected_mode
+
+protected_mode:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    mov esp, 0x90000
+
+    mov dword [VIDEO_MEMORY], 0x0F4C0F4F
+    mov dword [VIDEO_MEMORY], 0x0F200F50
+
+    lea ebx, str_pmode
+    call print_pmode
+
+    jmp CODE_SEG:0x10000
+
+print_pmode:
+	pusha
+    mov edx, VIDEO_MEMORY
+
+print_pmode_loop:
+	mov al, [ebx]
+	mov ah, WHITE_ON_BLACK
+	test al, al
+	jz  print_pmode_end
+
+	mov [edx], ax
+
+	add ebx, 1
+	add edx, 2
+
+	jmp print_pmode_loop
+
+print_pmode_end:
+	popa
+	ret
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
@@ -191,6 +198,7 @@ WHITE_ON_BLACK  equ 0x0F
 str_real:  db "Started in 16-bit real mode", 0x0D, 0x0A, 0
 str_pmode: db "Landed in 32-bit protected mode", 0x0D, 0x0A, 0
 str_load:  db "Loading dltkernel from the disk", 0x0D, 0x0A, 0
+str_kernel_loaded: db "Kernel loaded at 0x10000", 0x0D, 0x0A, 0
 
 boot_drive:    db 0
 boot_part_seg: dw 0
