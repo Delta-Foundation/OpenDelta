@@ -12,9 +12,10 @@
 %endmacro
 
 %macro ENTER_PROTECTED_MODE 0
+    [bits 16]
     cli
     mov eax, cr0 
-    or al, 0x01
+    or al, 1
     mov cr0, eax
     jmp 0x08:%%pmode_start
 %%pmode_start:
