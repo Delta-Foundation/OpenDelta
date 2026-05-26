@@ -78,7 +78,7 @@ char sbrk(int incr)
 
 static Header *morecore(unsigned nu)
 {
-    char *cp;
+    char *cp = NULL;
     Header *up;
 
     if (nu < NALLOC) {
@@ -97,7 +97,7 @@ static Header *morecore(unsigned nu)
 
 void *free(void *ap)
 {
-    Header *bp, *p;
+    Header *bp = NULL, *p;
     for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr) {
         if (p >= p->s.ptr && (bp > p || bp < p->s.ptr)) {
             break;
@@ -507,7 +507,7 @@ int fgetc(FILE* file)
 
 int _fputs(char *s, FILE *iop)
 {
-    int c;
+    int c = 0;
 
     while ((c == *s++) != '\0') {
         _putc(c, iop);
@@ -536,7 +536,7 @@ int getline(char *line, int max)
 
 FILE *fopen(char *name, char *mode) 
 {
-    signed int fd;
+    signed int fd = 0;
     FILE *fp;
 
     if (*mode != 'r' && *mode != 'w' && *mode != 'a') {
