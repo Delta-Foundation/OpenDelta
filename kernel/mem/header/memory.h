@@ -20,7 +20,7 @@ extern "C" {
 #define MEMORY_MAX          0x00080000
 
 #define MEMORY_FAT_ADDR     ((void*)0x20000)
-#define MEMORY_FAT_SIZE     0x00010000
+#define MEMORY_FAT_SIZE     0x10000
 
 #define MEMORY_ELF_ADDR     ((void*)0x30000)
 #define MEMORY_ELF_SIZE     0x00010000
