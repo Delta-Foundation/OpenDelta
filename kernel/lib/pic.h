@@ -41,9 +41,9 @@ enum PIC_CMD {
 
 typedef struct {
     const char* name;
-    boolean (*probe)();
+    boolean (*probe)(void);
     void (*init)(uint8_t offset1, uint8_t offset2, boolean auto_eoi);
-    void (*disable)();
+    void (*disable)(void);
     void (*send_end_of_int)(int irq);
     void (*mask)(int irq);
     void (*unmask)(int irq);
