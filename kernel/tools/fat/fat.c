@@ -368,7 +368,7 @@ fat_file_t* fat_open(partition_t* disk, const char* path)
         {
             fat_close(current);
 
-            if (!is_last && entry.attributes & FAT_ATTR_DIR == 0) {
+            if (!is_last && (entry.attributes & FAT_ATTR_DIR) == 0) {
                 printf("[FAT]: [%s not a directory]\r\n", name);
                 return NULL;
             }
