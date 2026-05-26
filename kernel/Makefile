@@ -80,7 +80,7 @@ INTS_C = obj/ints_c.o
 INTS_C_SRC = ints/int.c 
 
 # clang flags for build on i386
-FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes
+FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes -mno-sse -mno-lsx -mno-80387
 
 # image file
 img = img/open-delta.img
@@ -109,11 +109,8 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf32 -o $@
 
-$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(INTS_C) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(MIN_DLTSH) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
-	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map 
-
-$(KERNEL_BIN): $(KERNEL_ELF)
-	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
+$(KERNEL_BIN):  $(ENTRY) $(TOOLS) $(INTS_C) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(MIN_DLTSH) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
+	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map
 
 $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
