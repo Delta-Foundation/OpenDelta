@@ -61,6 +61,41 @@ int printChar(char c, int col, int row, Colors color)
     return offset;
 }
 
+void kprint_at(const char *fmt, int col, int row, uint32_t color) 
+{
+    int offset;
+    if (col >= 0 && row >= 0) {
+        offset = getOffset(col, row);
+    }
+    else {
+        offset = getCursorOffset();
+        row = getOffsetRow(offset);
+        col = getOffsetCol(offset);
+    }
+
+    int i = 0;
+    while (fmt[i] != 0) {
+        offset = printChar(fmt[i++], col, row, color);
+        row = getOffsetRow(offset);
+        col = getOffsetCol(offset);
+    }
+}
+
+void kprint(const char *fmt, uint32_t color, ...) {
+    kprint_at(fmt, -1, -1, color);
+} 
+
+void kprintln(void) {
+    kprint_at("\n", -1, -1, 0xFF);
+}
+
+void kprintb(void) {
+    int offset = getCursorOffset() - 2;
+    int row = getOffsetRow(offset);
+    int col = getOffsetCol(offset);
+    printChar(0x08, col, row, 0x0F);
+}
+
 void clearScreen(void)
 {
     unsigned int i = 0;
