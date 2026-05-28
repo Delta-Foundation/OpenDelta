@@ -87,7 +87,7 @@ img = img/open-delta.img
 
 # qemu
 QEMU = qemu-system-i386
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,cpu_reset
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,pcall
 
 all: run
 
@@ -199,7 +199,7 @@ $(KERNEL_OBJ): $(SRCS)
 $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1
-	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=2 bs=512
+	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 run: img/open-delta.img
 	$(QEMU) $(QEMU_FLAGS) -drive file=img/open-delta.img,format=raw,if=ide
