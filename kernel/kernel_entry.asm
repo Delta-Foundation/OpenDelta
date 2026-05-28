@@ -3,30 +3,37 @@
 section .data
     nl db 'W', 0x0A
 
-section .text
     ; C functions
-    extern entry_point
-    extern kmain
-    
-    global _start
-    global readp  ; read port
-    global writep ; write port
-    global load_idt
+extern entry_point
+extern kmain
+
+; asm functions
+global _start
+global readp  ; read port
+global writep ; write port
+global load_idt
 
 _start:
+    cli
+
     mov dword [0xB8000], 0x0F4B0F4B
     mov dword [0xB8000 + 4], 0x0F4E0F4F
 
     mov esp, stack_space
-    mov ebp, esp
 
     call entry_point
     call kmain 
 
-    cli
+    mov ebp, esp
+
     hlt
 
-    jmp $ 
+    jmp $
+
+_exit:
+    mov ebx, 0
+    mov eax, 1
+    int 0x80
 
 readp:
     mov edx, [esp + 4]
@@ -44,11 +51,6 @@ load_idt:
     lidt [edx]
     sti
     ret
-
-_exit:
-    mov ebx, 0
-    mov eax, 1
-    int 0x80
 
 section .bss
     align 4096
