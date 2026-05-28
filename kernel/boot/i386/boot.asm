@@ -185,10 +185,10 @@ VIDEO_MEMORY    equ 0xB8000
 WHITE_ON_BLACK  equ 0x0F
 
     ; data, strings, messages...
-str_real:  db "Started in 16-bit real mode", 0x0D, 0x0A, 0
-str_pmode: db "Landed in 32-bit protected mode", 0x0D, 0x0A, 0
-str_load:  db "Loading dltkernel from the disk", 0x0D, 0x0A, 0
-str_kernel_loaded: db "Kernel loaded at 0x10000", 0x0D, 0x0A, 0
+str_real:  db "[DBL]: Started in 16-bit real mode", 0x0D, 0x0A, 0
+str_pmode: db "[DBL]: Landed in 32-bit protected mode", 0x0D, 0x0A, 0
+str_load:  db "[DBL]: Loading dltkernel from the disk", 0x0D, 0x0A, 0
+str_kernel_loaded: db "[DBL]: Kernel loaded at 0x10000", 0x0D, 0x0A, 0
 
 boot_drive:    db 0
 boot_part_seg: dw 0
