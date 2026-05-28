@@ -10,7 +10,7 @@ _start:
     mov ds, ax
     mov es, ax
     mov ss, ax 
-    mov sp, 0x7C00
+    mov sp, 0x7000
 
     call clear_screen
 
@@ -75,7 +75,9 @@ load_kernel:
     call print
     call print_nl
 
-    push dx 
+    mov ax, 0x1000
+    mov es, ax
+    xor bx, bx
 
     mov ah, 0x02
     mov al, 32
@@ -87,14 +89,8 @@ load_kernel:
     int 0x13
     jc read_error
 
-    pop dx
     cmp al, 32
     jne read_error
-
-
-    mov ax, 0x1000
-    mov es, ax
-    xor bx, bx
 
     mov si, str_kernel_loaded
     call print
@@ -133,10 +129,11 @@ protected_mode:
     lea ebx, str_pmode
     call print_pmode
 
-    jmp 0x10000
+    mov eax, 0x10000
+    jmp eax
 
 print_pmode:
-	pusha
+	pushad
     mov edx, VIDEO_MEMORY
 
 print_pmode_loop:
@@ -202,4 +199,4 @@ str_returned_kernel:  db "Returned from kernel. Error?", 0x0D, 0x0A, 0
 str_read_fail:        db "[err]: [read failed!]", 0x0D, 0x0A, 0
 
 times 510 - ($-$$) db 0
-db 0x55, 0xAA
+db 0x55, 0xA
