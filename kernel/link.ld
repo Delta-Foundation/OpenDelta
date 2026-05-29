@@ -10,20 +10,6 @@ PHDRS {
 SECTIONS {
     . = 0x10000;
 
-/*    .multiboot ALIGN(4) : {
-        KEEP(*(.multiboot))
-    } :text  
- 
-    .fsjump : { 
-        *(.fsjump)
-        *(.fsjump*) 
-    }
-    
-    .fsheaders : { 
-        *(.fsheaders) 
-        *(.fsheaders*)
-    } */
-
     .text.real ALIGN(16) : {
         __text_real_start = .;
         *(.text.real)
@@ -43,7 +29,7 @@ SECTIONS {
         *(.data*)
     } :data 
 
-    .rodata ALIGN(4) : {
+    .rodata ALIGN(4096) : {
         __rodata_start = .;
         *(.rodata)
         *(.rodata*)
