@@ -10,7 +10,7 @@ _start:
     mov ds, ax
     mov es, ax
     mov ss, ax 
-    mov sp, 0x7000
+    mov sp, 0x7C00
 
     call clear_screen
 
@@ -22,7 +22,6 @@ _start:
 
     call load_kernel
 
-    call setup_gdt
     call switch
 
     jmp $
@@ -105,12 +104,14 @@ read_error:
     jmp $
 
 setup_gdt:
+    cli
     lgdt [gdt_descriptor]
     ret
 
 switch:
+    call setup_gdt
     mov eax, cr0
-    or al, 0x01 
+    or al, 1
     mov cr0, eax
 
     jmp CODE_SEG:protected_mode
@@ -126,11 +127,14 @@ protected_mode:
 
     mov esp, 0x90000
 
-    lea ebx, str_pmode
+    mov ebx, str_pmode
     call print_pmode
 
-    mov eax, 0x10000
-    jmp eax
+    call 0x10000
+
+    cli
+    hlt
+    jmp $
 
 print_pmode:
 	pushad
@@ -138,19 +142,19 @@ print_pmode:
 
 print_pmode_loop:
 	mov al, [ebx]
-	mov ah, WHITE_ON_BLACK
 	test al, al
 	jz  print_pmode_end
 
+	mov ah, WHITE_ON_BLACK
 	mov [edx], ax
 
-	add ebx, 1
+	inc ebx
 	add edx, 2
 
 	jmp print_pmode_loop
 
 print_pmode_end:
-	popa
+	popad
 	ret
 
 gdt_start:
@@ -186,8 +190,8 @@ WHITE_ON_BLACK  equ 0x0F
 
     ; data, strings, messages...
 str_real:  db "[DBL]: Started in 16-bit real mode", 0x0D, 0x0A, 0
-str_pmode: db "[DBL]: Landed in 32-bit protected mode", 0x0D, 0x0A, 0
-str_load:  db "[DBL]: Loading dltkernel from the disk", 0x0D, 0x0A, 0
+str_pmode: db "[DBL]: Landed in 32-bit protected mode. Jumping to kernel...", 0x0D, 0x0A, 0
+str_load:  db "[DBL]: Loading dltkernel from the disk...", 0x0D, 0x0A, 0
 str_kernel_loaded: db "[DBL]: Kernel loaded at 0x10000", 0x0D, 0x0A, 0
 
 boot_drive:    db 0
@@ -199,4 +203,4 @@ str_returned_kernel:  db "Returned from kernel. Error?", 0x0D, 0x0A, 0
 str_read_fail:        db "[err]: [read failed!]", 0x0D, 0x0A, 0
 
 times 510 - ($-$$) db 0
-db 0x55, 0xA
+db 0x55, 0xAA
