@@ -58,4 +58,18 @@ function build_x86_64 {
     dd if=img/kernel.bin of=img/open-delta.img conv=notruc bs=512 seek=2
 }
 
-build_x86_64
+function run {
+    qemu-system-x86_64 -boot c -m 1024 -smp 1 -vga vmware -s -d int,pcall -drive file=img/open-delta.img,format=raw,if=ide,media=disk 
+}
+
+function main {
+    clear
+
+    echo "build OpenDelta"
+    build_x86_64
+
+    echo "run OpenDelta"
+    run 
+}
+
+main
