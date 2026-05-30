@@ -22,7 +22,7 @@ extern void writep(uint16_t port, uint8_t data);
 extern void load_idt(uintptr_t *idt_ptr);
 
 IDTEntry IDT[IDT_SIZE];
-struct Multiboot *mboot = NULL;
+struct multiboot *mboot = NULL;
 boot_params_t *boot_drive;
 boot_params_t *boot_params;
 void* partition;
@@ -74,7 +74,7 @@ void IdtInit(void)
     load_idt(idt_ptr);
 }
 
-void __attribute__((cdecl)) entry_point(void)
+void entry_point(void)
 {
     const char *welcome = "Welcome to the OpenDelta!\n";
     const char *os_name = "OS: OpenDelta v0.1-a\n";
@@ -146,7 +146,7 @@ end:
     }
 }
 
-void __attribute__((cdecl)) kmain(void)
+void kmain(void)
 {
     prints("[info]: [initializing disk]\n", WHITE);
     start_disk();
