@@ -11,13 +11,13 @@ e820_sign equ 0x534D4150
 RM_STACK_TOP equ 0x9000
 
 section .bss
-    alignb 16
+    align 4096
     pmode_stack_backup resd 1
     rm_arg_buf         resb 32
 
 section .text
     [bits 32]
-    align 16
+    align 4096
 
     global disk_get_drive_params
     global disk_reset
@@ -44,7 +44,7 @@ disk_get_drive_params:
     mov [rm_arg_buf + 16], eax
 
     mov [pmode_stack_backup], esp
-    jmp enter_real_mode
+    jmp near enter_real_mode
 
 pmode_disk_get_drive_params:
     ENTER_PROTECTED_MODE
@@ -72,7 +72,7 @@ disk_reset:
     mov eax, [ebp + 8]
     mov [rm_arg_buf + 0], eax
     mov [pmode_stack_backup], esp
-    jmp enter_real_mode
+    jmp near enter_real_mode
 
 pmode_disk_reset:
     ENTER_PROTECTED_MODE
@@ -106,7 +106,7 @@ disk_read:
     mov [rm_arg_buf + 20], eax
 
     mov [pmode_stack_backup], esp
-    jmp enter_real_mode
+    jmp near enter_real_mode
 
 pmode_disk_read:
     ENTER_PROTECTED_MODE
@@ -136,7 +136,7 @@ get_next_block:
     mov [rm_arg_buf + 4], eax
 
     mov [pmode_stack_backup], esp
-    jmp enter_real_mode
+    jmp near enter_real_mode
 
 pmode_get_next_block:
     ENTER_PROTECTED_MODE
@@ -155,14 +155,13 @@ pmode_get_next_block:
 
 section .rmode
     [bits 16]
-    align 4
+    align 32
 
 enter_real_mode:
     cli
     mov eax, cr0
     and al, 0xFE
     mov cr0, eax
-    
     jmp 0x1000:rmode_start
 
 rmode_start:
@@ -170,14 +169,16 @@ rmode_start:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, RM_STACK_TOP
+    mov sp, 0x9000
     sti
-    mov bp, rm_arg_buf
+
+    mov eax, rm_arg_buf
+    mov bp, ax
 
     jmp short rmode_dispatcher
 
 rmode_dispatcher:
-    jmp near rmode_disk_get_drive_params
+    jmp short rmode_disk_get_drive_params
 
 rmode_disk_get_drive_params:
     mov dl, [bp + 0]
@@ -256,7 +257,7 @@ rmode_get_next_block:
     mov ebx, [ds:si]
 
     mov eax, 0xE820
-    mov edx, e820_sign
+    mov edx, 0x534D4150
     mov ecx, 24
     int 0x15
 
