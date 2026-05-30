@@ -2,19 +2,17 @@ OUTPUT_FORMAT(elf_x86_64)
 OUTPUT_ARCH(x86_64)
 ENTRY(_start)
 
+start_addr = 0x10000;
+
 PHDRS {
     text    PT_LOAD FLAGS(5);
     data    PT_LOAD FLAGS(6);
 }
 
 SECTIONS  {
-    . = 0x10000;
+    . = start_addr;
 
-    .entry ALIGN(4) : {
-        *(.entry)
-        *(.entry*)
-    } :text
-
+/*
     .multiboot ALIGN(4) : {
         KEEP(*(.multiboot))
     } :text  
@@ -28,19 +26,19 @@ SECTIONS  {
         *(.fsheaders) 
         *(.fsheaders*)    
     }
-
-    .text.real ALIGN(16) : {
-        __text_real_start = .;
-        *(.text.real)
-        *(.text.real*)
-        __text_real_end = .;
-    } :text
+*/
 
     .text ALIGN(4096) : {
         __text_start = .;
         *(.text)
         *(.text*)
+        *(.text.start)
     } :text 
+
+    .rmode ALIGN(4096) : {
+        *(.rmode)
+        *(.rmode*)
+    } :text
 
     .data ALIGN(4096) : {
         __data_start = .;
@@ -48,19 +46,19 @@ SECTIONS  {
         *(.data*)
     } :data 
 
-    .rodata ALIGN(4) : {
-        __rodata_start = .;
-        *(.rodata)
-        *(.rodata*)
-    } :text 
-
-    .bss ALIGN(32) : {
+    .bss ALIGN(4096) : {
         __bss_start = .;
         *(.bss)
         *(.bss*)
         *(COMMON)
         __bss_end = .;
     } :data 
+
+    .rodata ALIGN(4096) : {
+        __rodata_start = .;
+        *(.rodata)
+        *(.rodata*)
+    } :text 
 
     .heap ALIGN(4096) : {
         _heap_start = .;
