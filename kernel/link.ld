@@ -20,7 +20,7 @@ SECTIONS {
         __text_end = .;
     } :text 
 
-    .rmode ALIGN(16) : {
+    .rmode ALIGN(32) : {
         *(.rmode)
         *(.rmode*)
     } :text
@@ -31,12 +31,6 @@ SECTIONS {
         *(.data*)
     } :data 
 
-    .rodata ALIGN(4096) : {
-        __rodata_start = .;
-        *(.rodata)
-        *(.rodata*)
-    } :text 
-
     .bss ALIGN(4096) : {
         __bss_start = .;
         *(.bss)
@@ -44,6 +38,12 @@ SECTIONS {
         *(COMMON)
         __bss_end = .;
     } :data 
+
+    .rodata ALIGN(4096) : {
+        __rodata_start = .;
+        *(.rodata)
+        *(.rodata*)
+    } :text 
 
     .heap ALIGN(4096) : {
         _heap_start = .;
