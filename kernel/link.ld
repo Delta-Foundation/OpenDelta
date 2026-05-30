@@ -12,6 +12,22 @@ PHDRS {
 SECTIONS {
     . = start_addr;
 
+/*
+    .multiboot ALIGN(4) : {
+        KEEP(*(.multiboot))
+    } :text  
+ 
+    .fsjump : { 
+        *(.fsjump) 
+        *(.fsjump*)
+    }
+
+    .fsheaders : { 
+        *(.fsheaders) 
+        *(.fsheaders*)    
+    }
+*/
+
     .text ALIGN(4096) : {
         __text_start = .;
         *(.text.start)
