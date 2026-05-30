@@ -2,26 +2,28 @@ OUTPUT_FORMAT(elf32-i386)
 OUTPUT_ARCH(i386)
 ENTRY(_start)
 
+start_addr = 0x10000;
+
 PHDRS {
     text      PT_LOAD FLAGS(5);
     data      PT_LOAD FLAGS(6);
 }
 
 SECTIONS {
-    . = 0x10000;
-
-    .text.real ALIGN(16) : {
-        __text_real_start = .;
-        *(.text.real)
-        *(.text.real*)
-        __text_real_end = .;
-    } :text
+    . = start_addr;
 
     .text ALIGN(4096) : {
         __text_start = .;
+        *(.text.start)
         *(.text)
         *(.text*)
+        __text_end = .;
     } :text 
+
+    .rmode ALIGN(16) : {
+        *(.rmode)
+        *(.rmode*)
+    } :text
 
     .data ALIGN(4096) : {
         __data_start = .;
