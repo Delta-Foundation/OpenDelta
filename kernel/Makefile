@@ -109,8 +109,11 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf32 -o $@
 
-$(KERNEL_BIN):  $(ENTRY) $(TOOLS) $(INTS_C) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(MIN_DLTSH) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
+$(KERNEL_ELF):  $(ENTRY) $(TOOLS) $(INTS_C) $(STDLIB) $(ELF) $(KERNEL_OBJ) $(STDBASE) $(MIN_DLTSH) $(PIC) $(SCREEN) $(PORTS) $(IDT) $(IDT_ASM) $(ISR) $(INTS_ASM) $(STRING) $(MEM) $(TYPES) $(TTY) $(CTYPE) $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) $(FPU) $(SYS) $(TASK) $(PROC) $(DISK) $(FAT) $(MBR)
 	$(LD) -m elf_i386 -s -o $@ -z noexecstack -T link.ld $^ -Map kernel.map
+
+$(KERNEL_BIN): $(KERNEL_ELF)
+	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
 
 $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
@@ -202,7 +205,7 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 run: img/open-delta.img
-	$(QEMU) $(QEMU_FLAGS) -drive file=img/open-delta.img,format=raw,if=ide
+	$(QEMU) $(QEMU_FLAGS) -drive file=img/open-delta.img,format=raw,if=ide 
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
