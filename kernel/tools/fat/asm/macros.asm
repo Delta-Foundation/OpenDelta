@@ -1,11 +1,11 @@
 %macro LINEAR_TO_SEG_OFFSET 4
-    mov %3, strict dword %1   ; <-- Принудительно 32-битная релокация
+    mov %3, %1
     shr %3, 4
     push %3
     pop %4
-    mov %2, %4                ; Загрузка сегментного регистра из 16-битного регистра разрешена
+    mov %2, %4
 
-    mov %3, strict dword %1
+    mov %3, %1
     and %3, 0xF
     push %3
     pop %4
