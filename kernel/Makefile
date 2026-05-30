@@ -205,7 +205,7 @@ $(img): $(BOOT) $(KERNEL_BIN)
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 run: img/open-delta.img
-	$(QEMU) $(QEMU_FLAGS) -drive file=img/open-delta.img,format=raw,if=ide 
+	$(QEMU) $(QEMU_FLAGS) -drive file=$(img),format=raw,if=ide,media=disk
 
 clean:
 	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
