@@ -19,7 +19,7 @@ void set_idt_gate(int n, uint32_t handler) {
     idt[n].high_offset = high_16(handler);
 }
 
-void set_idt() {
+void set_idt(void) {
     idt_reg.base = (uint64_t)&idt;
     idt_reg.limit = IDT_ENTRIES * sizeof(idt_gate_t) - 1;
     __asm__ __volatile__ ("lidtl (%0)" : : "r" (&idt_reg));
