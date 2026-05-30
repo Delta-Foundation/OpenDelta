@@ -1,6 +1,5 @@
 #include "../lib/system.h"
 #include "../lib/stdbase.h" 
-#include "./hdrs/proc.h"
 
 sys_process_t *current_process;
 sys_process_t *kernel_idle_task;
