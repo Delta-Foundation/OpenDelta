@@ -1,18 +1,16 @@
 [bits 32]
 
-section .data
-    nl db 'W', 0x0A
-
-section .text
-    ; C functions
-    extern entry_point
-    extern kmain
-
     ; asm functions
-    global _start
-    global readp  ; read port
-    global writep ; write port
-    global load_idt
+global _start
+global readp  ; read port
+global writep ; write port
+global load_idt
+
+    ; C functions
+extern entry_point
+extern kmain
+
+section .text.start
 
 _start:
     cli
@@ -65,6 +63,9 @@ load_idt:
     sti
     pop ebp
     ret
+
+section .data
+    nl db 'W', 0x0A
 
 section .bss
     align 16
