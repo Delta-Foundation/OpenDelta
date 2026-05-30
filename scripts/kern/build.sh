@@ -53,9 +53,23 @@ function build_i386 {
     llvm-objcopy -O binary img/kernel.elf img/kernel.bin 
 
     #---create-os-image---#
-    dd if=/dev/zero of=img/open-delta.img bs=512 count=32516 status=none
+    dd if=/dev/zero of=img/open-delta.img bs=512 count=4096 status=none
     dd if=img/boot.bin of=img/open-delta.img conv=notruc bs=512 count=1
-    dd if=img/kernel.bin of=img/open-delta.img conv=notruc bs=512 seek=2
+    dd if=img/kernel.bin of=img/open-delta.img conv=notruc bs=512 seek=1
 }
 
-build_i386
+function run {
+    qemu-system-i386 -boot c -m 1024 -smp 1 -vga vmware -s -d int,pcall -drive file=img/open-delta.img,format=raw,if=ide,media=disk 
+}
+
+function main {
+    clear
+
+    echo "build OpenDelta"
+    build_i386
+
+    echo "run OpenDelta"
+    run
+}
+
+main
