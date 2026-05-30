@@ -1,12 +1,12 @@
 %macro LINEAR_TO_SEG_OFFSET 4
-    mov %3, %1          ; загрузить 32-битный адрес
-    shr %3, 4           ; вычислить сегмент (linear >> 4)
+    mov %3, strict dword %1   ; <-- Принудительно 32-битная релокация
+    shr %3, 4
     push %3
-    pop %4              ; безопасно взять младшие 16 бит (сегмент)
-    mov %2, %4          ; записать в сегментный регистр (разрешено!)
+    pop %4
+    mov %2, %4                ; Загрузка сегментного регистра из 16-битного регистра разрешена
 
-    mov %3, %1          ; перезагрузить исходный адрес
-    and %3, 0xF         ; вычислить смещение (linear & 0xF)
+    mov %3, strict dword %1
+    and %3, 0xF
     push %3
     pop %4
 %endmacro
@@ -19,7 +19,7 @@
     jmp 0x08:%%pmode_start
 %%pmode_start:
     [bits 32]
-    mov ax, 10
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
