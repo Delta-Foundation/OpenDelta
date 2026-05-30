@@ -79,7 +79,7 @@ load_kernel:
     xor bx, bx
 
     mov ah, 0x02
-    mov al, 32
+    mov al, 128
     mov ch, 0x00 
     mov dh, 0x00  
     mov dl, [boot_drive]
@@ -130,11 +130,10 @@ protected_mode:
     mov ebx, str_pmode
     call print_pmode
 
-    call 0x10000
+    jmp 0x10000
 
     cli
     hlt
-    jmp $
 
 print_pmode:
 	pushad
