@@ -1,5 +1,5 @@
-%include "asm/isr.asm"
-%include "asm/irq.asm"
+%include "cpu/asm/isr.asm"
+%include "cpu/asm/irq.asm"
 
 extern isr_handler
 extern irq_handler
