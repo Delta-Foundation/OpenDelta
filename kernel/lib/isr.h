@@ -83,9 +83,9 @@ typedef struct {
 
 typedef void (*isr_t)(regs_t);
 
-uint8_t __attribute__((cdecl)) enable_ints(void);
-uint8_t __attribute__((cdecl)) disable_ints(void);
-void __attribute__((cdecl)) panic(void);
+uint8_t enable_ints(void);
+uint8_t disable_ints(void);
+void panic(void);
 void isr_install(void);
 void isr_handler(regs_t r);
 void irq_handler(regs_t r);
