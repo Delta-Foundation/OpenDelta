@@ -1,13 +1,13 @@
 irq_common_stub:
 	pusha
 	mov	ax, ds
-	push	eax
+	push eax
 	mov	ax, 0x10
 	mov	ds, ax
 	mov	es, ax
-	mov 	fs, ax
+	mov fs, ax
 	mov	gs, ax
-	call	irq_handler	; different than the ISR code
+	call irq_handler	; different than the ISR code
 	pop	ebx
 	mov	ds, bx
 	mov	es, bx
@@ -15,7 +15,6 @@ irq_common_stub:
 	mov	gs, bx
 	popa
 	add	esp, 8
-	sti
 	iret
 
 ; IRQs
