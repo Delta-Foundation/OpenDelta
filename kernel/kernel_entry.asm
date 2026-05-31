@@ -7,7 +7,6 @@ global writep ; write port
 global load_idt
 
     ; C functions
-extern entry_point
 extern kmain
 
 section .text.start
@@ -19,7 +18,6 @@ _start:
 
     mov esp, stack_top
 
-    call entry_point
     call kmain 
 
     cli
