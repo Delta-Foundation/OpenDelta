@@ -7,7 +7,9 @@ irq_common_stub:
 	mov	es, ax
 	mov fs, ax
 	mov	gs, ax
+	
 	call irq_handler	; different than the ISR code
+	
 	pop	ebx
 	mov	ds, bx
 	mov	es, bx
@@ -15,7 +17,34 @@ irq_common_stub:
 	mov	gs, bx
 	popa
 	add	esp, 8
+	
 	iret
+
+%macro IRQ 2
+	global irq%1
+	irq%1:
+    	cli
+    	push dword 0           ; error code (dummy)
+    	push dword %2          ; interrupt number (32+IRQ)
+    	jmp irq_common_stub
+%endmacro
+
+%define IRQ 0, 32
+%define IRQ 1, 33
+%define IRQ 2, 34
+%define IRQ 3, 35
+%define IRQ 4, 36
+%define IRQ 5, 37
+%define IRQ 6, 38
+%define IRQ 7, 39
+%define IRQ 8, 40
+%define IRQ 9, 41
+%define IRQ 10, 42
+%define IRQ 11, 43
+%define IRQ 12, 44
+%define IRQ 13, 45
+%define IRQ 14, 46
+%define IRQ 15, 47
 
 ; IRQs
 global irq0
