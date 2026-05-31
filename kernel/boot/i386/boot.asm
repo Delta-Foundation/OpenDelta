@@ -79,17 +79,22 @@ load_kernel:
     xor bx, bx
 
     mov ah, 0x02
-    mov al, 32
+    mov al, 17 
     mov ch, 0x00 
     mov dh, 0x00  
     mov dl, [boot_drive]
     mov cl, 0x02 
-    
     int 0x13
     jc read_error
 
-    cmp al, 32
-    jne read_error
+    mov ah, 0x02 
+    mov al, 15 
+    mov ch, 0x00 
+    mov dh, 0x01 
+    mov dl, [boot_drive] 
+    mov cl, 0x01 
+    int 0x13 
+    jc read_error
 
     mov si, str_kernel_loaded
     call print
@@ -99,7 +104,7 @@ load_kernel:
     ret
 
 read_error:
-    mov bx, str_read_fail
+    mov si, str_read_fail
     call print
     jmp $
 
@@ -130,6 +135,7 @@ protected_mode:
     mov ebx, str_pmode
     call print_pmode
 
+    mov eax, 0x10000
     call 0x10000
 
     cli
