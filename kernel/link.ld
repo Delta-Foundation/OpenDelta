@@ -29,10 +29,9 @@ SECTIONS {
     /* for 32-bit protected mode */
 
     . = pmode_addr;
-
+   
     .text ALIGN(4096) : {
         __text_start = .;
-        *(.text.start)
         *(.text)
         *(.text*)
         __text_end = .;
@@ -68,6 +67,12 @@ SECTIONS {
     stack_bot = .;
     . += 0x4000;
     stack_top = .;
+
+    /DISCARD/ : {
+        *(.eh_frame)
+        *(.comment)
+        *(.note.*)
+    }
 
     __end = .;
 }
