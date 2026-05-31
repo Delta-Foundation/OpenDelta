@@ -8,10 +8,8 @@ isr_common_stub:
 	mov	fs, ax
 	mov	gs, ax
 
-	; call c-handler
 	call	isr_handler
 
-	; restore state
 	pop	eax
 	mov	ds, ax
 	mov	es, ax
@@ -19,8 +17,58 @@ isr_common_stub:
 	mov	gs, ax
 	popa
 	add 	esp, 8		; cleans up the pushed error code and pushed ISR number
-	sti
-	iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+	
+        iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+
+%macro ISR_NOERR 1
+        global isr%1
+        isr%1:
+                cli 
+                push dword 0 
+                push dword %1
+                jump isr_common_stub
+%endmacro
+
+%macro ISR_ERR 1
+        global isr%1
+        isr%1:
+                cli 
+                push dword %1
+                jmp isr_common_stub
+%endmacro
+
+%define ISR_NOERR 0     ; Divide by Zero
+%define ISR_NOERR 1     ; Debug
+%define ISR_NOERR 2     ; NMI
+%define ISR_NOERR 3     ; Breakpoint
+%define ISR_NOERR 4     ; Overflow
+%define ISR_NOERR 5     ; Bound Range Exceeded
+%define ISR_NOERR 6     ; Invalid Opcode
+%define ISR_NOERR 7     ; Device Not Available
+%define ISR_ERR   8     ; Double Fault (HAS ERROR CODE!)
+%define ISR_NOERR 9     ; Coprocessor Segment Overrun
+%define ISR_ERR   10    ; Invalid TSS
+%define ISR_ERR   11    ; Segment Not Present
+%define ISR_ERR   12    ; Stack-Segment Fault
+%define ISR_ERR   13    ; General Protection Fault
+%define ISR_ERR   14    ; Page Fault
+%define ISR_NOERR 15    ; Reserved
+%define ISR_NOERR 16    ; x87 FPU Error
+%define ISR_ERR   17    ; Alignment Check
+%define ISR_NOERR 18    ; Machine Check
+%define ISR_NOERR 19    ; SIMD FP Exception
+%define ISR_NOERR 20    ; Virtualization Exception
+%define ISR_ERR   21    ; Control Protection
+%define ISR_NOERR 22
+%define ISR_NOERR 23
+%define ISR_NOERR 24
+%define ISR_NOERR 25
+%define ISR_NOERR 26
+%define ISR_NOERR 27
+%define ISR_NOERR 28
+%define ISR_ERR   29    ; VMM Communication
+%define ISR_ERR   30    ; Security Exception
+%define ISR_NOERR 31
 
 ; make ISRs global
 global isr0
@@ -55,23 +103,6 @@ global isr28
 global isr29
 global isr30
 global isr31
-; IRQs
-global irq0
-global irq1
-global irq2
-global irq3
-global irq4
-global irq5
-global irq6
-global irq7
-global irq8
-global irq9
-global irq10
-global irq11
-global irq12
-global irq13
-global irq14
-global irq15
 
 ; Divide by zero exception
 isr0:
@@ -132,7 +163,6 @@ isr7:
 ; Double fault exception
 isr8:
         cli     
-        push    byte 0
         push    byte 8
         jmp     isr_common_stub
 
@@ -176,12 +206,14 @@ isr14:
 ; reserved exception
 isr15:
         cli     
+        push    byte 0
         push    byte 15
         jmp     isr_common_stub
 
 ; floating point exception
 isr16:
-        cli     
+        cli
+        push    byte 0
         push    byte 16
         jmp     isr_common_stub
 
@@ -194,18 +226,21 @@ isr17:
 ; machine check exception
 isr18:
         cli     
+        push    byte 0
         push    byte 18
         jmp     isr_common_stub
 
 ; reserved
 isr19:
         cli     
+        push    byte 0
         push    byte 19
         jmp     isr_common_stub
 
 ; reserved
 isr20:
         cli     
+        push    byte 0
         push    byte 20
         jmp     isr_common_stub
 
@@ -218,42 +253,49 @@ isr21:
 ; reserved
 isr22:
         cli     
+        push    byte 0
         push    byte 22
         jmp     isr_common_stub
 
 ; reserved
 isr23:
         cli     
+        push    byte 0
         push    byte 23
         jmp     isr_common_stub
 
 ; reserved
 isr24:
         cli     
+        push    byte 0
         push    byte 24
         jmp     isr_common_stub
 
 ; reserved
 isr25:
         cli     
+        push    byte 0
         push    byte 25
         jmp     isr_common_stub
 
 ; reserved
 isr26:
         cli     
+        push    byte 0
         push    byte 26
         jmp     isr_common_stub
 
 ; reserved
 isr27:
         cli     
+        push    byte 0
         push    byte 27
         jmp     isr_common_stub
 
 ; reserved
 isr28:
         cli     
+        push    byte 0
         push    byte 28
         jmp     isr_common_stub
 
@@ -272,5 +314,6 @@ isr30:
 ; reserved
 isr31:
         cli     
+        push    byte 0
         push    byte 31
         jmp     isr_common_stub
