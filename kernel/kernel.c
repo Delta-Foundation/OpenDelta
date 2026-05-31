@@ -78,13 +78,18 @@ void entry_point(void)
 {
     const char *welcome = "Welcome to the OpenDelta!\n";
     const char *os_name = "OS: OpenDelta v0.1-a\n";
-    const char *kern_name = "Kernel: dltkernel v0.0.7-p\n";    
+    const char *kern_name = "Kernel: dltkernel v0.0.9-p\n";    
 
     clearScreen();
 
     prints(welcome, CYAN);
     prints(os_name, WHITE);
     prints(kern_name, WHITE);
+
+    delay();
+   
+    prints("[info]: [initializing i386 GDT]\n", WHITE);
+    i386_GDT_init();
 
     delay();
 
@@ -94,9 +99,6 @@ void entry_point(void)
 
     __asm__ volatile ( "int $2" );
     __asm__ volatile ( "int $3" );
-
-    prints("[info]: [initializing i386 GDT]\n", WHITE);
-    i386_GDT_init();
 
     delay();
 
