@@ -1,4 +1,5 @@
 #include "../lib/pic.h"
+#include "../lib/pic.h"
 #include "../lib/stdbase.h"
 
 void iowait(void) {
@@ -69,8 +70,8 @@ void unmask(int irq) {
 
 uint16_t read_irq_request_reg(void) {
     outb(PIC1_COM_PORT, PIC_CMD_READ_IRR);
-    outb(PIC2_COM_PORT, PIC_CMD_READ_ISR);
-    return ((uint16_t)inb(PIC2_COM_PORT)) | (((uint16_t)inb(PIC2_COM_PORT)) << 8);
+    outb(PIC2_COM_PORT, PIC_CMD_READ_IRR);
+    return ((uint16_t)inb(PIC2_COM_PORT)) | (((uint16_t)inb(PIC1_COM_PORT)) << 8);
 }
 
 boolean probe(void) {
