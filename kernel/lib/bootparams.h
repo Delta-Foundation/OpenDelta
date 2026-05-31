@@ -19,6 +19,9 @@ typedef struct {
 typedef struct {
     mem_info_t memory;
     uint8_t boot_device;
+    uint8_t boor_drive;
+    uint32_t mem_lower;
+    uint32_t mem_upper;
 } boot_params_t;
 
 #endif 
