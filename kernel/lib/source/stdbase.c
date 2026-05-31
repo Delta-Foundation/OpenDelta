@@ -7,10 +7,14 @@
 #include "../ctype.h"
 
 FILE _iob[OPEN_MAX];
+
 static Header base;
 static Header *freep = NULL;
 static char *dataStart = (char *)0x100000;
 static char *dataEnd = (char *)&dataStart;
+static int cursor_x = 0;
+static int cursor_y = 0;
+
 static ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
 uint64_t freeMemAddr = 0x10000;
 const char g_hex_chars[] = "0123456789abcdef";
@@ -212,21 +216,19 @@ void fprintf_signed(FILE *file, long long num, int radix)
 void prints(const char *fmt, Colors color, ...)
 {
     volatile uint16_t *video_mem = (volatile uint16_t *)0xB8000;
-    int i = 0;
-    int pos = 0;
-    while (fmt[i] != '\0') {
-
-        if (fmt[i] == '\n') {
-            pos = ((pos / 80) + 1) * 80;
+    
+    while (*fmt != '\0') {
+        if (*fmt == '\n') {
+            cursor_x = 0;
+            cursor_y++;
         }
-
         else {
-            video_mem[2*pos] = fmt[i];
-            video_mem[2*pos + 1] = (char)color;
-            pos++;
+            int pos = cursor_y * 80 + cursor_x;
+            video_mem[pos] = (uint16_t)(*fmt) | ((uint16_t)color << 8);
+            cursor_x++;
         }
 
-        i++;
+        fmt++;
     }
 }
 
