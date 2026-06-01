@@ -89,26 +89,26 @@ void kmain(uint32_t magic, boot_params_t* bp)
     fpu_install();
     syscallInstall();
     
-    // prints("[info]: [initializing disk]\n", WHITE);
-    // DISK disk;
-    // if (!disk_init(&disk, (const char *)boot_drive)) {
-    //     prints("[ERROR]: [Disk init error!]\r\n", RED);
-    //     goto end;
-    // }
+    /* prints("[info]: [initializing disk]\n", WHITE);
+     DISK disk;
+     if (!disk_init(&disk, (const char *)boot_drive)) {
+         prints("[ERROR]: [Disk init error!]\r\n", RED);
+         goto end;
+     }
 
-    // partition_t* part = NULL;
-    // mbr_detect_part(part, &disk, partition);
+     partition_t* part = NULL;
+     mbr_detect_part(part, &disk, partition);
 
-    // if (!fat_init(part)) {
-    //     prints("[FAT ERROR]: [fat init error]\r\n", RED);
-    //     goto end;
-    // }
+     if (!fat_init(part)) {
+         prints("[FAT ERROR]: [fat init error]\r\n", RED);
+         goto end;
+     }
 
-    // boot_params->boot_device = (unsigned long)boot_drive;
-    // if (!elf_read(part, "/boot/bin/kernel.elf", (void**)kmain)) {
-    //     prints("[FATAL ERROR]: [failed to read, booting halted!]", RED);
-    //     goto end;
-    // }
+     boot_params->boot_device = (unsigned long)boot_drive;
+     if (!elf_read(part, "/boot/bin/kernel.elf", (void**)kmain)) {
+         prints("[FATAL ERROR]: [failed to read, booting halted!]", RED);
+         goto end;
+     } */
 
     prints("[info]: [starting TTY]\n", WHITE);
     terminalInit();
@@ -116,7 +116,7 @@ void kmain(uint32_t magic, boot_params_t* bp)
     prints("[info]: [starting minimal dltsh]", WHITE);
     min_dltsh();
 
-end:
+end: 
     while (TRUE) {
         __asm__ __volatile__ ("hlt");
     }
