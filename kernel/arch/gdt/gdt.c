@@ -17,6 +17,6 @@ GDTEntry g_gdt[] = {
 
 GDTDescriptor g_gdt_descriptor = { sizeof(g_gdt) - 1, g_gdt };
 
-void i386_GDT_init() {
+void i386_GDT_init(void) {
     i386_GDT_load(&g_gdt_descriptor, i386_GDT_CODE_SEG, i386_GDT_DATA_SEG);
 }
