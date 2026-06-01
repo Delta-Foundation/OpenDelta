@@ -17,8 +17,6 @@
 #include "./lib/bootparams.h"
 #include "./tty/header/min_dltsh.h"
 
-#define DLTKERNEL_MAGIC 0xDEADB007u
-
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 extern void load_idt(uintptr_t *idt_ptr);
@@ -40,26 +38,14 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 
-__attribute__((noreturn)) void __stack_chk_fail(void) {
-    while (1) {
-        kpanic("[KERNEL PANIC]: [?????????? IDI NAHUY!]");
-        __asm__ volatile ( "cli" );
-        __asm__ volatile ( "hlt" );
-    }
-}
-
-void kmain(uint32_t magic, boot_params_t* bp)
+void __attribute__((cdecl)) kmain(uint32_t magic, boot_params_t* bp)
 {
-    if (magic != DLTKERNEL_MAGIC) {
-        kpanic("[KERNEL PANIC]: [bad bootloader magic]\n", RED);
-    }
-
     if (!bp) {
-        kpanic("[KERNEL PANIC]: [boot parameters pointer is NULL]\n", RED);
+        kpanic("[KERNEL PANIC]: [boot parameters pointer is NULL]\n");
     }
 
     boot_params = bp;
-    boot_drive = (uint8_t *)(bp->boor_drive & 0xFF);
+    *boot_drive = (bp->boot_drive & 0xFF);
 
     clearScreen();
 
