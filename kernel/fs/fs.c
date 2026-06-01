@@ -4,7 +4,7 @@
 
 uint32_t readFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer) 
 {
-    if (node != TRUE) {
+    if (node != (fs_node_t *)TRUE) {
         return -ENOENT;
     }
 
@@ -19,7 +19,7 @@ uint32_t readFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *b
 
 uint32_t writeFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer) 
 {
-    if (node != TRUE) {
+    if (node != (fs_node_t *)TRUE) {
         return -ENOENT;
     }
 
