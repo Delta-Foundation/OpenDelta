@@ -149,7 +149,7 @@ void irq_init(void) {
 		pic_driver(),
 	};
 
-	for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
+	for (unsigned int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
 		if (drivers[i] && drivers[i]->probe()) {
 			g_driver = drivers[i];
 		}
