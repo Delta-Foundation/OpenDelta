@@ -1,13 +1,11 @@
 #!/usr/bin/bash
 
-# !NO DEBIAN AND APT
-
 clear
 
 function kernel_deps {
     while true; do 
         echo "choose your distro group"
-        echo "1.arch, 2.void"
+        echo "1.arch, 2.void, 3.debian"
         read group
 
         if [ "$group" == "1" ]; then
@@ -20,6 +18,10 @@ function kernel_deps {
             sudo xbps-install -S git lld
             sudo xbps-install -S qemu-system-i386 qemu-common qemu-firmware
             break
+        elif [ "$group" == "3" ]; then 
+            sudo apt install clang lld llvm nasm
+            sudo apt install git make
+            sudo apt install qemu-system qemu-system-x86
         else
             echo "choose only 1 or 2"
         fi
@@ -29,17 +31,23 @@ function kernel_deps {
 function shell_deps {
     while true; do 
         echo "choose your distro group"
-        echo "1.arch, 2.void"
+        echo "1.arch, 2.void, 3.debian"
         read group 
 
         if [ "$group" == "1" ]; then
             sudo pacman -S rust cargo
             sudo pacman -S ncurses ncurses-devel ncurses-libs
+            break 
         elif [ "$group" == "2" ]; then
             sudo xbps-install -S rust cargo
             sudo xbps-install -S ncurses ncurses-devel ncurses-libs
+            break 
+        elif [ "$group" == "3" ]; then 
+            sudo apt install clang rust cargo
+            sudo apt install ncurses 
+            break
         else
-            echo "choose only 1 or 2"
+            echo "choose only 1 or 2 or 3"
         fi 
     done
 }
@@ -51,3 +59,5 @@ function main {
     echo "install shell dependencies"
     shell_deps
 }
+
+main
