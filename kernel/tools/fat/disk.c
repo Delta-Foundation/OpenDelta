@@ -2,7 +2,7 @@
 #include "./headers/tools.h"
 
 boolean disk_init(DISK *disk, const char *filename) {
-    disk->file = fopen((const char *)filename, "r");
+    disk->file = fopen((char *)filename, "r");
     return (disk->file != NULL);
 }
 
@@ -32,4 +32,3 @@ boolean disk_read_sects(DISK* disk, uint32_t lba, uint8_t sectors, void* data_ou
 
     return (int)FALSE;
 }
-
