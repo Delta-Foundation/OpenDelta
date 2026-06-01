@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function tty() {
+function tty {
     # путь к устройству tty
     TTY_PATH="/dev/tty1"
 
