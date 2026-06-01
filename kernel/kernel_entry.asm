@@ -13,7 +13,7 @@ section .data
     nl db 'W', 0x0A
 
 section .bss
-    align 16
+    align 32
     stack_bot: resb 0x4000
     stack_top:
 
