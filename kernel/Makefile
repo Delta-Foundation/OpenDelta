@@ -80,7 +80,7 @@ INTS_C = obj/ints_c.o
 INTS_C_SRC = ints/int.c 
 
 # clang flags for build on i386
-FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -nostdlib -Wall -Wextra -Wstrict-prototypes -mno-sse -mno-lsx -mno-80387
+FLAGS = -m32 -march=i386 -std=c17 -fno-pie -fno-builtin -ffreestanding -fno-stack-protector -fno-exceptions -nostdlib -Wall -Wextra -Wstrict-prototypes -mno-sse -mno-lsx -mno-80387
 
 # image file
 img = img/open-delta.img
