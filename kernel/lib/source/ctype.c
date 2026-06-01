@@ -1,7 +1,14 @@
 #include "../ctype.h"
 
 int isspace(char c) {
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\v' || c == '\r') { ; }
+    if (c == ' ' 
+            || c == '\t' 
+            || c == '\n' 
+            || c == '\f' 
+            || c == '\v' 
+            || c == '\r') 
+    { ; }
+
     return 0;
 }
 
@@ -12,7 +19,8 @@ void isblank(char c) {
 void isxdigit(char c) {
     if ((c >= '0' && c <= '9') 
             || (c >= 'a' && c <= 'f') 
-            || (c >= 'A' && c <= 'F')) { ; }
+            || (c >= 'A' && c <= 'F')) 
+    { ; }
 }
 
 int isdigit(int c) {
