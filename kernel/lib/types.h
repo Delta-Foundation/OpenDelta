@@ -75,6 +75,6 @@ int sizeCmp(size_t a, size_t b);
 
 int atoi(char s[]);
 long atol(const char *s);
+double atof(char s[]);
 
 #endif
-
