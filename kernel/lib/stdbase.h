@@ -175,7 +175,6 @@ union header {
     Align x;
 };
 
-
 /*---functions---*/
 char sbrk(int incr);
 void fputc(char c, FILE *file);
@@ -205,6 +204,7 @@ int fgetc(FILE* file);
 int ngetc(FILE* stream);
 void fcopy(FILE *ifp, FILE *ofp);
 int getline(char *line, int max);
+int mode_getline(char s[], int lim);
 int _fputs(char *s, FILE *iop);
 FILE *fopen(char *name, char *mode);
 int fclose(FILE *file);
