@@ -13,6 +13,7 @@ global load_idt
 
 section .data
     nl db 'W', 0x0A
+    VIDEO_MEMORY equ 0xB8000
 
 section .bss
     align 16
@@ -32,7 +33,7 @@ _start:
     xor eax, eax 
     rep stosd
 
-    mov dword [0xB8000], 0x0F4B0F4B
+    mov dword [VIDEO_MEMORY], 0x2F4B2F4B
 
     mov ax, 0x10 
     mov ds, ax 
