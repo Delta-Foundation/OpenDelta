@@ -5,11 +5,11 @@ global _start
 global readp  ; read port
 global writep ; write port
 global load_idt
-extern __bss_start
-extern __bss_end
+[extern __bss_start]
+[extern __bss_end]
 
     ; C functions
-extern kmain
+[extern kmain]
 
 section .data
     nl db 'W', 0x0A
