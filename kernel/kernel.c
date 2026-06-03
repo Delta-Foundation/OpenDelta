@@ -9,11 +9,11 @@
 #include "./lib/idt.h"
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
-#include "./lib/pic.h"
+/* #include "./lib/pic.h"
 #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
-#include "./tools/fat/headers/elf.h"
+#include "./tools/fat/headers/elf.h" */
 #include "./lib/bootparams.h"
 #include "./tty/header/min_dltsh.h"
 
@@ -37,8 +37,9 @@ static void kpanic(const char *panic_msg, ...) {
         __asm__ volatile ( "hlt" );
     }
 }
-
-void __attribute__((cdecl)) kmain(uint32_t magic, boot_params_t* bp)
+__attribute__((noreturn)) 
+__attribute__((section(".text")))
+void kmain(uint32_t magic, boot_params_t* bp)
 {
     if (!bp) {
         kpanic("[KERNEL PANIC]: [boot parameters pointer is NULL]\n");
