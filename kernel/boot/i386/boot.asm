@@ -82,8 +82,8 @@ load_kernel:
     mov al, 17 
     mov ch, 0x00 
     mov dh, 0x00  
+    mov cl, 0x02
     mov dl, [boot_drive]
-    mov cl, 0x02 
     int 0x13
     jc read_error
 
@@ -91,11 +91,11 @@ load_kernel:
     mov al, 15 
     mov ch, 0x00 
     mov dh, 0x01 
-    mov dl, [boot_drive] 
     mov cl, 0x01 
+    mov dl, [boot_drive] 
     int 0x13 
     jc read_error
-
+    
     mov si, str_kernel_loaded
     call print
     call print_nl
@@ -116,7 +116,7 @@ setup_gdt:
 switch:
     call setup_gdt
     mov eax, cr0
-    or al, 1
+    or al, 0x1 
     mov cr0, eax
 
     jmp CODE_SEG:protected_mode
@@ -137,9 +137,9 @@ protected_mode:
 
     mov eax, 0x10000
     call 0x10000
-
+    
     cli
-    hlt
+
     jmp $
 
 print_pmode:
@@ -200,7 +200,7 @@ str_pmode: db "[DBL]: Landed in 32-bit protected mode. Jumping to kernel...", 0x
 str_load:  db "[DBL]: Loading dltkernel from the disk...", 0x0D, 0x0A, 0
 str_kernel_loaded: db "[DBL]: Kernel loaded at 0x10000", 0x0D, 0x0A, 0
 
-boot_drive:    db 0
+boot_drive:    db 0 
 boot_part_seg: dw 0
 boot_part_off: dw 0
 
@@ -208,5 +208,5 @@ boot_part_off: dw 0
 str_returned_kernel:  db "Returned from kernel. Error?", 0x0D, 0x0A, 0
 str_read_fail:        db "[err]: [read failed!]", 0x0D, 0x0A, 0
 
-times 510 - ($-$$) db 0
-db 0x55, 0xAA
+times 510 - ($ - $$) db 0
+dw 0xAA55
