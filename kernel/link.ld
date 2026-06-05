@@ -32,6 +32,7 @@ SECTIONS {
    
     .text ALIGN(4096) : {
         __text_start = .;
+        *(.text._start)
         *(.text)
         *(.text*)
         __text_end = .;
@@ -63,10 +64,11 @@ SECTIONS {
         _heap_end = .;
     } :data
 
-    . = ALIGN(4096);
-    stack_bot = .;
-    . += 0x4000;
-    stack_top = .;
+    .stack (NOLOAD) : ALIGN(16) {
+        stack_bot = .;
+        . += 0x90000;
+        stack_top = .;
+    }
 
     /DISCARD/ : {
         *(.eh_frame)
