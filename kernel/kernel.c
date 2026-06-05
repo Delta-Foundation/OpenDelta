@@ -9,22 +9,23 @@
 #include "./lib/idt.h"
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
+#include "./lib/mouse.h" 
 /* #include "./lib/pic.h"
 #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
 #include "./tools/fat/headers/elf.h" */
-#include "./lib/bootparams.h"
 #include "./tty/header/min_dltsh.h"
+
+#define DEF_MEM_LOWER 320
+#define DEF_MEM_UPPER (32 * 1024)
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 extern void load_idt(uintptr_t *idt_ptr);
 
 IDTEntry IDT[IDT_SIZE];
-uint8_t *boot_drive = (uint8_t *)0x80;
-boot_params_t *boot_params = NULL;
-void* partition = NULL;
+uint8_t boot_drive = 0x80;
 
 static void kpanic(const char *panic_msg, ...) {
     prints("KERNEL PANIC: ", WHITE);
@@ -38,17 +39,19 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 __attribute__((noreturn)) 
-__attribute__((section(".text")))
-void kmain(uint32_t magic, boot_params_t* bp)
+void kmain(void)
 {
-    if (!bp) {
-        kpanic("[KERNEL PANIC]: [boot parameters pointer is NULL]\n");
-    }
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    vga[40] = 0x4F4D;
+    vga[41] = 0x4F41;
+    vga[42] = 0x4F49;
+    vga[43] = 0x4F4E;
 
-    boot_params = bp;
-    *boot_drive = (bp->boot_drive & 0xFF);
+    vga[45] = 0x2F36;
 
     clearScreen();
+
+    vga[0] = 0x2F37;
 
     const char *welcome = "Welcome to the OpenDelta!\n";
     const char *os_name = "OS: OpenDelta v0.1-a\n";
@@ -67,7 +70,7 @@ void kmain(uint32_t magic, boot_params_t* bp)
 
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
-    paggingInstall(bp->mem_lower + bp->mem_upper);
+    paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
     heapInstall();
     shmInstall();
     
@@ -75,7 +78,8 @@ void kmain(uint32_t magic, boot_params_t* bp)
     prints("[info]: [install fpu driver]\n", WHITE);
     fpu_install();
     syscallInstall();
-    
+    mouse_install();    
+
     /* prints("[info]: [initializing disk]\n", WHITE);
      DISK disk;
      if (!disk_init(&disk, (const char *)boot_drive)) {
