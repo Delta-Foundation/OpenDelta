@@ -17,7 +17,7 @@ section .data
 
 section .bss
     align 16
-    stack_bot: resb 0x4000
+    stack_bot: resb 0x90000
     stack_top:
 
 section .text
@@ -26,6 +26,9 @@ _start:
     cli
     cld
 
+    ; Start entry point. Marker 1 
+    mov dword [0xB8000], 0x2F312F31
+
     mov edi, __bss_start
     mov ecx, __bss_end 
     sub ecx, edi 
@@ -33,26 +36,24 @@ _start:
     xor eax, eax 
     rep stosd
 
-    mov dword [VIDEO_MEMORY], 0x2F4B2F4B
-
-    mov ax, 0x10 
-    mov ds, ax 
-    mov es, ax 
-    mov fs, ax 
-    mov gs, ax 
-    mov ss, ax
+    ; BSS clear; Marker 2 
+    mov dword [0xB8004], 0x2F322F32
 
     mov esp, stack_top
-    
-    push ebx 
-    push eax 
+   
+    ; Stack ready; Marker 3 
+    mov dword [0xB8008], 0x2F332F33
+
+    ; Call kmain; Marker 4
+    mov dword [0xB800C], 0x2F342F34 
+
     call kmain 
 
     cli
 
-.hang:
+.halt:
     hlt
-    jmp .hang
+    jmp .halt
 
 readp:
     push ebp
