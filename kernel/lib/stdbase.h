@@ -13,25 +13,8 @@ extern "C" {
 #define ALIGN 8
 #define MAGIC 0xB16B00B5U
 
-/*---for-screen-driver---*/
-#define LINES 				30
-#define COLUMNS_IN_LINE 		85
-#define BYTES_FOR_EACH_ELEMENT 		2
-#define SCREENSIZE 			BYTES_FOR_EACH_ELEMENT * COLUMNS_IN_LINE * LINES
-
-#define KEYBOARD_DATA_PORT 		0x60
-#define KEYBOARD_STATUS_PORT 		0x64
-#define INTERRUPT_GATE 			0x8e
+#define INTERRUPT_GATE 			    0x8e
 #define KERNEL_CODE_SEGMENT_OFFSET 	0x10000
-
-#define ENTER_KEY_CODE 			0x1C
-#define ENTER_BACKSPACE_CODE		0x0E
-
-#define REG_SCREEN_CTRL			0x3d4
-#define REG_SCREEN_DATA			0x3d5
-
-static unsigned int currentLoc = 0;
-static char *vidptr = (char*)0xb8000;
 
 /* colors */
 typedef enum {
@@ -59,20 +42,20 @@ typedef struct {
 
 /*---For-Base---*/
 #define EOF (-1)
-#define BUFSIZE 1024
+#define BUFSIZE  1024
 #define OPEN_MAX 20
 #define NAME_MAX 14 
 
-#define S_IFMT 0160000
+#define S_IFMT  0160000
 #define S_IFDIR 0040000
 #define S_IFCHR 0020000
 #define S_IDBLK 0060000
 #define S_IFREG 0100000
 
-#define stdin 0
+#define stdin  0
 #define stdout 1
 #define stderr 2
-#define debug 3
+#define debug  3
 
 #define NALLOC 1024
 
@@ -174,6 +157,7 @@ union header {
     } s;
     Align x;
 };
+
 
 /*---functions---*/
 char sbrk(int incr);
