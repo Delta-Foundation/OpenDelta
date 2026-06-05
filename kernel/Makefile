@@ -78,6 +78,8 @@ MIN_DLTSH = obj/mdltsh.o
 MIN_DLTSH_SRC = tty/min_dltsh.c
 INTS_C = obj/ints_c.o 
 INTS_C_SRC = ints/int.c 
+MOUSE = obj/mouse.o 
+MOUSE_SRC = drvs/mouse.c 
 
 # clang flags for build on i386
 FLAGS = -m32 -march=i386 -std=c17 \
@@ -93,7 +95,9 @@ img = img/open-delta.img
 
 # qemu
 QEMU = qemu-system-i386
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s -d int,pcall
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
+			 -d int,cpu_reset \
+			 -no-reboot -no-shutdown 
 
 all: run
 
@@ -128,7 +132,7 @@ $(KERNEL_ELF): $(ENTRY) $(TOOLS) $(INTS_C) \
 	$(GDT) $(SHM) $(FS) \
 	$(LIST) $(PIPE) $(FPU) \
 	$(SYS) $(TASK) $(PROC) \
-	$(DISK) $(FAT) $(MBR)
+	$(DISK) $(FAT) $(MBR) $(MOUSE)
 	$(LD) -m elf_i386 -s -o $(LD_FLAGS) 
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -153,6 +157,9 @@ $(PIC): $(PIC_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(GDT): $(GDT_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(MOUSE): $(MOUSE_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(ELF): $(ELF_SRC)
@@ -233,7 +240,7 @@ clean:
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
 		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)            \
-		  $(MIN_DLTSH) $(INTS_C)
+		  $(MIN_DLTSH) $(INTS_C) $(MOUSE)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
