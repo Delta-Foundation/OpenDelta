@@ -1,6 +1,7 @@
 #include "../lib/ports.h"
 #include "../lib/stdbase.h"
 #include "../mem/header/memory.h"
+#include "../lib/screen.h"
 
 int getOffset(int col, int row);
 int getOffsetRow(int offset);
