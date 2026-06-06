@@ -65,7 +65,7 @@ void kmain(void)
 
     prints("[info]: [initializing isr and irq]\n", WHITE);
     isr_install();
-    irq_init();
+    irq_install();
 
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
