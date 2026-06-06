@@ -9,5 +9,6 @@ idt_load:
     lidt [eax]
 
     mov esp, ebp
+    sti
     pop ebp
     ret
