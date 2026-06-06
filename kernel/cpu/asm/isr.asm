@@ -1,74 +1,33 @@
+; ==============================================================
+; ISR (Interrupt Service Routines) - Expection handlers 0-31
+; ==============================================================
+
 isr_common_stub:
-	pusha			; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-	mov	ax, ds		; lower 16-bits of eax = ds
-	push	eax		; save the data segment descriptor
-	mov	ax, 0x10	; kernel data segment descriptor
+	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+	
+    mov	ax, ds		; lower 16-bits of eax = ds
+	push	eax             ; save the data segment descriptor
+	
+    mov	ax, 0x10	; kernel data segment descriptor
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
 
+    push esp 
 	call	isr_handler
+    add esp, 4
 
 	pop	eax
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
+
 	popa
-	add 	esp, 8		; cleans up the pushed error code and pushed ISR number
-	
-        iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+	add esp, 8		; cleans up the pushed error code and pushed ISR number
 
-%macro ISR_NOERR 1
-        global isr%1
-        isr%1:
-                cli 
-                push dword 0 
-                push dword %1
-                jump isr_common_stub
-%endmacro
-
-%macro ISR_ERR 1
-        global isr%1
-        isr%1:
-                cli 
-                push dword %1
-                jmp isr_common_stub
-%endmacro
-
-%define ISR_NOERR 0     ; Divide by Zero
-%define ISR_NOERR 1     ; Debug
-%define ISR_NOERR 2     ; NMI
-%define ISR_NOERR 3     ; Breakpoint
-%define ISR_NOERR 4     ; Overflow
-%define ISR_NOERR 5     ; Bound Range Exceeded
-%define ISR_NOERR 6     ; Invalid Opcode
-%define ISR_NOERR 7     ; Device Not Available
-%define ISR_ERR   8     ; Double Fault (HAS ERROR CODE!)
-%define ISR_NOERR 9     ; Coprocessor Segment Overrun
-%define ISR_ERR   10    ; Invalid TSS
-%define ISR_ERR   11    ; Segment Not Present
-%define ISR_ERR   12    ; Stack-Segment Fault
-%define ISR_ERR   13    ; General Protection Fault
-%define ISR_ERR   14    ; Page Fault
-%define ISR_NOERR 15    ; Reserved
-%define ISR_NOERR 16    ; x87 FPU Error
-%define ISR_ERR   17    ; Alignment Check
-%define ISR_NOERR 18    ; Machine Check
-%define ISR_NOERR 19    ; SIMD FP Exception
-%define ISR_NOERR 20    ; Virtualization Exception
-%define ISR_ERR   21    ; Control Protection
-%define ISR_NOERR 22
-%define ISR_NOERR 23
-%define ISR_NOERR 24
-%define ISR_NOERR 25
-%define ISR_NOERR 26
-%define ISR_NOERR 27
-%define ISR_NOERR 28
-%define ISR_ERR   29    ; VMM Communication
-%define ISR_ERR   30    ; Security Exception
-%define ISR_NOERR 31
+    iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 ; make ISRs global
 global isr0
@@ -104,216 +63,217 @@ global isr29
 global isr30
 global isr31
 
-; Divide by zero exception
+; 0: Divide by Zero (no error code)
 isr0:
-	cli
-	push	byte 0
-	push	byte 0
-	jmp	isr_common_stub
+    cli
+    push dword 0        ; dummy error code
+    push dword 0        ; interrupt number
+    jmp isr_common_stub
 
-; Debug exception
+; 1: Debug (no error code)
 isr1:
-	cli	
-	push	byte 0
-	push	byte 1
-	jmp 	isr_common_stub
+    cli
+    push dword 0
+    push dword 1
+    jmp isr_common_stub
 
-; non-maskable interrupt exception
+; 2: NMI (no error code)
 isr2:
-        cli     
-        push    byte 0
-        push    byte 2
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 2
+    jmp isr_common_stub
 
-; int 3 exception
+; 3: Breakpoint (no error code)
 isr3:
-        cli     
-        push    byte 0
-        push    byte 3
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 3
+    jmp isr_common_stub
 
-; INTO exception
+; 4: Overflow (no error code)
 isr4:
-        cli     
-        push    byte 0
-        push    byte 4
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 4
+    jmp isr_common_stub
 
-; out of bounds exception
+; 5: Bound Range Exceeded (no error code)
 isr5:
-        cli     
-        push    byte 0
-        push    byte 5
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 5
+    jmp isr_common_stub
 
-; invalid opcode exception
+; 6: Invalid Opcode (no error code)
 isr6:
-        cli     
-        push    byte 0
-        push    byte 6
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 6
+    jmp isr_common_stub
 
-; coprocessor not available exception
+; 7: Device Not Available (no error code)
 isr7:
-        cli     
-        push    byte 0
-        push    byte 7
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 7
+    jmp isr_common_stub
 
-; Double fault exception
+; 8: Double Fault (HAS error code from CPU)
 isr8:
-        cli     
-        push    byte 8
-        jmp     isr_common_stub
+    cli
+    ; CPU pushes error code
+    push dword 8
+    jmp isr_common_stub
 
-; coprocessor segment overrun exception
+; 9: Coprocessor Segment Overrun (no error code)
 isr9:
-        cli     
-        push    byte 0
-        push    byte 9
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 9
+    jmp isr_common_stub
 
-; bad tss exception
+; 10: Invalid TSS (HAS error code)
 isr10:
-        cli     
-        push    byte 10
-        jmp     isr_common_stub
+    cli
+    push dword 10
+    jmp isr_common_stub
 
-; segment not present exception
+; 11: Segment Not Present (HAS error code)
 isr11:
-        cli     
-        push    byte 11
-        jmp     isr_common_stub
+    cli
+    push dword 11
+    jmp isr_common_stub
 
-; stack fault exception exception
+; 12: Stack-Segment Fault (HAS error code)
 isr12:
-        cli     
-        push    byte 12
-        jmp     isr_common_stub
+    cli
+    push dword 12
+    jmp isr_common_stub
 
-; general protection fault exception
+; 13: General Protection Fault (HAS error code)
 isr13:
-        cli     
-        push    byte 13
-        jmp     isr_common_stub
+    cli
+    push dword 13
+    jmp isr_common_stub
 
-; page fault exception
+; 14: Page Fault (HAS error code)
 isr14:
-        cli     
-        push    byte 14
-        jmp     isr_common_stub
+    cli
+    push dword 14
+    jmp isr_common_stub
 
-; reserved exception
+; 15: Reserved (no error code)
 isr15:
-        cli     
-        push    byte 0
-        push    byte 15
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 15
+    jmp isr_common_stub
 
-; floating point exception
+; 16: x87 FPU Error (no error code)
 isr16:
-        cli
-        push    byte 0
-        push    byte 16
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 16
+    jmp isr_common_stub
 
-; alignment check exception
+; 17: Alignment Check (HAS error code)
 isr17:
-        cli     
-        push    byte 17
-        jmp     isr_common_stub
+    cli
+    push dword 17
+    jmp isr_common_stub
 
-; machine check exception
+; 18: Machine Check (no error code)
 isr18:
-        cli     
-        push    byte 0
-        push    byte 18
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 18
+    jmp isr_common_stub
 
-; reserved
+; 19: SIMD FP Exception (no error code)
 isr19:
-        cli     
-        push    byte 0
-        push    byte 19
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 19
+    jmp isr_common_stub
 
-; reserved
+; 20: Virtualization Exception (no error code)
 isr20:
-        cli     
-        push    byte 0
-        push    byte 20
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 20
+    jmp isr_common_stub
 
-; reserved
+; 21: Control Protection Exception (HAS error code)
 isr21:
-        cli     
-        push    byte 21
-        jmp     isr_common_stub
+    cli
+    push dword 21
+    jmp isr_common_stub
 
-; reserved
+; 22: Reserved (no error code)
 isr22:
-        cli     
-        push    byte 0
-        push    byte 22
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 22
+    jmp isr_common_stub
 
-; reserved
+; 23: Reserved (no error code)
 isr23:
-        cli     
-        push    byte 0
-        push    byte 23
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 23
+    jmp isr_common_stub
 
-; reserved
+; 24: Reserved (no error code)
 isr24:
-        cli     
-        push    byte 0
-        push    byte 24
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 24
+    jmp isr_common_stub
 
-; reserved
+; 25: Reserved (no error code)
 isr25:
-        cli     
-        push    byte 0
-        push    byte 25
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 25
+    jmp isr_common_stub
 
-; reserved
+; 26: Reserved (no error code)
 isr26:
-        cli     
-        push    byte 0
-        push    byte 26
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 26
+    jmp isr_common_stub
 
-; reserved
+; 27: Reserved (no error code)
 isr27:
-        cli     
-        push    byte 0
-        push    byte 27
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 27
+    jmp isr_common_stub
 
-; reserved
+; 28: Reserved (no error code)
 isr28:
-        cli     
-        push    byte 0
-        push    byte 28
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 28
+    jmp isr_common_stub
 
-; reserved
+; 29: VMM Communication Exception (HAS error code)
 isr29:
-        cli     
-        push    byte 29
-        jmp     isr_common_stub
+    cli
+    push dword 29
+    jmp isr_common_stub
 
-; reserved
+; 30: Security Exception (HAS error code)
 isr30:
-        cli     
-        push    byte 30
-        jmp     isr_common_stub
+    cli
+    push dword 30
+    jmp isr_common_stub
 
-; reserved
+; 31: Reserved (no error code)
 isr31:
-        cli     
-        push    byte 0
-        push    byte 31
-        jmp     isr_common_stub
+    cli
+    push dword 0
+    push dword 31
+    jmp isr_common_stub
