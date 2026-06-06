@@ -75,14 +75,3 @@ writep:
 
     pop ebp
     ret
-
-load_idt:
-    push ebp
-
-    mov ebp, esp
-    mov eax, [ebp + 8]
-    lidt [eax]
-
-    sti
-    pop ebp
-    ret
