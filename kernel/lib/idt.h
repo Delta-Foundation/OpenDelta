@@ -61,9 +61,10 @@ typedef struct {
 
 void idt_load(IDTDescriptor *idt_desc);
 
+
 void idt_enable_gate(int interrupt);
 void idt_disable_gate(int interrupt);
-void set_idt_gate(int n, uint32_t handler);
+void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags);
 void set_idt(void);
 
 #endif
