@@ -125,28 +125,9 @@ void irq_handler(regs_t r) {
     }
 }
 
-void irq_init(void) {
-	// Install the IRQs
-	set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
-	set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
-	set_idt_gate(34, (uint32_t)irq2,  0x08, 0x8E);
-	set_idt_gate(35, (uint32_t)irq3,  0x08, 0x8E);
-	set_idt_gate(36, (uint32_t)irq4,  0x08, 0x8E);
-	set_idt_gate(37, (uint32_t)irq5,  0x08, 0x8E);
-	set_idt_gate(38, (uint32_t)irq6,  0x08, 0x8E);
-	set_idt_gate(39, (uint32_t)irq7,  0x08, 0x8E);
-	set_idt_gate(40, (uint32_t)irq8,  0x08, 0x8E);
-	set_idt_gate(41, (uint32_t)irq9,  0x08, 0x8E);
-	set_idt_gate(42, (uint32_t)irq10, 0x08, 0x8E);
-	set_idt_gate(43, (uint32_t)irq11, 0x08, 0x8E);
-	set_idt_gate(44, (uint32_t)irq12, 0x08, 0x8E);
-	set_idt_gate(45, (uint32_t)irq13, 0x08, 0x8E);
-	set_idt_gate(46, (uint32_t)irq14, 0x08, 0x8E);
-	set_idt_gate(47, (uint32_t)irq15, 0x08, 0x8E);
 
-    set_idt();
-
-	const pic_driver_t* drivers[] = {
+void irq_install(void) {
+    const pic_driver_t* drivers[] = {
 		pic_driver(),
 	};
 
@@ -167,6 +148,25 @@ void irq_init(void) {
 	g_driver->unmask(0);
 	g_driver->unmask(1);
 
+	// Install the IRQs
+	set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
+	set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
+	set_idt_gate(34, (uint32_t)irq2,  0x08, 0x8E);
+	set_idt_gate(35, (uint32_t)irq3,  0x08, 0x8E);
+	set_idt_gate(36, (uint32_t)irq4,  0x08, 0x8E);
+	set_idt_gate(37, (uint32_t)irq5,  0x08, 0x8E);
+	set_idt_gate(38, (uint32_t)irq6,  0x08, 0x8E);
+	set_idt_gate(39, (uint32_t)irq7,  0x08, 0x8E);
+	set_idt_gate(40, (uint32_t)irq8,  0x08, 0x8E);
+	set_idt_gate(41, (uint32_t)irq9,  0x08, 0x8E);
+	set_idt_gate(42, (uint32_t)irq10, 0x08, 0x8E);
+	set_idt_gate(43, (uint32_t)irq11, 0x08, 0x8E);
+	set_idt_gate(44, (uint32_t)irq12, 0x08, 0x8E);
+	set_idt_gate(45, (uint32_t)irq13, 0x08, 0x8E);
+	set_idt_gate(46, (uint32_t)irq14, 0x08, 0x8E);
+	set_idt_gate(47, (uint32_t)irq15, 0x08, 0x8E);
+
+    set_idt();
 	enable_ints();
 }
 
