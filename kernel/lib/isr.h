@@ -79,7 +79,7 @@ typedef struct {
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
 	uint32_t int_no, err_code;
 	uint32_t eip, cs, eflags, useresp, ss;
-} regs_t;
+} __attribute__((packed)) regs_t;
 
 typedef void (*isr_t)(regs_t);
 
@@ -89,7 +89,7 @@ void panic(void);
 void isr_install(void);
 void isr_handler(regs_t r);
 void irq_handler(regs_t r);
-void irq_init(void);
+void irq_install(void);
 void irq_regs_handler(int irq, isr_t handler);
 
 void register_interrupt_handler(uint8_t n, isr_t handler);
