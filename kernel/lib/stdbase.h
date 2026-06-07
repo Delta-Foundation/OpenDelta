@@ -171,6 +171,7 @@ void *malloc(unsigned nbytes);
 
 void *kmalloc(unsigned int size, int align, unsigned int *phys_addr);
 
+
 void fprintf_unsigned(FILE *file, unsigned int num, int radix);
 void fprintf_signed(FILE *file, long long num, int radix);
 void fprintf_bu(FILE *file, const char* msg, const void* buf, uint32_t count);
@@ -178,10 +179,6 @@ void vfprintf(FILE *file, const char *fmt, va_list args);
 void fprintf(FILE *file, const char *fmt, ...);
 void printf(const char* fmt, ...);
 void printf_buffer(const char* fmt, const void* buf, uint32_t count);
-void debugc(char c);
-void debugs(const char* str);
-void debugf(const char* fmt, ...);
-void debug_buffer(const char* mgs, const void* buf, uint32_t count);
 void *free(void *ap);
 char *fgets(char *s, int n, FILE * iop);
 int fgetc(FILE* file);
