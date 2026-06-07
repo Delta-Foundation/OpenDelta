@@ -10,8 +10,8 @@
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
 #include "./lib/mouse.h" 
-/* #include "./lib/pic.h"
-#include "./tools/fat/headers/disk.h"
+#include "./lib/pic.h"
+/* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
 #include "./tools/fat/headers/elf.h" */
@@ -65,6 +65,7 @@ void kmain(void)
 
     prints("[info]: [initializing isr and irq]\n", WHITE);
     isr_install();
+    pic_remap();    
     irq_install();
 
 
@@ -79,6 +80,7 @@ void kmain(void)
     syscallInstall();
     mouse_install();    
 
+    unmask(1);
     /* prints("[info]: [initializing disk]\n", WHITE);
      DISK disk;
      if (!disk_init(&disk, (const char *)boot_drive)) {
