@@ -78,6 +78,8 @@ _start:
     ; Stack ready; Marker 3 
     mov dword [VIDEO_MEMORY + 8], 0x2F332F33
 
+    call load_idt
+
     ; Call kmain; Marker 4
     mov dword [VIDEO_MEMORY + 12], 0x2F342F34 
 
