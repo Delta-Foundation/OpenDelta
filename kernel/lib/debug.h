@@ -2,6 +2,7 @@
 #define _OPEN_DELTA_DEBUG_H
 
 #include "./stdbase.h"
+#include "./types.h"
 
 #pragma once
 
@@ -20,6 +21,11 @@ typedef enum {
 } debug_level;
 
 void logf(const char *module, debug_level level, const char *fmt, ...);
+void debugc(char c);
+void debugs(const char* str);
+void debugf(const char *fmt, ...);
+void debug_buffer(const char* msg, const void* buf, uint32_t count)
+
 #define log_debug(modele, ...) logf(module, LVL_DEBUG, __VA_ARGS__)
 #define log_info(module, ...) logf(module, LVL_INFO, __VA_ARGS__)
 #define log_warn(module, ...) logf(module, LVL_WARN, __VA_ARGS__)
