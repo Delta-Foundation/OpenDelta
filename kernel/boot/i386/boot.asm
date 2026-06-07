@@ -15,7 +15,7 @@ _start:
     call clear_screen
 
     mov [boot_drive], dl
-    
+
     mov  si, str_real 
     call print
     call print_nl
@@ -119,11 +119,11 @@ switch:
     or al, 0x1 
     mov cr0, eax
 
-    jmp CODE_SEG:protected_mode
+    jmp 0x08:protected_mode
 
 [bits 32]
 protected_mode:
-    mov ax, DATA_SEG
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -132,7 +132,7 @@ protected_mode:
 
     mov esp, 0x90000
 
-    mov ebx, str_pmode
+    mov dword ebx, str_pmode
     call print_pmode
 
     mov eax, 0x10000
@@ -165,23 +165,24 @@ print_pmode_end:
 
 gdt_start:
     gdt_null:
-        dq 0
+        dd 0x0 
+        dd 0x0 
 
     gdt_code:
         dw 0xFFFF       ; Лимит 0-15
-        dw 0x0          ; База 0-15
-        db 0x0
+        dw 0x0000         ; База 0-15
+        db 0x00 
         db 10011010b 	; P, DPL, S, Type flags
 	    db 11001111b         ; Granularity, 32-bit, Лимит 16-19
-        db 0x0          ; База 24-31
+        db 0x00          ; База 24-31
 
     gdt_data:
         dw 0xFFFF
-        dw 0x0
-        db 0x0
+        dw 0x0000 
+        db 0x00 
         db 10010010b         ; Present, Ring 0, Data, Read/Write
         db 11001111b
-        db 0x0
+        db 0x00
 
 gdt_end:
 
