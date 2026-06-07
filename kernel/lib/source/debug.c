@@ -29,3 +29,22 @@ void logf(const char* module, debug_level level, const char* fmt, ...)
 
     va_end(args);
 }
+
+void debugc(char c) {
+    fputc(c, (FILE *)debug);
+}
+
+void debugs(const char* str) {
+    fputs(str, (FILE *)debug);
+}
+
+void debugf(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf((FILE *)debug, fmt, args);
+    va_end(args);
+}
+
+void debug_buffer(const char* msg, const void* buf, uint32_t count) {
+    fprintf_buffer((FILE* )debug, msg, buf, count);
+}
