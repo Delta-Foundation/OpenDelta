@@ -1,5 +1,4 @@
 #include "../lib/pic.h"
-#include "../lib/pic.h"
 #include "../lib/stdbase.h"
 
 void iowait(void) {
@@ -51,9 +50,9 @@ void pic_configure(uint8_t offset1, uint8_t offset2, boolean auto_eoi)
 
 void send_end_of_int(int irq) {
     if (irq >= 8) {
-        outb(PIC2_COM_PORT, PIC_CMD_END_OF_INT);
+        outb(PIC2_CMD, PIC_CMD_END_OF_INT);
     }
-    outb(PIC1_COM_PORT, PIC_CMD_END_OF_INT);
+    outb(PIC1_CMD, PIC_CMD_END_OF_INT);
 }
 
 void pic_disable(void) {
@@ -72,6 +71,23 @@ uint16_t read_irq_request_reg(void) {
     outb(PIC1_COM_PORT, PIC_CMD_READ_IRR);
     outb(PIC2_COM_PORT, PIC_CMD_READ_IRR);
     return ((uint16_t)inb(PIC2_COM_PORT)) | (((uint16_t)inb(PIC1_COM_PORT)) << 8);
+}
+
+void pic_remap(void) {
+    outb(PIC1_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+    outb(PIC2_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+
+    outb(PIC1_DATA_PORT, 0x20);
+    outb(PIC2_DATA_PORT, 0x28);
+
+    outb(PIC1_DATA_PORT, 0x04);
+    outb(PIC2_DATA_PORT, 0x02);
+
+    outb(PIC1_DATA_PORT, PIC_ICW4_8086);
+    outb(PIC2_DATA_PORT, PIC_ICW4_8086);
+
+    outb(PIC1_DATA_PORT, 0xFF);
+    outb(PIC2_DATA_PORT, 0xFF);
 }
 
 boolean probe(void) {
