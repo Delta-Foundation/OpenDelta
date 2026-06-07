@@ -10,12 +10,10 @@ FILE _iob[OPEN_MAX];
 
 static Header base;
 static Header *freep = NULL;
-static char *dataStart = (char *)0x100000;
+static char *dataStart = (char *)0x10000;
 static char *dataEnd = (char *)&dataStart;
-static int cursor_x = 0;
-static int cursor_y = 0;
+ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
 
-static ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
 uint64_t freeMemAddr = 0x10000;
 const char g_hex_chars[] = "0123456789abcdef";
 
@@ -216,7 +214,10 @@ void fprintf_signed(FILE *file, long long num, int radix)
 void prints(const char *fmt, Colors color, ...)
 {
     volatile uint16_t *video_mem = (volatile uint16_t *)0xB8000;
-    
+
+    int cursor_x = 0;
+    int cursor_y = 0;
+
     while (*fmt != '\0') {
         if (*fmt == '\n') {
             cursor_x = 0;
@@ -407,25 +408,6 @@ void printf(const char* fmt, ...) {
 
 void printf_buffer(const char* fmt, const void* buf, uint32_t count) {
     fprintf_buffer((FILE *)stdout, fmt, buf, count);
-}
-
-void debugc(char c) {
-    fputc(c, (FILE *)debug);
-}
-
-void debugs(const char* str) {
-    fputs(str, (FILE *)debug);
-}
-
-void debugf(const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vfprintf((FILE *)debug, fmt, args);
-    va_end(args);
-}
-
-void debug_buffer(const char* msg, const void* buf, uint32_t count) {
-    fprintf_buffer((FILE* )debug, msg, buf, count);
 }
 
 void fputs(const char *str, FILE *file) {
