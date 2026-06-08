@@ -16,6 +16,8 @@ section .data
 
 section .rodata
     ; ======== встроенный GDT, будем использовать вместо сишного GDT ==========
+    
+    align 8 
     gdt_start:
         gdt_null:
             dd 0x0
@@ -37,55 +39,62 @@ section .rodata
 
 section .bss
     align 16
-    stack_bot: resb 0x90000
+    stack_bot: resb 0x10000
     stack_top:
 
 section .text
 
 _start:
     cli
-    cld
 
     mov al, 0xFF
     out 0x21, al 
     out 0xA1, al 
 
-    ; Start entry point. Marker 1 
-    mov dword [VIDEO_MEMORY], 0x2F312F31
-
-    mov edi, __bss_start
-    mov ecx, __bss_end 
-    sub ecx, edi 
-    shr ecx, 2
-    xor eax, eax 
-    rep stosd
-
-    ; BSS clear; Marker 2 
-    mov dword [VIDEO_MEMORY + 4], 0x2F322F32
-
-    ; loading kernel GDT 
-    lgdt [gdt_descriptor]
-    jmp 0x08:.reload_cs 
-
-.reload_cs:
     mov ax, 0x10
     mov ds, ax 
     mov es, ax 
     mov fs, ax 
     mov gs, ax 
-    mov ss, ax
+    mov ss, ax 
+
+    mov esp, stack_top
+
+    ; Marker 1: segments + stack ready 
+    mov dword [VIDEO_MEMORY], 0x2F312F31 
+
+    lgdt [gdt_descriptor]
+    jmp 0x08:.flush_cs
+
+.flush_cs:
+    mov ax, 0x10 
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax 
+    mov esp, stack_top
+    
+    ; Marker 2: GDT loaded and segments reloaded
+    mov dword [VIDEO_MEMORY + 4], 0x2F322F32
+
+    mov edi, __bss_start 
+    mov ecx, __bss_end 
+    sub ecx, edi 
+    xor al, al 
+    cld 
+    rep stosb
+
+    ; Marker 3: BSS cleared 
+    mov dword [VIDEO_MEMORY + 8], 0x2F332F33 
 
     mov esp, stack_top
    
-    ; Stack ready; Marker 3 
-    mov dword [VIDEO_MEMORY + 8], 0x2F332F33
-
-    push 0 
-    call load_idt
-    add esp, 4
-
-    ; Call kmain; Marker 4
+    ; Marker 4: stack ready (again, after BSS clear)
     mov dword [VIDEO_MEMORY + 12], 0x2F342F34 
+
+    ; Marker 5: call kmain
+    mov dword [VIDEO_MEMORY + 16], 0x2F352F35 
 
     call kmain 
 
@@ -99,6 +108,7 @@ readp:
     push ebp
 
     mov ebp, esp
+    xor eax, eax
     mov dx, [ebp + 8]
     in al, dx
 
