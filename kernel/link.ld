@@ -2,7 +2,7 @@ OUTPUT_FORMAT(elf32-i386)
 OUTPUT_ARCH(i386)
 ENTRY(_start)
 
-rmode_addr = 0x7C00;
+rmode_addr = 0x8000;
 pmode_addr = 0x10000;
 
 PHDRS {
@@ -66,7 +66,7 @@ SECTIONS {
 
     .stack (NOLOAD) : ALIGN(16) {
         stack_bot = .;
-        . += 0x90000;
+        . += 0x10000;
         stack_top = .;
     }
 
