@@ -22,6 +22,7 @@
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
+extern void load_idt(uintptr_t *idt_ptr);
 
 IDTEntry IDT[IDT_SIZE];
 uint8_t boot_drive = 0x80;
@@ -63,11 +64,17 @@ void kmain(void)
     prints("[info]: [initializing i386 GDT]\n", WHITE);
     i386_GDT_init();
 
-    prints("[info]: [initializing isr and irq]\n", WHITE);
+    prints("[info]: [initializing ISR]\n", WHITE);
     isr_install();
+
+    prints("[info]: [remaping PIC]\n", WHITE);
     pic_remap();    
+    
+    prints("[info]: [initializing IRQ]\n", WHITE);
     irq_install();
 
+    prints("[info]: [loading IDT]\n", WHITE);
+    load_idt(&IDT);
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
@@ -80,7 +87,9 @@ void kmain(void)
     syscallInstall();
     mouse_install();    
 
+    prints("[info]: [enabling interrupts]\n", WHITE);
     unmask(1);
+    __asm__ volatile ( "sti" );
     /* prints("[info]: [initializing disk]\n", WHITE);
      DISK disk;
      if (!disk_init(&disk, (const char *)boot_drive)) {
