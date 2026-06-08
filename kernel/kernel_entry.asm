@@ -14,6 +14,7 @@ global load_idt
 section .data
     VIDEO_MEMORY equ 0xB8000
 
+section .rodata
     ; ======== встроенный GDT, будем использовать вместо сишного GDT ==========
     gdt_start:
         gdt_null:
@@ -72,13 +73,16 @@ _start:
     mov es, ax 
     mov fs, ax 
     mov gs, ax 
-    mov ss, ax 
+    mov ss, ax
+
     mov esp, stack_top
    
     ; Stack ready; Marker 3 
     mov dword [VIDEO_MEMORY + 8], 0x2F332F33
 
+    push 0 
     call load_idt
+    add esp, 4
 
     ; Call kmain; Marker 4
     mov dword [VIDEO_MEMORY + 12], 0x2F342F34 
@@ -113,6 +117,13 @@ writep:
     ret
 
 load_idt:
-    mov edx, [esp + 4]
+    push ebp 
+
+    mov ebp, esp 
+    mov edx, [ebp + 8]
+    test edx, edx 
+    jz .skip_idt 
     lidt [edx]
+.skip_idt:
+    pop ebp 
     ret
