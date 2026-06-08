@@ -26,6 +26,7 @@ extern void load_idt(uintptr_t *idt_ptr);
 
 IDTEntry IDT[IDT_SIZE];
 uint8_t boot_drive = 0x80;
+IDTDescriptor idt_ptr;
 
 static void kpanic(const char *panic_msg, ...) {
     prints("KERNEL PANIC: ", WHITE);
@@ -74,7 +75,9 @@ void kmain(void)
     irq_install();
 
     prints("[info]: [loading IDT]\n", WHITE);
-    load_idt(&IDT);
+    idt_ptr.limit = (uint16_t)(sizeof(IDTEntry) - 1);
+    idt_ptr.ptr = (uint32_t)&IDT;   
+    load_idt((uintptr_t *)&idt_ptr);
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
