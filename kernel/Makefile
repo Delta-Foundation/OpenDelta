@@ -94,7 +94,7 @@ LD_FLAGS = $@ $^ -z noexecstack -T link.ld -Map kernel.map
 img = img/open-delta.img
 
 # qemu
-QEMU = qemu-system-i386
+QEMU = qemu-system-x86_64
 QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -d int,cpu_reset \
 			 -no-reboot -no-shutdown 
