@@ -54,7 +54,7 @@ typedef struct {
 
 typedef struct {    
     uint16_t limit;
-    IDTEntry *ptr;
+    uint32_t ptr;
 } __attribute__((packed)) IDTDescriptor;
 
 #define IDT_ENTRIES 256
