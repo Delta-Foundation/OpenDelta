@@ -2,8 +2,6 @@
 #include "../lib/system.h"
 #include "../lib/stdbase.h" 
 
-tree_t *shmTree = NULL;
-
 tree_t *treeCreate(void) {
     tree_t *out = kmalloc(sizeof(tree_t), 0, (unsigned int *)&out);
     out->nodes = 0;
@@ -30,6 +28,8 @@ void treeSetRoot(tree_t *tree, void *value) {
 }
 
 void shmInstall(void) {
+    tree_t *shmTree = NULL;
+    
     prints("[info]: installing shared memory layer...\n", WHITE);
     shmTree = treeCreate();
     treeSetRoot(shmTree, NULL);
