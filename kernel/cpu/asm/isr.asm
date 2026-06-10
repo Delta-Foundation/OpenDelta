@@ -1,3 +1,5 @@
+[bits 32]
+
 ; ==============================================================
 ; ISR (Interrupt Service Routines) - Expection handlers 0-31
 ; ==============================================================
@@ -13,6 +15,7 @@ isr_common_stub:
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
+    ;mov ss, ax 
 
     push esp 
 	call	isr_handler
@@ -23,13 +26,12 @@ isr_common_stub:
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
+    ;mov ss, ax
 
 	popa
 	add esp, 8		; cleans up the pushed error code and pushed ISR number
-
     iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
-; make ISRs global
 global isr0
 global isr1
 global isr2
@@ -66,214 +68,201 @@ global isr31
 ; 0: Divide by Zero (no error code)
 isr0:
     cli
-    push dword 0        ; dummy error code
-    push dword 0        ; interrupt number
+    push byte 0        ; dummy error code
+    push byte 0        ; interrupt number
     jmp isr_common_stub
 
 ; 1: Debug (no error code)
 isr1:
     cli
-    push dword 0
-    push dword 1
+    push byte 0
+    push byte 1
     jmp isr_common_stub
 
 ; 2: NMI (no error code)
 isr2:
     cli
-    push dword 0
-    push dword 2
+    push byte 0
+    push byte 2
     jmp isr_common_stub
 
 ; 3: Breakpoint (no error code)
 isr3:
     cli
-    push dword 0
-    push dword 3
+    push byte 0
+    push byte 3
     jmp isr_common_stub
 
 ; 4: Overflow (no error code)
 isr4:
     cli
-    push dword 0
-    push dword 4
+    push byte 0
+    push byte 4
     jmp isr_common_stub
 
 ; 5: Bound Range Exceeded (no error code)
 isr5:
     cli
-    push dword 0
-    push dword 5
+    push byte 0
+    push byte 5
     jmp isr_common_stub
 
 ; 6: Invalid Opcode (no error code)
 isr6:
     cli
-    push dword 0
-    push dword 6
+    push byte 0
+    push byte 6
     jmp isr_common_stub
 
 ; 7: Device Not Available (no error code)
 isr7:
     cli
-    push dword 0
-    push dword 7
+    push byte 0
+    push byte 7
     jmp isr_common_stub
 
 ; 8: Double Fault (HAS error code from CPU)
 isr8:
     cli
     ; CPU pushes error code
-    push dword 8
+    push byte 8
     jmp isr_common_stub
 
 ; 9: Coprocessor Segment Overrun (no error code)
 isr9:
     cli
-    push dword 0
-    push dword 9
+    push byte 0
+    push byte 9
     jmp isr_common_stub
 
 ; 10: Invalid TSS (HAS error code)
 isr10:
     cli
-    push dword 10
+    push byte 10
     jmp isr_common_stub
 
 ; 11: Segment Not Present (HAS error code)
 isr11:
     cli
-    push dword 11
+    push byte 11
     jmp isr_common_stub
 
 ; 12: Stack-Segment Fault (HAS error code)
 isr12:
     cli
-    push dword 12
+    push byte 12
     jmp isr_common_stub
 
 ; 13: General Protection Fault (HAS error code)
 isr13:
     cli
-    push dword 13
+    push byte 13
     jmp isr_common_stub
 
 ; 14: Page Fault (HAS error code)
 isr14:
     cli
-    push dword 14
+    push byte 14
     jmp isr_common_stub
 
 ; 15: Reserved (no error code)
 isr15:
     cli
-    push dword 0
-    push dword 15
+    push byte 15
     jmp isr_common_stub
 
 ; 16: x87 FPU Error (no error code)
 isr16:
     cli
-    push dword 0
-    push dword 16
+    push byte 16
     jmp isr_common_stub
 
 ; 17: Alignment Check (HAS error code)
 isr17:
     cli
-    push dword 17
+    push byte 17
     jmp isr_common_stub
 
 ; 18: Machine Check (no error code)
 isr18:
     cli
-    push dword 0
-    push dword 18
+    push byte 18
     jmp isr_common_stub
 
 ; 19: SIMD FP Exception (no error code)
 isr19:
     cli
-    push dword 0
-    push dword 19
+    push byte 19
     jmp isr_common_stub
 
 ; 20: Virtualization Exception (no error code)
 isr20:
     cli
-    push dword 0
-    push dword 20
+    push byte 20
     jmp isr_common_stub
 
 ; 21: Control Protection Exception (HAS error code)
 isr21:
     cli
-    push dword 21
+    push byte 21
     jmp isr_common_stub
 
 ; 22: Reserved (no error code)
 isr22:
     cli
-    push dword 0
-    push dword 22
+    push byte 22
     jmp isr_common_stub
 
 ; 23: Reserved (no error code)
 isr23:
     cli
-    push dword 0
-    push dword 23
+    push byte 23
     jmp isr_common_stub
 
 ; 24: Reserved (no error code)
 isr24:
     cli
-    push dword 0
-    push dword 24
+    push byte 24
     jmp isr_common_stub
 
 ; 25: Reserved (no error code)
 isr25:
     cli
-    push dword 0
-    push dword 25
+    push byte 25
     jmp isr_common_stub
 
 ; 26: Reserved (no error code)
 isr26:
     cli
-    push dword 0
-    push dword 26
+    push byte 26
     jmp isr_common_stub
 
 ; 27: Reserved (no error code)
 isr27:
     cli
-    push dword 0
-    push dword 27
+    push byte 27
     jmp isr_common_stub
 
 ; 28: Reserved (no error code)
 isr28:
     cli
-    push dword 0
-    push dword 28
+    push byte 28
     jmp isr_common_stub
 
 ; 29: VMM Communication Exception (HAS error code)
 isr29:
     cli
-    push dword 29
+    push byte 29
     jmp isr_common_stub
 
 ; 30: Security Exception (HAS error code)
 isr30:
     cli
-    push dword 30
+    push byte 30
     jmp isr_common_stub
 
 ; 31: Reserved (no error code)
 isr31:
     cli
-    push dword 0
-    push dword 31
+    push byte 31
     jmp isr_common_stub
