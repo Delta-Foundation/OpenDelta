@@ -42,7 +42,15 @@ SECTIONS {
         __data_start = .;
         *(.data)
         *(.data*)
+        __data_end = .;
     } :data 
+    
+    .rodata ALIGN(4096) : {
+        __rodata_start = .;
+        *(.rodata)
+        *(.rodata*)
+        __rodata_ebd = .;
+    } :text 
 
     .bss ALIGN(4096) : {
         __bss_start = .;
@@ -51,12 +59,6 @@ SECTIONS {
         *(COMMON)
         __bss_end = .;
     } :data 
-
-    .rodata ALIGN(4096) : {
-        __rodata_start = .;
-        *(.rodata)
-        *(.rodata*)
-    } :text 
 
     .heap ALIGN(4096) : {
         _heap_start = .;
