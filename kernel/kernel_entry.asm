@@ -57,7 +57,8 @@ readp:
 
     mov ebp, esp
     xor eax, eax
-    mov dx, [ebp + 8]
+    mov dx, word [ebp + 8]
+    mov al, byte [ebp + 12]
     in al, dx
 
     pop ebp
@@ -67,8 +68,8 @@ writep:
     push ebp
 
     mov ebp, esp
-    mov dx, [ebp + 8]
-    mov al, [ebp + 12]
+    mov dx, word [ebp + 8]
+    mov al, byte [ebp + 12]
     out dx, al
 
     pop ebp
