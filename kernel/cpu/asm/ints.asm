@@ -1,3 +1,5 @@
+[bits 32]
+
 %include "cpu/asm/isr.asm"
 %include "cpu/asm/irq.asm"
 
