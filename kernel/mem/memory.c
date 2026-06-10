@@ -5,16 +5,6 @@
 #include "../tools/fat/headers/tools.h"
 #include "../lib/stdbase.h"
 
-void *end;
-uint32_t *frames;
-uint32_t nframes;
-uintptr_t placementPointer = (uintptr_t)&end;
-uintptr_t heapEnd = (uintptr_t)NULL;
-page_dir_t *currentDir;
-page_dir_t *kernelDir;
-mem_region_t mem_regions[MAX_REGIONS];
-int mem_region_count;
-
 void append(char s[], char n)
 {
 	int len = strlen(s);
@@ -75,14 +65,16 @@ void *memset(void *str, int c, size_t n)
 
 void memdetect(mem_info_t* mem_info)
 {
-   e820_mem_block block;
-   uint32_t continuation = 0;
-   int ret;
+    e820_mem_block block;
+    uint32_t continuation = 0;
+    int ret;
+    int mem_region_count;
+    mem_region_t mem_regions[MAX_REGIONS];
 
-   mem_region_count = 0;
-   ret = get_next_block(&block, &continuation);
+    mem_region_count = 0;
+    ret = get_next_block(&block, &continuation);
 
-   while (ret > 0 && continuation != 0) {
+    while (ret > 0 && continuation != 0) {
         mem_regions[mem_region_count].begin = block.base;
         mem_regions[mem_region_count].length = block.len;
         mem_regions[mem_region_count].type = block.type;
@@ -123,8 +115,11 @@ void* segoffset_to_linear(void* addr) {
 void paggingInstall(uint32_t memsize)
 {
 	uintptr_t phys;
-	
-	memsize -= 0xe001e190;
+    uint32_t nframes;
+    uint32_t *frames;
+    page_dir_t *kernelDir;
+
+    memsize -= 0xe001e190;
 	nframes = memsize / 4;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(nframes * 8), 0, (uint32_t*)&phys); 
 	
@@ -144,12 +139,15 @@ void paggingInstall(uint32_t memsize)
 }
 
 void heapInstall(void) {
+    void *end;
+    uintptr_t placementPointer = (uintptr_t)&end;
+    uintptr_t heapEnd;
     heapEnd = (placementPointer + 0x1000) & ~0xFFFF;
 }
 
 void switchPageDir(page_dir_t *dir)
 {
-    currentDir = dir;
+    page_dir_t *currentDir = dir;
     __asm__ volatile(
         "mov %0, %%cr3\n"
         "mov %%cr0, %%eax\n"
