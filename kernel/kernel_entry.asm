@@ -29,7 +29,7 @@ _start:
 
     mov esp, stack_top
 
-    ; Marker 1: segments + stack ready 
+    ; Marker 1: segments + stack ready. Kernel started
     mov dword [VIDEO_MEMORY], 0x2F312F31 
     
     mov edi, __bss_start 
@@ -42,25 +42,10 @@ _start:
     ; Marker 2: BSS cleared 
     mov dword [VIDEO_MEMORY + 4], 0x2F322F32 
 
-    lgdt [gdt_descriptor]
-    jmp KERNEL_CS:.flush_cs
-
-.flush_cs:
-    mov ax, KERNEL_DS 
-    mov ds, ax 
-    mov es, ax 
-    mov fs, ax 
-    mov gs, ax 
-    mov ss, ax 
-    mov esp, stack_top
-    
-    ; Marker 3: GDT loaded and segments reloaded
-    mov dword [VIDEO_MEMORY + 8], 0x2F332F33
+    ; Marker 3: call kmain
+    mov dword [VIDEO_MEMORY + 8], 0x2F332F33 
 
     call kmain 
-
-    ; Marker 4: call kmain
-    mov dword [VIDEO_MEMORY + 12], 0x2F342F34 
 
     cli
 .halt:
@@ -100,27 +85,6 @@ load_idt:
 .skip_idt:
     pop ebp 
     ret
-
-section .rodata
-    ; ======== встроенный GDT, будем использовать вместо сишного GDT ==========
-    align 8 
-    gdt_start:
-        gdt_null:
-            dq 0x0
-
-        gdt_code:
-            dw 0xFFFF, 0x0000
-            db 0x00, 0x9A, 0xCF, 0x00
-
-        gdt_data:
-            dw 0xFFFF, 0x0000
-            db 0x00, 0x92, 0xCF, 0x00
-
-    gdt_end:
-
-    gdt_descriptor:
-        dw gdt_end - gdt_start - 1  ; Лимит GDT
-        dd gdt_start                ; Базовый адрес GDT
 
 section .bss
     align 16
