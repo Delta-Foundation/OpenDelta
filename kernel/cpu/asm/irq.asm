@@ -1,9 +1,3 @@
-[bits 32]
-
-; =============================================================================
-; || IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47 ||
-; =============================================================================
-
 irq_common_stub:
 	pusha
 
@@ -22,10 +16,10 @@ irq_common_stub:
 	add esp, 4 
 
 	pop	eax
-	mov	ds, bx
-	mov	es, bx
-	mov	fs, bx
-	mov	gs, bx
+	mov	ds, ax
+	mov	es, ax
+	mov	fs, ax
+	mov	gs, ax
     ; mov ss, bx
 
 	popa
