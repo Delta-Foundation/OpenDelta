@@ -24,7 +24,6 @@ extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 extern void load_idt(uintptr_t *idt_ptr);
 
-IDTEntry kern_idt[IDT_SIZE] = {0};
 uint8_t boot_drive = 0x80;
 IDTDescriptor idt_ptr;
 
@@ -35,7 +34,10 @@ static void kpanic(const char *panic_msg, ...) {
     for(int i=0; panic_msg[i]; i++) vga[14+i] = (panic_msg[i] << 8) | 0x4F;
     
     __asm__ volatile ( "cli" );
-    for (;;) { __asm__ volatile ( "hlt" ); }
+    
+    for (;;) { 
+        __asm__ volatile ( "hlt" ); 
+    }
 }
 
 __attribute__((noreturn)) 
@@ -43,20 +45,13 @@ void kmain(void)
 {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     for (int i = 0; i < 80; i++) {
-        vga[i] = (' ' << 8) | 0x2F;
+        vga[i] = ('K' << 8) | 0x2F;
     }    
 
     vga[0] = ('M' << 8) | 0x2F;
     vga[1] = ('A' << 8) | 0x2F;
     vga[2] = ('I' << 8) | 0x2F;
     vga[3] = ('N' << 8) | 0x2F;
-
-    uint32_t idt_addr = (uint32_t)kern_idt;
-    const char hex_chars[] = "0123456789ABCDEF";
-    for (int i = 0; i < 8; i++) {
-        uint8_t nibble = (idt_addr >> (28 - (i * 4))) & 0xF;
-        vga[7 + i] = (hex_chars[nibble] << 8) | 0x2F;
-    }
 
     i386_GDT_init();
     
@@ -80,11 +75,6 @@ void kmain(void)
     
     prints("[info]: [initializing IRQ]\n", WHITE);
     irq_install();
-
-    prints("[info]: [loading IDT]\n", WHITE);
-    idt_ptr.limit = (uint16_t)(sizeof(IDTEntry) * IDT_SIZE - 1);
-    idt_ptr.ptr = (uint32_t)kern_idt;   
-    load_idt((uintptr_t *)&idt_ptr);
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
