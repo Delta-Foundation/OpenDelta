@@ -68,35 +68,32 @@ global isr31
 ; 0: Divide by Zero (no error code)
 isr0:
     cli
-    push byte 0        ; dummy error code
+    push byte 0 
     push byte 0        ; interrupt number
     jmp isr_common_stub
 
 ; 1: Debug (no error code)
 isr1:
     cli
-    push byte 0
+    push byte 0 
     push byte 1
     jmp isr_common_stub
 
 ; 2: NMI (no error code)
 isr2:
     cli
-    push byte 0
     push byte 2
     jmp isr_common_stub
 
 ; 3: Breakpoint (no error code)
 isr3:
     cli
-    push byte 0
     push byte 3
     jmp isr_common_stub
 
 ; 4: Overflow (no error code)
 isr4:
     cli
-    push byte 0
     push byte 4
     jmp isr_common_stub
 
@@ -168,12 +165,14 @@ isr14:
 ; 15: Reserved (no error code)
 isr15:
     cli
+    push byte 0
     push byte 15
     jmp isr_common_stub
 
 ; 16: x87 FPU Error (no error code)
 isr16:
     cli
+    push byte 0
     push byte 16
     jmp isr_common_stub
 
@@ -186,18 +185,21 @@ isr17:
 ; 18: Machine Check (no error code)
 isr18:
     cli
+    push byte 0
     push byte 18
     jmp isr_common_stub
 
 ; 19: SIMD FP Exception (no error code)
 isr19:
     cli
+    push byte 0 
     push byte 19
     jmp isr_common_stub
 
 ; 20: Virtualization Exception (no error code)
 isr20:
     cli
+    push byte 0
     push byte 20
     jmp isr_common_stub
 
@@ -210,42 +212,49 @@ isr21:
 ; 22: Reserved (no error code)
 isr22:
     cli
+    push byte 0 
     push byte 22
     jmp isr_common_stub
 
 ; 23: Reserved (no error code)
 isr23:
     cli
+    push byte 0
     push byte 23
     jmp isr_common_stub
 
 ; 24: Reserved (no error code)
 isr24:
     cli
+    push byte 0 
     push byte 24
     jmp isr_common_stub
 
 ; 25: Reserved (no error code)
 isr25:
     cli
+    push byte 0
     push byte 25
     jmp isr_common_stub
 
 ; 26: Reserved (no error code)
 isr26:
     cli
+    push byte 0
     push byte 26
     jmp isr_common_stub
 
 ; 27: Reserved (no error code)
 isr27:
     cli
+    push byte 0
     push byte 27
     jmp isr_common_stub
 
 ; 28: Reserved (no error code)
 isr28:
     cli
+    push byte 0 
     push byte 28
     jmp isr_common_stub
 
@@ -264,5 +273,6 @@ isr30:
 ; 31: Reserved (no error code)
 isr31:
     cli
+    push byte 0
     push byte 31
     jmp isr_common_stub
