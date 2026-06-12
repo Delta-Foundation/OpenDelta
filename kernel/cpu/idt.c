@@ -13,9 +13,9 @@ void idt_disable_gate(int interrupt) {
 
 void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[n].low_offset = low_16(base);
-    idt[n].sel = KERNEL_CS;
+    idt[n].sel = sel;
     idt[n].always0 = 0;
-    idt[n].flags = 0x8E;
+    idt[n].flags = flags;
     idt[n].high_offset = high_16(base);
 }
 
