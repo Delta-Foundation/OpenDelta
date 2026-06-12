@@ -26,7 +26,7 @@ typedef enum {
     IDT_FLAG_RING2                  = (2 << 5),
     IDT_FLAG_RING3                  = (3 << 5),
 
-    IDT_FLAG_PRESENT                = 0x48,
+    IDT_FLAG_PRESENT                = 0x80,
 } IDT_FLAGS;
 
 typedef struct {
