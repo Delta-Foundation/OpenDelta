@@ -10,11 +10,13 @@
 extern "C" {
 #endif 
 
-#define PIC1_COM_PORT 0x20
-#define PIC1_DATA_PORT 0x21
-#define PIC2_COM_PORT 0xA0
-#define PIC2_DATA_PORT 0x80
-#define UNUSED_PORT 0x80
+#define PIC1_COM_PORT   0x20
+#define PIC1_DATA_PORT  0x21
+#define PIC2_COM_PORT   0xA0
+#define PIC2_DATA_PORT  0x80
+#define PIC1_CMD        0x20 
+#define PIC2_CMD        0xA0
+#define UNUSED_PORT     0x80
 
 enum PIC_ICW1 {
     PIC_ICW1_ICW4 = 0x01,
@@ -61,6 +63,7 @@ void send_end_of_int(int irq);
 void pic_disable(void);
 void mask(int irq);
 void unmask(int irq);
+void pic_remap(void);
 uint16_t read_irq_request_reg(void);
 uint16_t read_in_service_reg(void);
 boolean probe(void);
