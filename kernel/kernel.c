@@ -22,7 +22,6 @@
 
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
-extern void load_idt(uintptr_t *idt_ptr);
 
 uint8_t boot_drive = 0x80;
 IDTDescriptor idt_ptr;
