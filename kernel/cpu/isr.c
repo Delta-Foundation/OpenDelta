@@ -48,7 +48,7 @@ void isr_install(void)
 
 char *exception_messages[] =
 {
-	"Division By Zero",
+	    "Division By Zero",
     	"Debug",
     	"Non Maskable Interrupt",
     	"Breakpoint",
@@ -85,15 +85,15 @@ char *exception_messages[] =
     	"Reserved"
 };
 
-void isr_handler(regs_t r)
+void isr_handler(regs_t *r)
 {
-	if (r.int_no < 32) {
-        if (interrupt_handlers[r.int_no]) {
-            interrupt_handlers[r.int_no](r);
+	if (r->int_no < 32) {
+        if (interrupt_handlers[r->int_no]) {
+            interrupt_handlers[r->int_no](r);
         }
         else {
             prints("[ERR]: [EXCEPTION]: ", RED);
-            prints(exception_messages[r.int_no], RED);
+            prints(exception_messages[r->int_no], RED);
             prints("\n", RED);
             prints("[ERR]: [System Handled!]\n", RED);
 
@@ -103,8 +103,8 @@ void isr_handler(regs_t r)
             }
         }
     }
-    else if (interrupt_handlers[r.int_no]) {
-        interrupt_handlers[r.int_no](r);
+    else if (interrupt_handlers[r->int_no]) {
+        interrupt_handlers[r->int_no](r);
     }
 }
 
@@ -113,18 +113,17 @@ void register_interrupt_handler(uint8_t n, isr_t handler) {
 }
 
 /*---irq---*/
-void irq_handler(regs_t r) {
-    if (r.int_no >= 40) {
+void irq_handler(regs_t *r) {
+    if ((r->int_no - PIC_REMAP_OFFSET) >= 40) {
         outb(0xA0, 0x20);
     }
 
     outb(0x20, 0x20);
 
-    if (interrupt_handlers[r.int_no]) {
-        interrupt_handlers[r.int_no](r);
+    if (interrupt_handlers[r->int_no]) {
+        interrupt_handlers[r->int_no](r);
     }
 }
-
 
 void irq_install(void) {
     const pic_driver_t* drivers[] = {
