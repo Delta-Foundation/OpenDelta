@@ -8,10 +8,6 @@
 
 typedef char boolean; 
 
-// idt macros
-#define low_16(address) (uint16_t)((address) & 0xFFFF)
-#define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF) 
-
 /* Here you will find types and functions for interacting with them */
 
 typedef unsigned    char    uint8_t;
