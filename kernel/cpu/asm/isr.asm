@@ -6,9 +6,10 @@
 
 isr_common_stub:
 	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-	
+    
+    xor eax, eax
     mov	ax, ds		; lower 16-bits of eax = ds
-	push	eax             ; save the data segment descriptor
+	push eax             ; save the data segment descriptor
 	
     mov	ax, 0x10	; kernel data segment descriptor
 	mov	ds, ax
