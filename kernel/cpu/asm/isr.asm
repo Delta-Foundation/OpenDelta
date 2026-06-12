@@ -83,18 +83,21 @@ isr1:
 ; 2: NMI (no error code)
 isr2:
     cli
+    push byte 0 
     push byte 2
     jmp isr_common_stub
 
 ; 3: Breakpoint (no error code)
 isr3:
     cli
+    push byte 0
     push byte 3
     jmp isr_common_stub
 
 ; 4: Overflow (no error code)
 isr4:
     cli
+    push byte 0
     push byte 4
     jmp isr_common_stub
 
