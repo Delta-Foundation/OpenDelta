@@ -86,7 +86,7 @@ FLAGS = -m32 -march=i386 -std=c17 \
 		-fno-pie -fno-builtin -fno-stack-protector -fno-exceptions \
 		-ffreestanding -nostdlib \
 		-Wall -Wextra -Wstrict-prototypes \
-		-mno-sse -mno-lsx -mno-80387
+		-mno-sse -mno-80387
 
 LD_FLAGS = $@ $^ -z noexecstack -T link.ld -Map kernel.map
 
