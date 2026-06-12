@@ -44,6 +44,8 @@ void isr_install(void)
 	set_idt_gate(29, (uint32_t)isr29, 0x08, 0x8E);
 	set_idt_gate(30, (uint32_t)isr30, 0x08, 0x8E);
 	set_idt_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+
+    set_idt();
 }
 
 char *exception_messages[] =
