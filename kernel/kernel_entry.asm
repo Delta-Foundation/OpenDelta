@@ -4,7 +4,6 @@
 global _start
 global readp  ; read port
 global writep ; write port
-global load_idt
 [extern __bss_start]
 [extern __bss_end]
 
@@ -73,18 +72,6 @@ writep:
     out dx, al
 
     pop ebp
-    ret
-
-load_idt:
-    push ebp 
-
-    mov ebp, esp 
-    mov edx, [ebp + 8]
-    test edx, edx 
-    jz .skip_idt 
-    lidt [edx]
-.skip_idt:
-    pop ebp 
     ret
 
 section .bss
