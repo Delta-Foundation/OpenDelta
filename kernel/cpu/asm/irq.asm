@@ -1,6 +1,13 @@
+[bits 32]
+
+; =============================================================================
+; || IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47 ||
+; =============================================================================
+
 irq_common_stub:
 	pusha
 
+    xor eax, eax
 	mov	ax, ds
 	push eax
 	
