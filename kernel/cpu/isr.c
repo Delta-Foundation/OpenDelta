@@ -9,9 +9,9 @@ isr_t interrupt_handlers[IDT_SIZE] = { 0 };
 isr_t irq_handlers[16];
 static const pic_driver_t* g_driver = NULL;
 
-/*---isr---*/
-void isr_install(void)
+void install_isr_and_irq(void)
 {
+    // Install the ISR
 	set_idt_gate(0,  (uint32_t)isr0,  0x08, 0x8E);
 	set_idt_gate(1,  (uint32_t)isr1,  0x08, 0x8E);
 	set_idt_gate(2,  (uint32_t)isr2,  0x08, 0x8E);
@@ -44,6 +44,27 @@ void isr_install(void)
 	set_idt_gate(29, (uint32_t)isr29, 0x08, 0x8E);
 	set_idt_gate(30, (uint32_t)isr30, 0x08, 0x8E);
 	set_idt_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+
+    // Remaping the PIC
+    pic_remap();
+
+    // Install the IRQ 
+    set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
+    set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
+    set_idt_gate(34, (uint32_t)irq2,  0x08, 0x8E);
+    set_idt_gate(35, (uint32_t)irq3,  0x08, 0x8E);
+    set_idt_gate(36, (uint32_t)irq4,  0x08, 0x8E);
+    set_idt_gate(37, (uint32_t)irq5,  0x08, 0x8E);
+    set_idt_gate(38, (uint32_t)irq6,  0x08, 0x8E);
+    set_idt_gate(39, (uint32_t)irq7,  0x08, 0x8E);
+    set_idt_gate(40, (uint32_t)irq8,  0x08, 0x8E);
+    set_idt_gate(41, (uint32_t)irq9,  0x08, 0x8E);
+    set_idt_gate(42, (uint32_t)irq10, 0x08, 0x8E);
+    set_idt_gate(43, (uint32_t)irq11, 0x08, 0x8E);
+    set_idt_gate(44, (uint32_t)irq12, 0x08, 0x8E);
+    set_idt_gate(45, (uint32_t)irq13, 0x08, 0x8E);
+    set_idt_gate(46, (uint32_t)irq14, 0x08, 0x8E);
+    set_idt_gate(47, (uint32_t)irq15, 0x08, 0x8E);
 
     set_idt();
 }
@@ -110,10 +131,6 @@ void isr_handler(regs_t *r)
     }
 }
 
-void register_interrupt_handler(uint8_t n, isr_t handler) {
-	interrupt_handlers[n] = handler;
-}
-
 /*---irq---*/
 void irq_handler(regs_t *r) {
     if ((r->int_no - PIC_REMAP_OFFSET) >= 40) {
@@ -127,48 +144,8 @@ void irq_handler(regs_t *r) {
     }
 }
 
-void irq_install(void) {
-    const pic_driver_t* drivers[] = {
-		pic_driver(),
-	};
-
-	for (unsigned int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
-		if (drivers[i] && drivers[i]->probe()) {
-			g_driver = drivers[i];
-		}
-	}
-
-	if (g_driver == NULL) {
-		prints("[WARN]: [no pic found!]", WHITE, MODULE);
-		return;
-	}
-
-	printf(MODULE, "[INFO]: [found %s PIC.]", g_driver->name);
-	g_driver->init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8, (char)FALSE);
-
-	g_driver->unmask(0);
-	g_driver->unmask(1);
-
-	// Install the IRQs
-	set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
-	set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
-	set_idt_gate(34, (uint32_t)irq2,  0x08, 0x8E);
-	set_idt_gate(35, (uint32_t)irq3,  0x08, 0x8E);
-	set_idt_gate(36, (uint32_t)irq4,  0x08, 0x8E);
-	set_idt_gate(37, (uint32_t)irq5,  0x08, 0x8E);
-	set_idt_gate(38, (uint32_t)irq6,  0x08, 0x8E);
-	set_idt_gate(39, (uint32_t)irq7,  0x08, 0x8E);
-	set_idt_gate(40, (uint32_t)irq8,  0x08, 0x8E);
-	set_idt_gate(41, (uint32_t)irq9,  0x08, 0x8E);
-	set_idt_gate(42, (uint32_t)irq10, 0x08, 0x8E);
-	set_idt_gate(43, (uint32_t)irq11, 0x08, 0x8E);
-	set_idt_gate(44, (uint32_t)irq12, 0x08, 0x8E);
-	set_idt_gate(45, (uint32_t)irq13, 0x08, 0x8E);
-	set_idt_gate(46, (uint32_t)irq14, 0x08, 0x8E);
-	set_idt_gate(47, (uint32_t)irq15, 0x08, 0x8E);
-
-    set_idt();
-	enable_ints();
+void register_interrupt_handler(uint8_t n, isr_t handler) {
+	interrupt_handlers[n] = handler;
 }
 
 void irq_regs_handler(int irq, isr_t handler) {
