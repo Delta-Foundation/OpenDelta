@@ -13,7 +13,7 @@ extern "C" {
 #define PIC1_COM_PORT   0x20
 #define PIC1_DATA_PORT  0x21
 #define PIC2_COM_PORT   0xA0
-#define PIC2_DATA_PORT  0x80
+#define PIC2_DATA_PORT  0xA1
 #define PIC1_CMD        0x20 
 #define PIC2_CMD        0xA0
 #define UNUSED_PORT     0x80
