@@ -66,14 +66,8 @@ void kmain(void)
     prints(os_name, WHITE);
     prints(kern_name, WHITE);
 
-    prints("[info]: [initializing ISR]\n", WHITE);
-    isr_install();
-
-    prints("[info]: [remaping PIC]\n", WHITE);
-    pic_remap();    
-    
-    prints("[info]: [initializing IRQ]\n", WHITE);
-    irq_install();
+    prints("[info]: [initializing ISR and IRQ]\n", WHITE);
+    install_isr_and_irq();  
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
