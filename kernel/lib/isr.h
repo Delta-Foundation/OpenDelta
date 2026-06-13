@@ -86,10 +86,9 @@ typedef void (*isr_t)(regs_t*);
 uint8_t enable_ints(void);
 uint8_t disable_ints(void);
 void panic(void);
-void isr_install(void);
+void install_isr_and_irq(void);
 void isr_handler(regs_t *r);
 void irq_handler(regs_t *r);
-void irq_install(void);
 void irq_regs_handler(int irq, isr_t handler);
 
 void register_interrupt_handler(uint8_t n, isr_t handler);
