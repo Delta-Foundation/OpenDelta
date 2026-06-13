@@ -83,11 +83,11 @@ void pic_remap(void) {
     outb(PIC1_DATA_PORT, 0x04);
     outb(PIC2_DATA_PORT, 0x02);
 
-    outb(PIC1_DATA_PORT, PIC_ICW4_8086);
-    outb(PIC2_DATA_PORT, PIC_ICW4_8086);
+    outb(PIC1_DATA_PORT, 0x01);
+    outb(PIC2_DATA_PORT, 0x01);
 
-    outb(PIC1_DATA_PORT, 0xFF);
-    outb(PIC2_DATA_PORT, 0xFF);
+    outb(PIC1_DATA_PORT, 0x0);
+    outb(PIC2_DATA_PORT, 0x0);
 }
 
 boolean probe(void) {
