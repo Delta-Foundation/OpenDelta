@@ -108,6 +108,7 @@ char *exception_messages[] =
     	"Reserved"
 };
 
+__attribute__((interrupt))
 void isr_handler(regs_t *r)
 {
 	if (r->int_no < 32) {
@@ -132,6 +133,7 @@ void isr_handler(regs_t *r)
 }
 
 /*---irq---*/
+__attribute__((interrupt))
 void irq_handler(regs_t *r) {
     if ((r->int_no - PIC_REMAP_OFFSET) >= 40) {
         outb(0xA0, 0x20);
