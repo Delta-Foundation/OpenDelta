@@ -6,6 +6,7 @@
 
 irq_common_stub:
 	pusha
+    cld
 
     xor eax, eax
 	mov	ax, ds
@@ -16,18 +17,21 @@ irq_common_stub:
 	mov	es, ax
 	mov fs, ax
 	mov	gs, ax
-    ; mov ss, ax 
 
-    push esp 
+    push ebp 
+    mov esp, ebp 
+
+    pushad 
 	call irq_handler	; different than the ISR code
-	add esp, 4 
+	popad 
+    iret
+    add esp, 4 
 
 	pop	eax
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
-    ; mov ss, bx
 
 	popa
 	add	esp, 8
@@ -89,7 +93,7 @@ irq4:
 ; IRQ 5 - LPT2
 irq5:
     cli
-    push byte 6
+    push byte 5
     push byte 37
     jmp irq_common_stub
 
