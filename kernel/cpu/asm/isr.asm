@@ -6,7 +6,8 @@
 
 isr_common_stub:
 	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-    
+    cld 
+
     xor eax, eax
     mov	ax, ds		; lower 16-bits of eax = ds
 	push eax             ; save the data segment descriptor
@@ -18,8 +19,13 @@ isr_common_stub:
 	mov	gs, ax
     ;mov ss, ax 
 
-    push esp 
+    push ebp
+    mov esp, ebp
+
+    pushad 
 	call	isr_handler
+    popad 
+    iret
     add esp, 4
 
 	pop	eax
