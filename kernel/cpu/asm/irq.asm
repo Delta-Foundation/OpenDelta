@@ -11,21 +11,17 @@ irq_common_stub:
     xor eax, eax
 	mov	ax, ds
 	push eax
-	
+
     mov	ax, 0x10
 	mov	ds, ax
 	mov	es, ax
 	mov fs, ax
 	mov	gs, ax
 
-    push ebp 
-    mov esp, ebp 
-
-    pushad 
+    push esp
+    extern irq_handler
 	call irq_handler	; different than the ISR code
-	popad 
-    iret
-    add esp, 4 
+	add esp, 4
 
 	pop	eax
 	mov	ds, ax
