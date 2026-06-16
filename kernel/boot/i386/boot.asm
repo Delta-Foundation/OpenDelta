@@ -2,21 +2,22 @@
 [org 0x7C00]
 
 global _start
-    
+
 _start:
-    cli 
+    cli
 
     xor ax, ax
     mov ds, ax
     mov es, ax
-    mov ss, ax 
+    mov ss, ax
     mov sp, 0x7C00
 
-    call clear_screen
+    mov ax, 0x0003
+    int 0x10
 
     mov [boot_drive], dl
 
-    mov  si, str_real 
+    mov  si, str_real
     call print
     call print_nl
 
@@ -56,52 +57,50 @@ print_nl:
     popa
     ret
 
-clear_screen:
-    pusha
-
-    mov ah, 0x00
-    mov al, 0x03 
-    int 0x10 
-    
-    popa 
-    ret 
-
 [bits 16]
 load_kernel:
-    pusha 
-
-    mov	si, str_load
+    pusha
+    mov si, str_load
     call print
-    call print_nl
 
-    mov ax, 0x1000
+    mov ax, 0x0800
     mov es, ax
+
+    mov bp, 89
+    mov si, 1
     xor bx, bx
 
-    mov ah, 0x02
-    mov al, 17 
-    mov ch, 0x00 
-    mov dh, 0x00  
-    mov cl, 0x02
+load_loop:
+    mov ax, si
+    xor dx, dx
+    mov cx, 18
+    div cx
+    inc dx
+    mov cl, dl
+
+    xor dx, dx
+    mov cx, 2
+    div cx
+    mov ch, al
+    mov dh, dl
+
+    mov ax, 0x0201      ; AH = 2 (читать), AL = 1 (сектор)
     mov dl, [boot_drive]
+
+    push bp
+    push si
     int 0x13
+    pop si
+    pop bp
     jc read_error
 
-	mov bx, 0x2200
+    add bx, 0x200
+    inc si
+    dec bp
+    jnz load_loop
 
-    mov ah, 0x02 
-    mov al, 15 
-    mov ch, 0x00 
-    mov dh, 0x01 
-    mov cl, 0x01 
-    mov dl, [boot_drive] 
-    int 0x13 
-    jc read_error
-    
     mov si, str_kernel_loaded
     call print
-    call print_nl
-
     popa
     ret
 
@@ -118,7 +117,7 @@ setup_gdt:
 switch:
     call setup_gdt
     mov eax, cr0
-    or al, 0x1 
+    or al, 0x1
     mov cr0, eax
 
     jmp 0x08:protected_mode
@@ -163,21 +162,21 @@ print_pmode_end:
 
 gdt_start:
     gdt_null:
-        dd 0x0 
-        dd 0x0 
+        dd 0x0
+        dd 0x0
 
     gdt_code:
         dw 0xFFFF       ; Лимит 0-15
         dw 0x0000         ; База 0-15
-        db 0x00 
+        db 0x00
         db 10011010b 	; P, DPL, S, Type flags
 	    db 11001111b         ; Granularity, 32-bit, Лимит 16-19
         db 0x00          ; База 24-31
 
     gdt_data:
         dw 0xFFFF
-        dw 0x0000 
-        db 0x00 
+        dw 0x0000
+        db 0x00
         db 10010010b         ; Present, Ring 0, Data, Read/Write
         db 11001111b
         db 0x00
@@ -199,7 +198,7 @@ str_pmode: db "[DBL]: Landed in 32-bit protected mode. Jumping to kernel...", 0x
 str_load:  db "[DBL]: Loading dltkernel from the disk...", 0x0D, 0x0A, 0
 str_kernel_loaded: db "[DBL]: Kernel loaded at 0x10000", 0x0D, 0x0A, 0
 
-boot_drive:    db 0 
+boot_drive:    db 0
 boot_part_seg: dw 0
 boot_part_off: dw 0
 
