@@ -9,7 +9,7 @@
 #include "./lib/idt.h"
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
-#include "./lib/mouse.h" 
+#include "./lib/mouse.h"
 #include "./lib/pic.h"
 /* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
@@ -24,61 +24,60 @@ extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 
 uint8_t boot_drive = 0x80;
-IDTDescriptor idt_ptr;
 
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     const char* msg = "KERNEL PANIC: ";
     for(int i=0; msg[i]; i++) vga[i] = (msg[i] << 8) | 0x4F;
     for(int i=0; panic_msg[i]; i++) vga[14+i] = (panic_msg[i] << 8) | 0x4F;
-    
+
     __asm__ volatile ( "cli" );
-    
-    for (;;) { 
-        __asm__ volatile ( "hlt" ); 
+
+    for (;;) {
+        __asm__ volatile ( "hlt" );
     }
 }
 
-__attribute__((noreturn)) 
+__attribute__((noreturn))
 void kmain(void)
 {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     for (int i = 0; i < 80; i++) {
         vga[i] = ('K' << 8) | 0x2F;
-    }    
+    }
 
-    vga[0] = ('M' << 8) | 0x2F;
-    vga[1] = ('A' << 8) | 0x2F;
-    vga[2] = ('I' << 8) | 0x2F;
-    vga[3] = ('N' << 8) | 0x2F;
+    vga[0] = (0x2F << 8) | 'M';
+    vga[1] = (0x2F << 8) | 'A';
+    vga[2] = (0x2F << 8) | 'I';
+    vga[3] = (0x2F << 8) | 'N';
 
     i386_GDT_init();
-    
+
     clearScreen();
 
     vga[0] = 0x2F37;
 
     const char *welcome = "Welcome to the OpenDelta!\n";
     const char *os_name = "OS: OpenDelta v0.1-a\n";
-    const char *kern_name = "Kernel: dltkernel v0.0.9-p\n";    
+    const char *kern_name = "Kernel: dltkernel v0.0.9-p\n";
 
     prints(welcome, CYAN);
     prints(os_name, WHITE);
     prints(kern_name, WHITE);
 
     prints("[info]: [initializing ISR and IRQ]\n", WHITE);
-    install_isr_and_irq();  
+    install_isr_and_irq();
 
     prints("[info]: [install memory management and shared memory]\n", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
     heapInstall();
     shmInstall();
-    
+
     prints("[info]: [install hardware drivers]\n", WHITE);
     prints("[info]: [install fpu driver]\n", WHITE);
     fpu_install();
     syscallInstall();
-    mouse_install();    
+    mouse_install();
 
     prints("[info]: [enabling interrupts]\n", WHITE);
     unmask(1);
@@ -110,7 +109,7 @@ void kmain(void)
     prints("[info]: [starting minimal dltsh]", WHITE);
     min_dltsh();
 
-end: 
+end:
     prints("[INFO]: [System halted]\n", CYAN);
     while (TRUE) {
         __asm__ __volatile__ ("hlt");
