@@ -12,7 +12,7 @@
 #define FLAG_UNSET(x, flag) x &= ~(flag)
 
 #define low_16(address) (uint16_t)((address) & 0xFFFF)
-#define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF) 
+#define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF)
 
 typedef enum {
     IDT_FLAG_GATE_TASK              = 0x5,
@@ -42,26 +42,9 @@ typedef struct {
     uint32_t base;
 } __attribute__((packed)) idt_reg_t;
 
-typedef struct {
-    unsigned short base_low;
-    unsigned short reversed;
-    unsigned char flags;
-    unsigned base_high; 
-    unsigned short int offset_lowerbits;
-    unsigned short selector;
-    unsigned char zero;
-    unsigned char type_attr;
-    unsigned short int offset_higherbits;
-} __attribute__((packed)) IDTEntry;
-
-typedef struct {    
-    uint16_t limit;
-    uint32_t ptr;
-} __attribute__((packed)) IDTDescriptor;
-
 #define IDT_ENTRIES 256
 
-void idt_load(IDTDescriptor *idt_desc);
+void idt_load(idt_reg_t *idt_desc);
 
 void idt_enable_gate(int interrupt);
 void idt_disable_gate(int interrupt);
