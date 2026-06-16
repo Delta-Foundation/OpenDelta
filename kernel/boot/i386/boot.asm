@@ -138,11 +138,7 @@ protected_mode:
     call print_pmode
 
     mov eax, 0x10000
-    call 0x10000
-    
-    cli
-
-    jmp $
+    jmp eax
 
 print_pmode:
 	pushad
