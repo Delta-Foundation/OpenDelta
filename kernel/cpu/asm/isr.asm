@@ -6,26 +6,21 @@
 
 isr_common_stub:
 	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-    cld 
+    cld
 
     xor eax, eax
     mov	ax, ds		; lower 16-bits of eax = ds
 	push eax             ; save the data segment descriptor
-	
+
     mov	ax, 0x10	; kernel data segment descriptor
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
-    ;mov ss, ax 
 
-    push ebp
-    mov esp, ebp
-
-    pushad 
-	call	isr_handler
-    popad 
-    iret
+    push esp
+    extern isr_handler
+    call	isr_handler
     add esp, 4
 
 	pop	eax
@@ -33,7 +28,6 @@ isr_common_stub:
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
-    ;mov ss, ax
 
 	popa
 	add esp, 8		; cleans up the pushed error code and pushed ISR number
