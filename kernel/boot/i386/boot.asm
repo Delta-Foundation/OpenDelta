@@ -87,6 +87,8 @@ load_kernel:
     int 0x13
     jc read_error
 
+	mov bx, 0x2200
+
     mov ah, 0x02 
     mov al, 15 
     mov ch, 0x00 
