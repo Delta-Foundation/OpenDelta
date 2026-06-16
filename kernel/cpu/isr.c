@@ -48,7 +48,7 @@ void install_isr_and_irq(void)
     // Remaping the PIC
     pic_remap();
 
-    // Install the IRQ 
+    // Install the IRQ
     set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
     set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
     set_idt_gate(34, (uint32_t)irq2,  0x08, 0x8E);
@@ -108,7 +108,6 @@ char *exception_messages[] =
     	"Reserved"
 };
 
-__attribute__((interrupt))
 void isr_handler(regs_t *r)
 {
 	if (r->int_no < 32) {
@@ -133,9 +132,8 @@ void isr_handler(regs_t *r)
 }
 
 /*---irq---*/
-__attribute__((interrupt))
 void irq_handler(regs_t *r) {
-    if ((r->int_no - PIC_REMAP_OFFSET) >= 40) {
+    if (r->int_no >= 40) {
         outb(0xA0, 0x20);
     }
 
