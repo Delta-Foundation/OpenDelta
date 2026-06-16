@@ -11,7 +11,7 @@ PHDRS {
     data      PT_LOAD FLAGS(6);
 }
 
-SECTIONS {    
+SECTIONS {
     /* for 16-bit real mode */
 
     . = rmode_addr;
@@ -29,28 +29,28 @@ SECTIONS {
     /* for 32-bit protected mode */
 
     . = pmode_addr;
-   
+
     .text ALIGN(4096) : {
         __text_start = .;
         *(.text._start)
         *(.text)
         *(.text*)
         __text_end = .;
-    } :text 
+    } :text
 
     .data ALIGN(4096) : {
         __data_start = .;
         *(.data)
         *(.data*)
         __data_end = .;
-    } :data 
-    
+    } :data
+
     .rodata ALIGN(4096) : {
         __rodata_start = .;
         *(.rodata)
         *(.rodata*)
-        __rodata_ebd = .;
-    } :text 
+        __rodata_end = .;
+    } :text
 
     .bss ALIGN(4096) : {
         __bss_start = .;
@@ -58,9 +58,9 @@ SECTIONS {
         *(.bss*)
         *(COMMON)
         __bss_end = .;
-    } :data 
+    } :data
 
-    .heap ALIGN(4096) : {
+    .heap (NOLOAD) : ALIGN(4096) {
         _heap_start = .;
         . = . + 4 * 1024 * 1024;
         _heap_end = .;
