@@ -153,6 +153,7 @@ int sysRead(int fd, char *ptr, int len);
 int sysWrite(int fd, char *ptr, int len);
 int sysClose(int fd);
 int sysCreate(const char *file, mode_t mode);
+void wait(int ms);
 off_t lseek(int fd, off_t offset, int whence);
 void syscallInstall(void);
 tree_t *treeCreate(void);
