@@ -60,47 +60,37 @@ print_nl:
 [bits 16]
 load_kernel:
     pusha
-    mov si, str_load
+
+    mov	si, str_load
     call print
+    call print_nl
 
     mov ax, 0x1000
     mov es, ax
-
-    mov bp, 89
-    mov si, 1
     xor bx, bx
 
-load_loop:
-    mov ax, si
-    xor dx, dx
-    mov cx, 18
-    div cx
-    inc dx
-    mov cl, dl
-
-    xor dx, dx
-    mov cx, 2
-    div cx
-    mov ch, al
-    mov dh, dl
-
-    mov ax, 0x0201      ; AH = 2 (читать), AL = 1 (сектор)
+    mov ah, 0x02
+    mov al, 17
+    mov ch, 0x00
+    mov dh, 0x00
+    mov cl, 0x02
     mov dl, [boot_drive]
-
-    push bp
-    push si
     int 0x13
-    pop si
-    pop bp
     jc read_error
 
-    add bx, 0x200
-    inc si
-    dec bp
-    jnz load_loop
+    mov ah, 0x02
+    mov al, 15
+    mov ch, 0x00
+    mov dh, 0x01
+    mov cl, 0x01
+    mov dl, [boot_drive]
+    int 0x13
+    jc read_error
 
     mov si, str_kernel_loaded
     call print
+    call print_nl
+
     popa
     ret
 
