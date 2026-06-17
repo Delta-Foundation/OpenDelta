@@ -80,13 +80,15 @@ INTS_C = obj/ints_c.o
 INTS_C_SRC = ints/int.c 
 MOUSE = obj/mouse.o 
 MOUSE_SRC = drvs/mouse.c 
+SPEAKER = obj/spkr.o
+SPEAKER_SRC = drvs/speaker.c
 
 # clang flags for build on i386
-FLAGS = -m32 -march=i386 -std=c17 \
-		-fno-pie -fno-builtin -fno-stack-protector -fno-exceptions \
+FLAGS = -m32 -march=i386 --target=i386-elf -std=c17 \
+		-fno-pie -fno-builtin -fno-stack-protector -fno-exceptions -fno-asynchronous-unwind-tables \
 		-ffreestanding -nostdlib \
-		-Wall -Wextra -Wstrict-prototypes \
-		-mno-sse -mno-80387
+		-Wall -Wextra -Wstrict-prototypes -O0 -g \
+		-mno-sse -mno-sse2 -mno-avx -mno-80387 -msoft-float
 
 LD_FLAGS = $@ $^ -z noexecstack -T link.ld -Map kernel.map
 
@@ -97,7 +99,7 @@ img = img/open-delta.img
 QEMU = qemu-system-x86_64
 QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -d int,cpu_reset \
-			 -no-reboot -no-shutdown 
+			 -no-reboot -no-shutdown
 
 all: run
 
@@ -132,13 +134,16 @@ $(KERNEL_ELF): $(ENTRY) $(TOOLS) $(INTS_C) \
 	$(GDT) $(SHM) $(FS) \
 	$(LIST) $(PIPE) $(FPU) \
 	$(SYS) $(TASK) $(PROC) \
-	$(DISK) $(FAT) $(MBR) $(MOUSE)
-	$(LD) -m elf_i386 -s -o $(LD_FLAGS) 
+	$(DISK) $(FAT) $(MBR) $(MOUSE) $(SPEAKER)
+	$(LD) -m elf_i386 -s -o $(LD_FLAGS)
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
 
 $(MEM): $(MEM_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(SPEAKER): $(SPEAKER_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(SHM): $(SHM_SRC)
@@ -148,7 +153,7 @@ $(FAT): $(FAT_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(DISK): $(DISK_SRC)
-	$(CC) $(FLAGS) -c $< -o $@ 
+	$(CC) $(FLAGS) -c $< -o $@
 
 $(MBR): $(MBR_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
@@ -240,7 +245,7 @@ clean:
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
 		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)            \
-		  $(MIN_DLTSH) $(INTS_C) $(MOUSE)
+		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
 	rm -f kernel.map
 
