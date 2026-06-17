@@ -63,7 +63,7 @@ load_kernel:
     mov si, str_load
     call print
 
-    mov ax, 0x0800
+    mov ax, 0x1000
     mov es, ax
 
     mov bp, 89
