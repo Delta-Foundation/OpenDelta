@@ -41,19 +41,20 @@ static void kpanic(const char *panic_msg, ...) {
 __attribute__((noreturn))
 void kmain(void)
 {
-    beep_boop();
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
-    for (int i = 0; i < 80; i++) {
-        vga[i] = ('K' << 8) | 0x2F;
-    }
 
-    vga[0] = ('M' << 8) | 0x2F;
-    vga[1] = ('A' << 8) | 0x2F;
-    vga[2] = ('I' << 8) | 0x2F;
-    vga[3] = ('N' << 8) | 0x2F;
+    vga[0] = 0x2F4D; // 'M'
+    vga[1] = 0x2F41; // 'A'
+    vga[2] = 0x2F49; // 'I'
+    vga[3] = 0x2F4E; // 'N'
+
+    vga[4] = 0x2F20; // ' '
+    vga[5] = 0x2F4F; // 'O'
+    vga[6] = 0x2F4B; // 'K;
 
     i386_GDT_init();
 
+    beep_boop();
     clearScreen();
 
     vga[0] = 0x2F37;
