@@ -1,14 +1,13 @@
 [bits 32]
 
-    ; asm functions
+; asm functions
 global _start
 global readp  ; read port
 global writep ; write port
 [extern __bss_start]
 [extern __bss_end]
-[extern stack_top]
 
-    ; C functions
+; C functions
 [extern kmain]
 
 VIDEO_MEMORY    equ 0xB8000
@@ -74,3 +73,9 @@ writep:
 
     pop ebp
     ret
+
+section .bss
+    align 16
+    stack_bot:
+        resb 16384
+    stack_top:
