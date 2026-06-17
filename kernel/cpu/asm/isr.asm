@@ -4,6 +4,8 @@
 ; ISR (Interrupt Service Routines) - Expection handlers 0-31
 ; ==============================================================
 
+global isr_common_stub
+
 isr_common_stub:
 	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
     cld
