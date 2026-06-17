@@ -4,6 +4,8 @@
 ; || IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47 ||
 ; =============================================================================
 
+global irq_common_stub
+
 irq_common_stub:
 	pusha
     cld
