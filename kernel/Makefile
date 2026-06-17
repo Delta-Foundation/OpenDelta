@@ -84,11 +84,12 @@ SPEAKER = obj/spkr.o
 SPEAKER_SRC = drvs/speaker.c
 
 # clang flags for build on i386
-FLAGS = -m32 -march=i386 --target=i386-elf -std=c17 \
-		-fno-pie -fno-builtin -fno-stack-protector -fno-exceptions -fno-asynchronous-unwind-tables \
-		-ffreestanding -nostdlib \
-		-Wall -Wextra -Wstrict-prototypes -O0 -g \
-		-mno-sse -mno-sse2 -mno-avx -mno-80387 -msoft-float
+FLAGS = --target=i386-elf -m32 -march=i386 -std=c17 \
+	 	-ffreestanding -nostdlib \
+		-fno-builtin -fno-stack-protector -nodefaultlibs \
+         -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 -mno-avx -mno-avx2 \
+         -msoft-float -mno-red-zone -mno-80387 \
+         -O0 -g -Wall
 
 LD_FLAGS = $@ $^ -z noexecstack -T link.ld -Map kernel.map
 
