@@ -10,7 +10,7 @@
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
 #include "./lib/mouse.h"
-#include "./lib/pic.h"
+#include "./lib/speaker.h"
 /* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
@@ -41,6 +41,7 @@ static void kpanic(const char *panic_msg, ...) {
 __attribute__((noreturn))
 void kmain(void)
 {
+    beep_boop();
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     for (int i = 0; i < 80; i++) {
         vga[i] = ('K' << 8) | 0x2F;
