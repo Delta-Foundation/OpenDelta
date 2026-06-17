@@ -6,7 +6,7 @@ global _start
 _start:
     cli
 
-    xor ax, ax
+    mov ax, 0
     mov ds, ax
     mov es, ax
     mov ss, ax
@@ -22,10 +22,9 @@ _start:
     call print_nl
 
     call load_kernel
-
     call switch
 
-    jmp $
+    jmp 0x08:0x1000
 
 print:
     pusha
