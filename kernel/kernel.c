@@ -46,10 +46,10 @@ void kmain(void)
         vga[i] = ('K' << 8) | 0x2F;
     }
 
-    vga[0] = (0x2F << 8) | 'M';
-    vga[1] = (0x2F << 8) | 'A';
-    vga[2] = (0x2F << 8) | 'I';
-    vga[3] = (0x2F << 8) | 'N';
+    vga[0] = ('M' << 8) | 0x2F;
+    vga[1] = ('A' << 8) | 0x2F;
+    vga[2] = ('I' << 8) | 0x2F;
+    vga[3] = ('N' << 8) | 0x2F;
 
     i386_GDT_init();
 
