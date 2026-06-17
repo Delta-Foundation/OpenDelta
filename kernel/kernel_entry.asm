@@ -27,22 +27,32 @@ _start:
     mov ss, ax
 
     mov esp, stack_top
+    and esp, 0xFFFFFFF0
+    sub esp, 4
 
     ; Marker 1: segments + stack ready. Kernel started
     mov dword [VIDEO_MEMORY], 0x2F312F31
 
     mov edi, __bss_start
     mov ecx, __bss_end
+    cmp ecx, edi
+    jbe .bss_clear_done
+
     sub ecx, edi
-    xor al, al
+    xor eax, eax
     cld
     rep stosb
+.bss_clear_done:
 
     ; Marker 2: BSS cleared
     mov dword [VIDEO_MEMORY + 4], 0x2F322F32
 
     ; Marker 3: call kmain
     mov dword [VIDEO_MEMORY + 8], 0x2F332F33
+
+    mov eax, kmain
+    test eax, eax
+    jz .halt
 
     call kmain
 
