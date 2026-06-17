@@ -74,6 +74,16 @@ off_t lseek(int fd, off_t offset, int whence) {
     return res;
 }
 
+void wait(int ms) {
+    volatile int count;
+    while (ms--) {
+        count = 100000;
+        while (count--) {
+            __asm__ ( "nop" );
+        }
+    }
+}
+
 static int (*syscalls[]) = {
     [SYS_EXT] = (int *)sysExit,
     [SYS_GETEUID] = (int *)sysGeteuid,
