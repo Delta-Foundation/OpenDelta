@@ -1,5 +1,3 @@
-#include "../lib/string.h"
-#include "../lib/ports.h"
 #include "../lib/isr.h"
 #include "../lib/idt.h"
 #include "../lib/stdbase.h"
@@ -115,11 +113,6 @@ void isr_handler(regs_t *r)
             interrupt_handlers[r->int_no](r);
         }
         else {
-            prints("[ERR]: [EXCEPTION]: ", RED);
-            prints(exception_messages[r->int_no], RED);
-            prints("\n", RED);
-            prints("[ERR]: [System Handled!]\n", RED);
-
             __asm__ volatile ( "cli" );
             for (;;) {
                 __asm__ volatile ( "hlt" );
