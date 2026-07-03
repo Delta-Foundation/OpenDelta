@@ -11,6 +11,7 @@
 #include "./fpu/fpu.h"
 #include "./lib/mouse.h"
 #include "./lib/speaker.h"
+#include "./lib/pic.h" 
 /* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
