@@ -122,9 +122,9 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf32 -o $@
 
-$(KERNEL_ELF): $(ENTRY) $(TOOLS) $(INTS_C) \
+$(KERNEL_ELF): $(ENTRY) $(KERNEL_OBJ) $(INTS_C) \
 	$(STDLIB) $(ELF) \
-	$(KERNEL_OBJ) $(STDBASE) \
+	$(TOOLS) $(STDBASE) \
 	$(MIN_DLTSH) $(PIC) \
 	$(SCREEN) $(PORTS) \
 	$(IDT) $(IDT_ASM) \
