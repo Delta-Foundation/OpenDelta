@@ -14,7 +14,8 @@ VIDEO_MEMORY    equ 0xB8000
 KERNEL_CS       equ 0x08
 KERNEL_DS       equ 0x10
 
-section .text._start
+;section .text._start
+section .text
 
 _start:
     cli
