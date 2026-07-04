@@ -44,15 +44,44 @@ void kmain(void)
 {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
 
-    vga[0] = 0x2F4D; // 'M'
-    vga[1] = 0x2F41; // 'A'
-    vga[2] = 0x2F49; // 'I'
-    vga[3] = 0x2F4E; // 'N'
+    for (int i = 0; i < 80 * 25; i++) {
+        vga[i] = 0x0F20; // 0x0F = чёрный фон, 0x20 = пробел
+    }
 
-    vga[4] = 0x2F20; // ' '
-    vga[5] = 0x2F4F; // 'O'
-    vga[6] = 0x2F4B; // 'K;
+    vga[0] = 0x0B57; // 'W' (0x0B = голубой текст, 0x57 = 'W')
+    vga[1] = 0x0B65; // 'e'
+    vga[2] = 0x0B6C; // 'l'
+    vga[3] = 0x0B63; // 'c'
+    vga[4] = 0x0B6F; // 'o'
+    vga[5] = 0x0B6D; // 'm'
+    vga[6] = 0x0B65; // 'e'
+    vga[7] = 0x0B20; // ' '
 
+    vga[8] = 0x0B74; // 't'
+    vga[9] = 0x0B6F; // 'o'
+    vga[10] = 0x0B20; // ' '
+
+    vga[11] = 0x0B4F; // 'O'
+    vga[12] = 0x0B70; // 'p'
+    vga[13] = 0x0B65; // 'e'
+    vga[14] = 0x0B6E; // 'n'
+    vga[15] = 0x0B44; // 'D'
+    vga[16] = 0x0B65; // 'e'
+    vga[17] = 0x0B6C; // 'l'
+    vga[18] = 0x0B74; // 't'
+    vga[19] = 0x0B61; // 'a'
+    vga[20] = 0x0B21; // '!'
+
+    vga[21] = 0x0F4D; // 'M'
+    vga[22] = 0x0F41; // 'A'
+    vga[23] = 0x0F49; // 'I'
+    vga[24] = 0x0F4E; // 'N'
+
+    vga[25] = 0x0F20; // ' '
+
+    vga[26] = 0x0F4F; // 'O'
+    vga[27] = 0x0F4B; // 'K'
+    
     i386_GDT_init();
 
     beep_boop();
