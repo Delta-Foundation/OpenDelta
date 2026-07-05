@@ -22,12 +22,12 @@ CFLAGS=(
 )
 
 function base_actions {
-    mkdir -p ~/OpenDelta/kernel/img/
-    mkdir -p ~/OpenDelta/kernel/obj/
+    mkdir -p ~/open-delta/kernel/src/img/
+    mkdir -p ~/open-delta/kernel/src/obj/
 }
 
 function build-kern-32 {
-    cd ~/OpenDelta/kernel/
+    cd ~/open-delta/kernel/src/
         
     echo "#---building-asm-code---#"
     nasm boot/i386/boot.asm      -f bin -o img/boot.bin 
@@ -46,6 +46,7 @@ function build-kern-32 {
     clang "${CFLAGS[@]}" -c drvs/screen.c      -o obj/screen.o
     clang "${CFLAGS[@]}" -c drvs/time.c        -o obj/time.o 
     clang "${CFLAGS[@]}" -c cpu/idt.c          -o obj/idt.o
+    clang "{$CFLAGS[@]}" -c ints/int.c         -o obj/ints.o
     clang "${CFLAGS[@]}" -c cpu/isr.c          -o obj/isr.o
     clang "${CFLAGS[@]}" -c ports/ports.c      -o obj/ports.o
     clang "${CFLAGS[@]}" -c syscall/syscall.c  -o obj/sys.o
