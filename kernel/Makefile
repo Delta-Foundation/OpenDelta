@@ -122,21 +122,18 @@ $(INTS_ASM): $(INTS_ASM_SRC)
 $(TOOLS): $(TOOLS_SRC)
 	$(AS) $< -f elf32 -o $@
 
-$(KERNEL_ELF): $(ENTRY) $(KERNEL_OBJ) $(INTS_C) \
-	$(STDLIB) $(ELF) \
-	$(TOOLS) $(STDBASE) \
-	$(MIN_DLTSH) $(PIC) \
-	$(SCREEN) $(PORTS) \
-	$(IDT) $(IDT_ASM) \
-	$(ISR) $(INTS_ASM) \
-	$(STRING) $(MEM) \
-	$(TYPES) $(TTY) \
-	$(CTYPE) $(GDT_ASM) \
-	$(GDT) $(SHM) $(FS) \
-	$(LIST) $(PIPE) $(FPU) \
-	$(SYS) $(TASK) $(PROC) \
-	$(DISK) $(FAT) $(MBR) $(MOUSE) $(SPEAKER)
-	$(LD) -m elf_i386 -s -o $(LD_FLAGS)
+$(KERNEL_ELF): $(ENTRY) $(KERNEL_OBJ) $(GDT) \
+	$(GDT_ASM) $(SPEAKER) $(SCREEN) \
+	$(STDBASE) $(IDT) $(ISR) $(IDT_ASM)\
+	$(INTS_C) $(INTS_ASM) \
+	$(MEM) $(SHM) $(FPU) $(SYS) \
+	$(PROC) $(TASK) $(MOUSE) \
+	$(TIME) $(PIC) $(TTY) $(MIN_DLTSH) \
+	$(FS) $(LIST) $(PIPE) \
+	$(CTYPE) $(TYPES) $(STDLIB) $(STRING) \
+	$(PORTS) $(FAT) $(MBR) $(ELF)\
+	$(DISK) $(TOOLS) 
+	$(LD) -m elf_i386 -o $(LD_FLAGS)
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
