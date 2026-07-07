@@ -45,7 +45,6 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 
-
 static void early_kprint(const char *str, uint8_t color) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     int col = 0;
@@ -81,14 +80,14 @@ void kmain(void)
    
     early_kprint("[INFO]: Initializing GDT...   ", WHITE);
     i386_GDT_init();
-    early_kprint("[OK]\n" GREEN);
+    early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Masking all IRQs...   ", WHITE);
     mask_all();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Remapping PIC...   ", WHITE);
-    remap_pic();
+    pic_remap();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Initializing ISR and IRQ...   ", WHITE);
