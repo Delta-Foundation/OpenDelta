@@ -6,12 +6,11 @@
 #include "./mem/header/memory.h"
 #include "./lib/tty.h"
 #include "./arch/gdt/gdt.h"
-#include "./lib/idt.h"
 #include "./lib/isr.h"
 #include "./fpu/fpu.h"
 #include "./lib/mouse.h"
+#include "./lib/pic.h"
 #include "./lib/speaker.h"
-#include "./lib/pic.h" 
 /* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
@@ -29,8 +28,14 @@ uint8_t boot_drive = 0x80;
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     const char* msg = "KERNEL PANIC: ";
-    for(int i=0; msg[i]; i++) vga[i] = (msg[i] << 8) | 0x4F;
-    for(int i=0; panic_msg[i]; i++) vga[14+i] = (panic_msg[i] << 8) | 0x4F;
+    
+    for(int i=0; msg[i]; i++) {  
+        vga[i] = (msg[i] << 8) | 0x4F; 
+    }
+    
+    for(int i=0; panic_msg[i]; i++) { 
+        vga[14+i] = (panic_msg[i] << 8) | 0x4F; 
+    }
 
     __asm__ volatile ( "cli" );
 
@@ -114,26 +119,6 @@ void kmain(void)
     prints("[info]: [enabling interrupts]\n", WHITE);
     unmask(1);
     __asm__ volatile ( "sti" );
-    /* prints("[info]: [initializing disk]\n", WHITE);
-     DISK disk;
-     if (!disk_init(&disk, (const char *)boot_drive)) {
-         prints("[ERROR]: [Disk init error!]\r\n", RED);
-         goto end;
-     }
-
-     partition_t* part = NULL;
-     mbr_detect_part(part, &disk, partition);
-
-     if (!fat_init(part)) {
-         prints("[FAT ERROR]: [fat init error]\r\n", RED);
-         goto end;
-     }
-
-     boot_params->boot_device = (unsigned long)boot_drive;
-     if (!elf_read(part, "/boot/bin/kernel.elf", (void**)kmain)) {
-         prints("[FATAL ERROR]: [failed to read, booting halted!]", RED);
-         goto end;
-     } */
 
     prints("[info]: [starting TTY]\n", WHITE);
     terminalInit();
