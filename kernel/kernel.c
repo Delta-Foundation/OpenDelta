@@ -23,7 +23,8 @@
 extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 
-uint8_t boot_drive = 0x80;
+static uint8_t boot_drive = 0x80;
+static int debug_row = 0;
 
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
@@ -44,90 +45,90 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 
+
+static void early_kprint(const char *str, uint8_t color) {
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    int col = 0;
+
+    for (int i = 0; str[i]; i++) {
+        if (str[i] == '\n') {
+            debug_row++;
+            col = 0;
+            continue;
+        }
+
+        vga[debug_row * 80 + col] = (uint16_t)str[i] | ((uint16_t)color << 8);
+        col++;
+    }
+
+    debug_row++;
+}
+
 __attribute__((noreturn))
 void kmain(void)
 {
+    __asm__ volatile ("cli");
+
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
 
     for (int i = 0; i < 80 * 25; i++) {
         vga[i] = 0x0F20; // 0x0F = чёрный фон, 0x20 = пробел
     }
 
-    vga[0] = 0x0B57; // 'W' (0x0B = голубой текст, 0x57 = 'W')
-    vga[1] = 0x0B65; // 'e'
-    vga[2] = 0x0B6C; // 'l'
-    vga[3] = 0x0B63; // 'c'
-    vga[4] = 0x0B6F; // 'o'
-    vga[5] = 0x0B6D; // 'm'
-    vga[6] = 0x0B65; // 'e'
-    vga[7] = 0x0B20; // ' '
-
-    vga[8] = 0x0B74; // 't'
-    vga[9] = 0x0B6F; // 'o'
-    vga[10] = 0x0B20; // ' '
-
-    vga[11] = 0x0B4F; // 'O'
-    vga[12] = 0x0B70; // 'p'
-    vga[13] = 0x0B65; // 'e'
-    vga[14] = 0x0B6E; // 'n'
-    vga[15] = 0x0B44; // 'D'
-    vga[16] = 0x0B65; // 'e'
-    vga[17] = 0x0B6C; // 'l'
-    vga[18] = 0x0B74; // 't'
-    vga[19] = 0x0B61; // 'a'
-    vga[20] = 0x0B21; // '!'
-
-    vga[21] = 0x0F4D; // 'M'
-    vga[22] = 0x0F41; // 'A'
-    vga[23] = 0x0F49; // 'I'
-    vga[24] = 0x0F4E; // 'N'
-
-    vga[25] = 0x0F20; // ' '
-
-    vga[26] = 0x0F4F; // 'O'
-    vga[27] = 0x0F4B; // 'K'
-    
+    early_kprint("Welcome to the OpenDelta!\n", CYAN);
+    early_kprint("OS: OpenDelta v0.2-a\n", CYAN);
+    early_kprint("Kernel: dltkernel v0.0.10-b\n", CYAN);
+   
+    early_kprint("[INFO]: Initializing GDT...   ", WHITE);
     i386_GDT_init();
+    early_kprint("[OK]\n" GREEN);
 
-    beep_boop();
-    clearScreen();
+    early_kprint("[INFO]: Masking all IRQs...   ", WHITE);
+    mask_all();
+    early_kprint("[OK]\n", GREEN);
 
-    vga[0] = 0x2F37;
+    early_kprint("[INFO]: Remapping PIC...   ", WHITE);
+    remap_pic();
+    early_kprint("[OK]\n", GREEN);
 
-    const char *welcome = "Welcome to the OpenDelta!\n";
-    const char *os_name = "OS: OpenDelta v0.1-a\n";
-    const char *kern_name = "Kernel: dltkernel v0.0.9-p\n";
-
-    prints(welcome, CYAN);
-    prints(os_name, WHITE);
-    prints(kern_name, WHITE);
-
-    prints("[info]: [initializing ISR and IRQ]\n", WHITE);
+    early_kprint("[INFO]: Initializing ISR and IRQ...   ", WHITE);
     install_isr_and_irq();
+    early_kprint("[OK]\n", GREEN);
 
-    prints("[info]: [install memory management and shared memory]\n", WHITE);
+    early_kprint("[INFO]: Setting up memory management and shared memory...     ", WHITE);
     paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
     heapInstall();
     shmInstall();
+    early_kprint("[OK]\n", GREEN);
 
-    prints("[info]: [install hardware drivers]\n", WHITE);
-    prints("[info]: [install fpu driver]\n", WHITE);
-    fpu_install();
+    early_kprint("[INFO]: Installing syscalls...    ", WHITE);
     syscallInstall();
+    early_kprint("[OK]\n", GREEN);
+
+    early_kprint("[INFO]: Initializing FPU...   ", WHITE);
+    fpu_install();
+    early_kprint("[OK]\n", GREEN);
+
+    early_kprint("[INFO]: Installing device drivers...    ", WHITE);
     mouse_install();
+    early_kprint("[OK]\n", GREEN);
 
-    prints("[info]: [enabling interrupts]\n", WHITE);
-    unmask(1);
+    early_kprint("[INFO]: Enabling interrupts...    ", WHITE);
+    outb(0x21, 0xF8);
+    outb(0xA1, 0xEF);
     __asm__ volatile ( "sti" );
+    early_kprint("[OK]\n", GREEN);
 
-    prints("[info]: [starting TTY]\n", WHITE);
+    early_kprint("[INFO]: Starting terminal and shell...    ", WHITE);
+    beep_boop();
+
     terminalInit();
-
-    prints("[info]: [starting minimal dltsh]", WHITE);
     min_dltsh();
 
-end:
-    prints("[INFO]: [System halted]\n", CYAN);
+    early_kprint("[INFO]: System halted!\n", CYAN);
+
+    __asm__ volatile ( "cli" );
+
     while (TRUE) {
         __asm__ __volatile__ ("hlt");
     }
