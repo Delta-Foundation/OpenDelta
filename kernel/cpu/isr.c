@@ -43,9 +43,6 @@ void install_isr_and_irq(void)
 	set_idt_gate(30, (uint32_t)isr30, 0x08, 0x8E);
 	set_idt_gate(31, (uint32_t)isr31, 0x08, 0x8E);
 
-    // Remaping the PIC
-    pic_remap();
-
     // Install the IRQ
     set_idt_gate(32, (uint32_t)irq0,  0x08, 0x8E);
     set_idt_gate(33, (uint32_t)irq1,  0x08, 0x8E);
