@@ -1,7 +1,7 @@
 # asm translator
 AS=nasm
 
-# clang tools
+# build tools
 CC = clang
 CXX = clang++
 LD = ld.lld
@@ -18,8 +18,8 @@ BOOT = img/boot.bin
 BOOT_SRC = boot/i386/boot.asm
 STDBASE = obj/stdbase.o
 STDBASE_SRS = lib/source/stdbase.c
-STDLIB = obj/stdlib.o 
-STDLIB_SRC = lib/source/stdlib.c 
+STDLIB = obj/stdlib.o
+STDLIB_SRC = lib/source/stdlib.c
 TYPES = obj/types.o
 TYPES_SRC = lib/source/types.c
 STRING = obj/string.o
@@ -65,21 +65,21 @@ PROC_SRC = syscall/proc.c
 PIC = obj/pic.o
 PIC_SRC = drvs/pic.c
 TOOLS = obj/toolsa.o
-TOOLS_SRC = tools/fat/asm/tools.asm 
-FAT = obj/fat.o 
+TOOLS_SRC = tools/fat/asm/tools.asm
+FAT = obj/fat.o
 FAT_SRC = tools/fat/fat.c
-DISK = obj/disk.o 
-DISK_SRC = tools/fat/disk.c 
-MBR = obj/mbr.o 
-MBR_SRC = tools/fat/mbr.c 
+DISK = obj/disk.o
+DISK_SRC = tools/fat/disk.c
+MBR = obj/mbr.o
+MBR_SRC = tools/fat/mbr.c
 ELF = obj/elf.o
-ELF_SRC = tools/fat/elf.c 
+ELF_SRC = tools/fat/elf.c
 MIN_DLTSH = obj/mdltsh.o
 MIN_DLTSH_SRC = tty/min_dltsh.c
-INTS_C = obj/ints_c.o 
-INTS_C_SRC = ints/int.c 
-MOUSE = obj/mouse.o 
-MOUSE_SRC = drvs/mouse.c 
+INTS_C = obj/ints_c.o
+INTS_C_SRC = ints/int.c
+MOUSE = obj/mouse.o
+MOUSE_SRC = drvs/mouse.c
 SPEAKER = obj/spkr.o
 SPEAKER_SRC = drvs/speaker.c
 
@@ -100,7 +100,8 @@ img = img/open-delta.img
 QEMU = qemu-system-x86_64
 QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -d int,cpu_reset \
-			 -no-reboot -no-shutdown
+			 -no-reboot -no-shutdown \
+             -display gtk,full-screen=off,gl=off,show-cursor=on
 
 all: run
 
@@ -136,7 +137,7 @@ $(KERNEL_ELF): $(ENTRY) $(KERNEL_OBJ) $(INTS_C) \
 	$(LIST) $(PIPE) $(FPU) \
 	$(SYS) $(TASK) $(PROC) \
 	$(DISK) $(FAT) $(MBR) $(MOUSE) $(SPEAKER)
-	$(LD) -m elf_i386 -s -o $(LD_FLAGS)
+	$(LD) -m elf_i386 -o $(LD_FLAGS)
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
