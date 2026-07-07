@@ -62,6 +62,7 @@ void pic_configure(uint8_t offset1, uint8_t offset2, boolean auto_eoi);
 void send_end_of_int(int irq);
 void pic_disable(void);
 void mask(int irq);
+void mask_all(void);
 void unmask(int irq);
 void pic_remap(void);
 uint16_t read_irq_request_reg(void);
