@@ -63,6 +63,13 @@ void mask(int irq) {
     set_mask(g_pic_mask | (1 << irq));
 }
 
+void mask_all(void) {
+    outb(0x21, 0xFF);
+    iowait();
+    outb(0xA1, 0xFF);
+    iowait();
+}
+
 void unmask(int irq) {
     set_mask(g_pic_mask & ~(1 << irq));
 }
@@ -74,20 +81,33 @@ uint16_t read_irq_request_reg(void) {
 }
 
 void pic_remap(void) {
-    outb(PIC1_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
-    outb(PIC2_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+    uint8_t mask1, mask2;
 
-    outb(PIC1_DATA_PORT, 0x20);
-    outb(PIC2_DATA_PORT, 0x28);
+    mask1 = inb(0x21);
+    mask2 = inb(0xA1);
 
-    outb(PIC1_DATA_PORT, 0x04);
-    outb(PIC2_DATA_PORT, 0x02);
+    outb(0x20, 0x11);
+    iowait();
+    outb(0xA0, 0x11);
+    iowait();
 
-    outb(PIC1_DATA_PORT, 0x01);
-    outb(PIC2_DATA_PORT, 0x01);
+    outb(0x21, 0x20);
+    iowait();
+    outb(0xA1, 0x28);
+    iowait();
 
-    outb(PIC1_DATA_PORT, 0x0);
-    outb(PIC2_DATA_PORT, 0x0);
+    outb(0x21, 0x04);
+    iowait();
+    outb(0xA1, 0x02);
+    iowait();
+
+    outb(0x21, 0x01);
+    iowait();
+    outb(0xA1, 0x01);
+    iowait();
+
+    outb(0x21, 0xFF);
+    outb(0xA1, 0xFF);
 }
 
 boolean probe(void) {
