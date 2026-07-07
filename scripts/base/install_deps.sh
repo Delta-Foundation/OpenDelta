@@ -10,7 +10,7 @@ function kernel_deps {
 
         if [ "$group" == "1" ]; then
             sudo pacman -S clang llvm nasm make
-            sudo pacman -S qemu-system-i386 qemu-common qemu-firmware 
+            sudo pacman -S qemu-system-x86 qemu-common qemu-base qemu-desktop
             sudo pacman -S lld git
             break
         elif [ "$group" == "2" ]; then
@@ -35,15 +35,15 @@ function shell_deps {
         read group 
 
         if [ "$group" == "1" ]; then
-            sudo pacman -S rust cargo
+            sudo pacman -S rustup cargo
             sudo pacman -S ncurses ncurses-devel ncurses-libs
             break 
         elif [ "$group" == "2" ]; then
-            sudo xbps-install -S rust cargo
+            sudo xbps-install -S rustup cargo
             sudo xbps-install -S ncurses ncurses-devel ncurses-libs
             break 
         elif [ "$group" == "3" ]; then 
-            sudo apt install clang rust cargo
+            sudo apt install clang rustup cargo
             sudo apt install ncurses 
             break
         else
