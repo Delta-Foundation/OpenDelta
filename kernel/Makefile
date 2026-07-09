@@ -134,7 +134,7 @@ FLAGS = --target=i386-elf -m32 -march=i386 -std=c17 \
          -O2 -g -Wall
 
 # Linker flags 
-LD_FLAGS = $@ $^ -z noexecstack -T link.ld -Map kernel.map
+LD_FLAGS = -z noexecstack -T link.ld -Map kernel.map
 
 # Image file
 IMG = img/open-delta.img
@@ -278,7 +278,7 @@ $(IMG): $(BOOT) $(KERNEL_BIN)
 
 # Running
 run: img/open-delta.img
-	$(QEMU) $(QEMU_FLAGS) -drive file=$(img),format=raw,if=ide,media=disk
+	$(QEMU) $(QEMU_FLAGS) -drive file=$(IMG),format=raw,if=ide,media=disk
 
 # =========================
 # | Removing binary files |
@@ -291,7 +291,7 @@ clean:
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
 		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)            \
 		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER)
-	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(img)
+	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
 	rm -f kernel.map
 
 .PHONY: $(BOOT) $(KERNEL_BIN) $(img) run clean
