@@ -11,11 +11,11 @@ i386_GDT_load:
 
     mov eax, [ebp + 12]
     push eax
-    mov eax, .reload_cs
+    mov eax, reload_cs
     push eax 
     retf
 
-.reload_cs:
+reload_cs:
     mov ax, [ebp + 16]
     mov ds, ax 
     mov es, ax
