@@ -15,12 +15,12 @@ typedef struct {
     uint8_t access;
     uint8_t flags_limit_high;
     uint8_t base_high;
-} __attribute__((packed)) GDTEntry;
+} __attribute__((packed)) gdt_entry;
 
 typedef struct {
     uint16_t limit;
-    GDTEntry* ptr;
-} __attribute__((packed)) GDTDescriptor;
+    gdt_entry* ptr;
+} __attribute__((packed)) gdt_ptr;
 
 typedef enum {
     GDT_ACCESS_CODE_READABLE                = 0x02,
@@ -66,7 +66,11 @@ typedef enum {
     GDT_FLAGS_LIMIT_HIGH(limit, flags),                               \
     GDT_BASE_HIGH(base)                                             \
 }
-void i386_GDT_load(GDTDescriptor *descriptor,uint16_t code_seg, uint16_t data_seg );
+/*
+void i386_GDT_load(gdt_ptr *descriptor,uint16_t code_seg, uint16_t data_seg );
 void i386_GDT_init(void);
+*/
+
+void gdt_init(void);
 
 #endif 
