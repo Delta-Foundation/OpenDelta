@@ -1,13 +1,64 @@
 #include "gdt.h"
 
-GDTEntry g_gdt[] = {
+/*
+static gdt_entry g_gdt[] = {
     {0, 0, 0, 0, 0, 0}, // Null entry
     {0xFFFF, 0, 0, 0x9A, 0xCF, 0}, // Code
     {0xFFFF, 0, 0, 0x92, 0xCF, 0}  // Data
 };
 
-GDTDescriptor g_gdt_descriptor = { sizeof(g_gdt) - 1, g_gdt };
+static gdt_ptr g_gdt_descriptor = { sizeof(g_gdt) - 1, g_gdt };
+*/
 
+static gdt_entry gdt[3];
+static gdt_ptr gp;
+
+/*
 void i386_GDT_init(void) {
     i386_GDT_load(&g_gdt_descriptor, (uint32_t)i386_GDT_CODE_SEG, (uint32_t)i386_GDT_DATA_SEG);
+}
+*/
+
+void gdt_init(void) {
+    gdt[0] = (gdt_entry) { 0 };
+    gdt[1] = (gdt_entry) {
+        .limit_low = 0xFFFF,
+        .base_low = 0x0000,
+        .base_middle = 0x00,
+        .access = 0x9A,
+        .flags_limit_high = 0xCF,
+        .base_high = 0x00 
+    };
+
+    gdt[2] = (gdt_entry) {
+        .limit_low = 0xFFFF,
+        .base_low = 0x0000,
+        .base_middle = 0x00,
+        .access = 0x92,
+        .flags_limit_high = 0xCF,
+        .base_high = 0x00 
+    };
+
+    gp.ptr = (gdt_entry *)gdt;
+    gp.limit = (uint16_t)(sizeof(gdt) - 1);
+
+    __asm__ __volatile__ ( "lgdt %0" : : "m"(gp) : "memory" );
+    
+    __asm__ __volatile__ (
+        "pushl $0x08 \n\t"
+        "pushl $.Lflush \n\t"
+        "lret \n\t"
+        ".Lflush: \n\t"
+        : : : "memory" 
+    );
+    
+    __asm__ __volatile__ (
+        "movw $0x10, %%ax \n\t"
+        "movw %%ax, %%ds \n\t"
+        "movw %%ax, %%es \n\t"
+        "movw %%ax, %%fs \n\t"
+        "movw %%ax, %%gs \n\t"
+        "movw %%ax, %%ss \n\t" 
+        : : : "eax", "memory"
+    );
 }
