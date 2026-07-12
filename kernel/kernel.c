@@ -45,18 +45,35 @@ static void kpanic(const char *panic_msg, ...) {
     }
 }
 
+static inline void dump_gdtr(void) {
+    uint8_t buf[6];
+    __asm__ __volatile__ ( "sgdt %0" : "=m" (buf));
+    uint32_t base = *(uint32_t *)(buf + 2);
+    uint16_t limit = *(uint16_t *)(buf);
+    
+    volatile uint16_t* vga = (volatile uint16_t *)0xB8000;
+}
+
+__attribute__((noinline))
 static void early_kprint(const char *str, uint8_t color) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     int col = 0;
 
-    for (int i = 0; str[i]; i++) {
+    for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] == '\n') {
             debug_row++;
             col = 0;
             continue;
         }
+        if (str[i] == '\r') {
+            col = 0;
+            continue;
+        }
+        
+        if (debug_row >= 25) { debug_row = 24; }
+        if (col >= 90) { col = 89; }
 
-        vga[debug_row * 80 + col] = (uint16_t)str[i] | ((uint16_t)color << 8);
+        vga[debug_row * 90 + col] = (uint16_t)str[i] | ((uint16_t)color << 8);
         col++;
     }
 
@@ -64,6 +81,7 @@ static void early_kprint(const char *str, uint8_t color) {
 }
 
 __attribute__((noreturn))
+__attribute__((section(".text")))
 void kmain(void)
 {
     __asm__ volatile ("cli");
@@ -79,7 +97,8 @@ void kmain(void)
     early_kprint("Kernel: dltkernel v0.0.10-b\n", CYAN);
    
     early_kprint("[INFO]: Initializing GDT...   ", WHITE);
-    i386_GDT_init();
+    gdt_init();
+    dump_gdtr();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Masking all IRQs...   ", WHITE);
