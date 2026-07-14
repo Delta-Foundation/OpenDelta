@@ -16,9 +16,10 @@ GDT_ASM_SRC = arch/gdt/gdt.asm
 IDT_ASM_SRC = cpu/asm/idt.asm
 INTS_ASM_SRC = cpu/asm/ints.asm
 IDT_SRC = cpu/idt.c
-ISR_SRC = cpu/isr.c
+ISR_SRC = cpu/isr.c 
 INTS_C_SRC = ints/int.c
 PIC_SRC = drvs/pic.c
+HAL_SRC = hal/hal.c 
 PORTS_SRC = ports/ports.c
 FPU_SRC = fpu/fpu.c
 SCREEN_SRC = drvs/screen.c
@@ -62,6 +63,7 @@ IDT = obj/idt.o
 ISR = obj/isr.o
 INTS_C = obj/ints_c.o 
 PIC = obj/pic.o 
+HAL = obj/hal.o 
 PORTS = obj/ports.o 
 FPU = obj/fpu.o
 SCREEN = obj/screen.o 
@@ -99,6 +101,7 @@ OBJS = $(ENTRY) \
 	   $(ISR) \
 	   $(INTS_C) \
 	   $(PIC) \
+	   $(HAL) \
 	   $(PORTS) \
 	   $(FPU) \
        $(SCREEN) \
@@ -196,6 +199,9 @@ $(INTS_C): $(INTS_C_SRC)
 $(PIC): $(PIC_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
+$(HAL): $(HAL_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
 $(PORTS): $(PORTS_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
@@ -289,7 +295,7 @@ clean:
 		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
-		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF)            \
+		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL)     \
 		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
 	rm -f kernel.map
