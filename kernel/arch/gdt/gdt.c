@@ -1,23 +1,21 @@
 #include "gdt.h"
 
 /*
-static gdt_entry g_gdt[] = {
+static gdt_entry gdt[] = {
     {0, 0, 0, 0, 0, 0}, // Null entry
     {0xFFFF, 0, 0, 0x9A, 0xCF, 0}, // Code
     {0xFFFF, 0, 0, 0x92, 0xCF, 0}  // Data
 };
 
-static gdt_ptr g_gdt_descriptor = { sizeof(g_gdt) - 1, g_gdt };
+static gdt_ptr gdt_descriptor = { sizeof(gdt) - 1, gdt };
 */
 
 static gdt_entry gdt[3];
 static gdt_ptr gp;
 
-/*
-void i386_GDT_init(void) {
-    i386_GDT_load(&g_gdt_descriptor, (uint32_t)i386_GDT_CODE_SEG, (uint32_t)i386_GDT_DATA_SEG);
-}
-*/
+// void i386_gdt_init(void) {
+//     gdt_load(&gdt_descriptor, (uint32_t)GDT_CODE_SEG, (uint32_t)GDT_DATA_SEG);
+// }
 
 void gdt_init(void) {
     gdt[0] = (gdt_entry) { 0 };
