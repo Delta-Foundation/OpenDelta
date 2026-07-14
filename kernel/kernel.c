@@ -16,6 +16,7 @@
 #include "./tools/fat/headers/fat.h"
 #include "./tools/fat/headers/elf.h" */
 #include "./tty/header/min_dltsh.h"
+#include "./hal/hal.h"
 
 #define DEF_MEM_LOWER 320
 #define DEF_MEM_UPPER (32 * 1024)
@@ -96,21 +97,8 @@ void kmain(void)
     early_kprint("OS: OpenDelta v0.2-a\n", CYAN);
     early_kprint("Kernel: dltkernel v0.0.10-b\n", CYAN);
    
-    early_kprint("[INFO]: Initializing GDT...   ", WHITE);
-    gdt_init();
-    dump_gdtr();
-    early_kprint("[OK]\n", GREEN);
-
-    early_kprint("[INFO]: Masking all IRQs...   ", WHITE);
-    mask_all();
-    early_kprint("[OK]\n", GREEN);
-
-    early_kprint("[INFO]: Remapping PIC...   ", WHITE);
-    pic_remap();
-    early_kprint("[OK]\n", GREEN);
-
-    early_kprint("[INFO]: Initializing ISR and IRQ...   ", WHITE);
-    install_isr_and_irq();
+    early_kprint("[INFO]: Initializing HAL(GDT, IDT, ISR, IRQ)...   ", WHITE);
+    hal_init();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Setting up memory management and shared memory...     ", WHITE);
