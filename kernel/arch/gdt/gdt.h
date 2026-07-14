@@ -5,8 +5,8 @@
 
 #include "../../lib/types.h"
 
-#define i386_GDT_CODE_SEG 0x08
-#define i386_GDT_DATA_SEG 0x10
+#define GDT_CODE_SEG 0x08
+#define GDT_DATA_SEG 0x10
 
 typedef struct {
     uint16_t limit_low;
@@ -63,13 +63,12 @@ typedef enum {
     GDT_BASE_LOW(base),                                             \
     GDT_BASE_MIDDLE(base),                                          \
     access,                                                         \
-    GDT_FLAGS_LIMIT_HIGH(limit, flags),                               \
+    GDT_FLAGS_LIMIT_HIGH(limit, flags),                             \
     GDT_BASE_HIGH(base)                                             \
 }
-/*
-void i386_GDT_load(gdt_ptr *descriptor,uint16_t code_seg, uint16_t data_seg );
-void i386_GDT_init(void);
-*/
+
+// void __attribute__((cdecl)) gdt_load(gdt_ptr *descriptor,uint16_t code_seg, uint16_t data_seg );
+// void i386_gdt_init(void);
 
 void gdt_init(void);
 
