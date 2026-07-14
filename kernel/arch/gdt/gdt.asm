@@ -1,8 +1,8 @@
 [bits 32]
 
-global i386_GDT_load
+global gdt_load
 
-i386_GDT_load:
+gdt_load:
     push ebp
     mov ebp, esp
 
@@ -11,8 +11,7 @@ i386_GDT_load:
 
     mov eax, [ebp + 12]
     push eax
-    mov eax, reload_cs
-    push eax 
+    push reload_cs
     retf
 
 reload_cs:
@@ -20,7 +19,7 @@ reload_cs:
     mov ds, ax 
     mov es, ax
     mov fs, ax
-    mov gs, ax 
+    mov gs, ax
     mov ss, ax
 
     mov esp, ebp
