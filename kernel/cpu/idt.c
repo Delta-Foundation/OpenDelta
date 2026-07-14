@@ -2,6 +2,7 @@
 
 static idt_gate_t idt[IDT_ENTRIES];
 static idt_reg_t idt_reg;
+static idt_reg_t idt_descriptor = { sizeof(idt) - 1, (idt_gate_t *)idt };
 
 void idt_enable_gate(int interrupt) {
     FLAG_SET(idt[interrupt].flags, IDT_FLAG_PRESENT);
@@ -20,7 +21,11 @@ void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags) {
 }
 
 void set_idt(void) {
-    idt_reg.base = (uint32_t)&idt;
+    idt_reg.base = (idt_gate_t *)idt;
     idt_reg.limit = IDT_ENTRIES * sizeof(idt_gate_t) - 1;
     __asm__ __volatile__ ("lidtl (%0)" : : "r" (&idt_reg));
+}
+
+void idt_init(void) {
+    idt_load(&idt_descriptor);
 }
