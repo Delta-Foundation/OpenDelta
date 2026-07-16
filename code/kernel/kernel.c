@@ -105,6 +105,7 @@ void kmain(void)
 
     early_kprint("[INFO]: Installing syscalls...    ", WHITE);
     syscallInstall();
+    taskingInstall();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Initializing FPU...   ", WHITE);
