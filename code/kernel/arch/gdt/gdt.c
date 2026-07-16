@@ -17,6 +17,32 @@ static gdt_ptr gp;
 //     gdt_load(&gdt_descriptor, (uint32_t)GDT_CODE_SEG, (uint32_t)GDT_DATA_SEG);
 // }
 
+__attribute__((noinline, naked))
+static void gdt_flush(uint32_t gdt_ptr) {
+    __asm__ __volatile__ ( "lgdt %0" : : "m"(gp) : "memory" );
+    
+    __asm__ __volatile__ (
+        "ljmp $0x08, $1f \n\t"
+        "1: \n\t"
+        : : : "memory"
+    );
+    
+    __asm__ __volatile__ (
+        "movw $0x10, %%ax \n\t"
+        "movw %%ax, %%ds \n\t"
+        "movw %%ax, %%es \n\t"
+        "movw %%ax, %%fs \n\t"
+        "movw %%ax, %%gs \n\t"
+        : : : "ax", "memory"
+    );
+
+    __asm__ __volatile__ (
+        "movw $0x10, %%ax \n\t"
+        "movw %%ax, %%ss \n\t"
+        : : : "ax", "memory"
+    );
+}
+__attribute__((noinline))
 void gdt_init(void) {
     gdt[0] = (gdt_entry) { 0 };
     gdt[1] = (gdt_entry) {
@@ -40,23 +66,5 @@ void gdt_init(void) {
     gp.ptr = (gdt_entry *)gdt;
     gp.limit = (uint16_t)(sizeof(gdt) - 1);
 
-    __asm__ __volatile__ ( "lgdt %0" : : "m"(gp) : "memory" );
-    
-    __asm__ __volatile__ (
-        "pushl $0x08 \n\t"
-        "pushl $.Lflush \n\t"
-        "lret \n\t"
-        ".Lflush: \n\t"
-        : : : "memory" 
-    );
-    
-    __asm__ __volatile__ (
-        "movw $0x10, %%ax \n\t"
-        "movw %%ax, %%ds \n\t"
-        "movw %%ax, %%es \n\t"
-        "movw %%ax, %%fs \n\t"
-        "movw %%ax, %%gs \n\t"
-        "movw %%ax, %%ss \n\t" 
-        : : : "eax", "memory"
-    );
+    gdt_flush((uint32_t)(uintptr_t)&gp);
 }
