@@ -17,6 +17,7 @@ typedef unsigned int status_t;
 #define USER_ROOT_UID (user_t)0
 #define IRQ_OFF { __asm__ volatile ("cli"); }
 #define PAUSE   { __asm__ volatile ("hlt"); }
+#define IRQ_RES 
 
 #define SEEK_SET    0
 #define SEEK_CUR    1
@@ -143,7 +144,7 @@ void initProc(const char* pname, pid_t pid);
 sys_process_t *spawnInit(void);
 sys_process_t *spawnKIdle(void);
 void initializeProcessTree(void);
-void switchPageDirectory(page_dir_t *dir);
+void switchPageDir(page_dir_t *dir);
 void taskingInstall(void);
 void taskExit(int retval);
 int __attribute((noreturn)) *sysExit(int retval);
