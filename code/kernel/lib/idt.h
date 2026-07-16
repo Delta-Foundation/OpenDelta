@@ -39,16 +39,17 @@ typedef struct {
 
 typedef struct {
     uint16_t limit;
-    uint32_t base;
+    idt_gate_t* base;
 } __attribute__((packed)) idt_reg_t;
 
 #define IDT_ENTRIES 256
 
-void idt_load(idt_reg_t *idt_desc);
+void __attribute__((cdecl)) idt_load(idt_reg_t *idt_desc);
 
 void idt_enable_gate(int interrupt);
 void idt_disable_gate(int interrupt);
 void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags);
 void set_idt(void);
+void idt_init(void);
 
 #endif
