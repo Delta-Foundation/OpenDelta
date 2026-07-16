@@ -130,11 +130,12 @@ OBJS = $(ENTRY) \
 
 # Compiler flags for build on i386
 FLAGS = --target=i386-elf -m32 -march=i386 -std=c17 \
-	 	-ffreestanding -nostdlib \
+		-ffreestanding -nostdlib \
 		-fno-builtin -fno-stack-protector -nodefaultlibs \
-         -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 -mno-avx -mno-avx2 \
-         -msoft-float -mno-red-zone -mno-80387 \
-         -O2 -g -Wall
+        -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 \
+		-mno-sse4.1 -mno-sse4.2 -mno-avx -mno-avx2 -mno-3dnow \
+        -msoft-float -mno-red-zone -mno-80387 \
+        -O2 -g -Wall
 
 # Linker flags 
 LD_FLAGS = -z noexecstack -T link.ld -Map kernel.map
