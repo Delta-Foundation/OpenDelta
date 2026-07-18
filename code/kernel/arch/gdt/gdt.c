@@ -1,50 +1,35 @@
 #include "gdt.h"
 
-/*
-static gdt_entry gdt[] = {
-    {0, 0, 0, 0, 0, 0}, // Null entry
-    {0xFFFF, 0, 0, 0x9A, 0xCF, 0}, // Code
-    {0xFFFF, 0, 0, 0x92, 0xCF, 0}  // Data
-};
-
-static gdt_ptr gdt_descriptor = { sizeof(gdt) - 1, gdt };
-*/
-
 static gdt_entry gdt[3];
 static gdt_ptr gp;
 
-// void i386_gdt_init(void) {
-//     gdt_load(&gdt_descriptor, (uint32_t)GDT_CODE_SEG, (uint32_t)GDT_DATA_SEG);
-// }
-
 __attribute__((noinline, naked))
-static void gdt_flush(uint32_t gdt_ptr) {
-    __asm__ __volatile__ ( "lgdt %0" : : "m"(gp) : "memory" );
-    
+static void gdt_reload_segments(void) {
     __asm__ __volatile__ (
         "ljmp $0x08, $1f \n\t"
         "1: \n\t"
-        : : : "memory"
-    );
-    
-    __asm__ __volatile__ (
-        "movw $0x10, %%ax \n\t"
-        "movw %%ax, %%ds \n\t"
-        "movw %%ax, %%es \n\t"
-        "movw %%ax, %%fs \n\t"
-        "movw %%ax, %%gs \n\t"
-        : : : "ax", "memory"
-    );
-
-    __asm__ __volatile__ (
-        "movw $0x10, %%ax \n\t"
-        "movw %%ax, %%ss \n\t"
-        : : : "ax", "memory"
+        "movw $0x10, %ax \n\t"
+        "movw %ax, %ds \n\t"
+        "movw %ax, %es \n\t"
+        "movw %ax, %fs \n\t"
+        "movw %ax, %gs \n\t"
+        "movw %ax, %ss \n\t"
+        "ret \n\t"
     );
 }
+
+__attribute__((noinline))
+static void gdt_flush(void) {
+    __asm__ __volatile__ ( "lgdt %0" : : "m" (gp) : "memory" );
+    gdt_reload_segments();
+}
+
 __attribute__((noinline))
 void gdt_init(void) {
+    /* Null descriptor */
     gdt[0] = (gdt_entry) { 0 };
+    
+    /* Code segment */
     gdt[1] = (gdt_entry) {
         .limit_low = 0xFFFF,
         .base_low = 0x0000,
@@ -54,6 +39,7 @@ void gdt_init(void) {
         .base_high = 0x00 
     };
 
+    /* Data segment */
     gdt[2] = (gdt_entry) {
         .limit_low = 0xFFFF,
         .base_low = 0x0000,
@@ -63,8 +49,8 @@ void gdt_init(void) {
         .base_high = 0x00 
     };
 
-    gp.ptr = (gdt_entry *)gdt;
     gp.limit = (uint16_t)(sizeof(gdt) - 1);
+    gp.ptr = (gdt_entry *)gdt;
 
-    gdt_flush((uint32_t)(uintptr_t)&gp);
+    gdt_flush();
 }
