@@ -3,6 +3,9 @@
 
 #include "./types.h"
 
+#define VGA_HEIGHT 25
+#define VGA_WIDTH 80
+
 enum VGAColor {
 	VGA_COLOR_BLACK = 0x0,
 	VGA_COLOR_BLUE = 0x1,
