@@ -3,8 +3,6 @@
 #include "../lib/tty.h"
 #include "../lib/vga.h"
 
-static const unsigned int VGA_WIDTH = 80;
-static const unsigned int VGA_HEIGHT = 25;
 static uint32_t* const VGA_MEM = (uint32_t*) 0xB8000;
 
 static unsigned int terminal_row;
