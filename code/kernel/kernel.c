@@ -13,6 +13,7 @@
 #include "./tools/fat/headers/elf.h" */
 #include "./tty/header/min_dltsh.h"
 #include "./hal/hal.h"
+#include "./lib/vga.h"
 
 #define DEF_MEM_LOWER 320
 #define DEF_MEM_UPPER (32 * 1024)
@@ -27,12 +28,12 @@ static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     const char* msg = "KERNEL PANIC: ";
     
-    for(int i=0; msg[i]; i++) {  
-        vga[i] = (msg[i] << 8) | 0x4F; 
+    for(int i = 0; msg[i]; i++) {  
+        vga[i] = (uint16_t)(0x4F00 | (uint8_t)msg[i]); 
     }
     
-    for(int i=0; panic_msg[i]; i++) { 
-        vga[14+i] = (panic_msg[i] << 8) | 0x4F; 
+    for(int i = 0; panic_msg[i]; i++) { 
+        vga[14 + i] = (uint16_t)(0x4F00 | (uint8_t)panic_msg[i]); 
     }
 
     __asm__ volatile ( "cli" );
@@ -45,10 +46,12 @@ static void kpanic(const char *panic_msg, ...) {
 static inline void dump_gdtr(void) {
     uint8_t buf[6];
     __asm__ __volatile__ ( "sgdt %0" : "=m" (buf));
-    uint32_t base = *(uint32_t *)(buf + 2);
+    
+    uint32_t base  = *(uint32_t *)(buf + 2);
     uint16_t limit = *(uint16_t *)(buf);
     
-    volatile uint16_t* vga = (volatile uint16_t *)0xB8000;
+    (void)base;
+    (void)limit;
 }
 
 __attribute__((noinline))
@@ -67,10 +70,40 @@ static void early_kprint(const char *str, uint8_t color) {
             continue;
         }
         
-        if (debug_row >= 25) { debug_row = 24; }
-        if (col >= 90) { col = 89; }
+        if (debug_row >= VGA_HEIGHT) {
+            for (int r = 1; r < VGA_HEIGHT; r++) {
+                for (int c = 0; c < VGA_WIDTH; c++) {
+                    vga[(r - 1) * VGA_WIDTH + c] = vga[r * VGA_WIDTH + c];
+                }
+            }
 
-        vga[debug_row * 90 + col] = (uint16_t)str[i] | ((uint16_t)color << 8);
+            for (int c = 0; c < VGA_WIDTH; c++) {
+                vga[(VGA_HEIGHT - 1) * VGA_WIDTH + c] = 0x0F20;
+            }
+
+            debug_row = VGA_HEIGHT - 1;
+        }
+
+        if (col >= VGA_WIDTH) {
+            debug_row++;
+            col = 0;
+
+            if (debug_row >= VGA_HEIGHT) {
+                for (int r = 1; r < VGA_HEIGHT; r++) {
+                    for (int c = 0; c < VGA_WIDTH; c++) {
+                        vga[(r - 1) * VGA_WIDTH + c] = vga[r * VGA_WIDTH + c];
+                    }
+                }
+
+                for (int c = 0; c < VGA_WIDTH; c++) {
+                    vga[(VGA_HEIGHT - 1) * VGA_WIDTH + c] = 0x0F20;
+                }
+
+                debug_row = VGA_HEIGHT - 1;
+            }
+        }
+
+        vga[debug_row * VGA_WIDTH + col] = (uint16_t)(uint8_t)str[i] | ((uint16_t)color << 8);
         col++;
     }
 
@@ -85,9 +118,11 @@ void kmain(void)
 
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
 
-    for (int i = 0; i < 80 * 25; i++) {
+    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
         vga[i] = 0x0F20; // 0x0F = чёрный фон, 0x20 = пробел
     }
+
+    debug_row = 0;
 
     early_kprint("Welcome to the OpenDelta!\n", CYAN);
     early_kprint("OS: OpenDelta v0.2-a\n", CYAN);
