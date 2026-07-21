@@ -67,7 +67,7 @@ typedef enum {
     GDT_BASE_HIGH(base)                                             \
 }
 
-// void __attribute__((cdecl)) gdt_load(gdt_ptr *descriptor,uint16_t code_seg, uint16_t data_seg );
+void __attribute__((cdecl)) gdt_load(gdt_ptr *ptr,uint16_t data_seg, uint16_t code_seg );
 // void i386_gdt_init(void);
 
 void gdt_init(void);
