@@ -22,7 +22,7 @@ extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 
 static uint8_t boot_drive = 0x80;
-static int debug_row = 0;
+static volatile int debug_row = 0;
 
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
