@@ -50,11 +50,11 @@ int main(void)
         }
 
         else if (strcmp(console.command, "calcrs") == 0) {
-             system("~/open-delta/kernel/shell/bin/calc");
+             system("~/OpenDelta/code/shell/bin/calc");
         }
 
         else if (strcmp(console.command, "calc") == 0) {
-            printf(T_BLUE "[🖩 калькулятор]\n" T_RESET);
+            printf(T_BLUE "[калькулятор]\n" T_RESET);
             double FRST_NUMBER;
             double SCND_NUMBER;
             char SYMBOL;
@@ -113,7 +113,7 @@ int main(void)
 //            console.numberOfCommands = 13;
   //          printf(T_CYAN "[всего команд]: '%d'\n" T_RESET, console.numberOfCommands);
     //        help();
-            system("~/open-delta/kernel/shell/bin/table");            
+            system("~/OpenDelta/code/shell/bin/table");            
         }
 
         else if (strcmp(console.command, "clear") == 0) {
@@ -121,7 +121,7 @@ int main(void)
         }
 
         else if (strcmp(console.command, "clocks") == 0) {
-            system("~/open-delta/kernel/shell/bin/clock");
+            system("~/OpenDelta/code/shell/bin/clock");
         }
 
         else if (strcmp(console.command, "ls") == 0 ) {
@@ -140,12 +140,12 @@ int main(void)
         else if (strcmp(console.command, "add") == 0) {
             const char *flag[3];
             const char *name[MFNL];
-            system("python3 ~/open-delta/scripts/shell/add-file.py");
+            system("python3 ~/OpenDelta/scripts/shell/add-file.py");
         }
 
         else if (strcmp(console.command, "dexide") == 0) {
             system("clear");
-            system("~/open-delta/kernel/shell/bin/dexide");
+            system("~/OpenDelta/code/shell/bin/dexide");
         }
 
         else if (strcmp(console.command, "touch") == 0) {
@@ -182,9 +182,7 @@ int main(void)
         else {
             printf(T_RED "[err]: [неизвестная команда!]\n" T_RESET);
         }
-
-        // system("~/open-delta/scripts/shell/add-file.sh");
-
+        
         int c;
         while ((c = getchar()) != '\n' && c != EOF) {}
     }
