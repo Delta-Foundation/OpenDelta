@@ -26,6 +26,11 @@ struct console {
     char *flag;
 };
 
+static void clear_screen() {
+    const char *clear_screen_ansi = "\e[1;1H\e[2J";
+    write(STDOUT_FILENO, clear_screen_ansi, 11);
+}
+
 int main(void)
 {
     set_keyword();
@@ -110,14 +115,11 @@ int main(void)
         }
 
         else if (strcmp(console.command, "help") == 0) {
-//            console.numberOfCommands = 13;
-  //          printf(T_CYAN "[всего команд]: '%d'\n" T_RESET, console.numberOfCommands);
-    //        help();
             system("~/OpenDelta/code/shell/bin/table");            
         }
 
         else if (strcmp(console.command, "clear") == 0) {
-            system("clear");
+            clear_screen();           
         }
 
         else if (strcmp(console.command, "clocks") == 0) {
@@ -182,7 +184,7 @@ int main(void)
         else {
             printf(T_RED "[err]: [неизвестная команда!]\n" T_RESET);
         }
-        
+
         int c;
         while ((c = getchar()) != '\n' && c != EOF) {}
     }
