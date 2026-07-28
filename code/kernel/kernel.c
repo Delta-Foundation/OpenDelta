@@ -7,6 +7,7 @@
 #include "./fpu/fpu.h"
 #include "./lib/mouse.h"
 #include "./lib/speaker.h"
+#include "./lib/keyboard.h"
 /* #include "./tools/fat/headers/disk.h"
 #include "./tools/fat/headers/mbr.h"
 #include "./tools/fat/headers/fat.h"
@@ -149,6 +150,7 @@ void kmain(void)
 
     early_kprint("[INFO]: Installing device drivers...    ", WHITE);
     mouse_install();
+    keyboard_handler();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Enabling interrupts...    ", WHITE);
