@@ -38,6 +38,10 @@ void hexvalue(char c) {
     }
 }
 
+int isalpha(int c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
 char toupper(char c) {
     return islower(c) ? (c - 'a' + 'A') : c;
 }
