@@ -25,6 +25,7 @@ FPU_SRC = fpu/fpu.c
 SCREEN_SRC = drvs/screen.c
 SPEAKER_SRC = drvs/speaker.c
 MOUSE_SRC = drvs/mouse.c
+KEYBOARD_SRC = drvs/keyboard.c 
 MEM_SRC = mem/memory.c
 SHM_SRC = mem/shared_memory.c
 SYS_SRC = syscall/syscall.c
@@ -69,6 +70,7 @@ FPU = obj/fpu.o
 SCREEN = obj/screen.o 
 SPEAKER = obj/spkr.o
 MOUSE = obj/mouse.o 
+KEYBOARD = obj/kbd.o 
 MEM = obj/mem.o 
 SHM = obj/shm.o 
 SYS = obj/sys.o 
@@ -107,6 +109,7 @@ OBJS = $(ENTRY) \
        $(SCREEN) \
 	   $(SPEAKER) \
 	   $(MOUSE) \
+	   $(KEYBOARD) \
 	   $(MEM) \
 	   $(SHM) \
 	   $(SYS) \
@@ -218,6 +221,9 @@ $(SPEAKER): $(SPEAKER_SRC)
 $(MOUSE): $(MOUSE_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
+$(KEYBOARD): $(KEYBOARD_SRC)
+	$(CC) $(FLAGS) -c $< -o $@
+
 $(MEM): $(MEM_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
@@ -297,7 +303,7 @@ clean:
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
 		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL)     \
-		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER)
+		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER) $(KEYBOARD)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
 	rm -f kernel.map
 
