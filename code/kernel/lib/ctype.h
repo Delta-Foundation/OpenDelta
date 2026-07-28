@@ -20,6 +20,7 @@ int isdigit(int c);
 void isblank(char c);
 void sixdigit(char c);
 void hexvalue(char c);
+int isalpha(int c);
 
 #ifdef __cplusplus
 }
