@@ -1,21 +1,26 @@
 [bits 32]
 
-; asm functions
-global _start
-global readp  ; read port
-global writep ; write port
-[extern __bss_start]
-[extern __bss_end]
+section .data
+    ; asm functions
+    global readp  ; read port
+    global writep ; write port
+    
+    VIDEO_MEMORY    equ 0xB8000
+    KERNEL_CS       equ 0x08
+    KERNEL_DS       equ 0x10
 
-; C functions
-[extern kmain]
+section .text 
+    global _start
+
+    [extern __bss_start]
+    [extern __bss_end]
+
+    ; C functions
+    [extern kmain]
 
 VIDEO_MEMORY    equ 0xB8000
 KERNEL_CS       equ 0x08
 KERNEL_DS       equ 0x10
-
-;section .text._start
-section .text
 
 _start:
     cli
