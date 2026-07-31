@@ -3,15 +3,15 @@ OUTPUT_ARCH(x86_64)
 ENTRY(_start)
 
 rmode_addr = 0x8000;
-pmode_addr = 0x10000;
+lmode_addr = 0x10000;
 
 PHDRS {
-    rmode       PT_LOAD FLAGS(5);   
-    text        PT_LOAD FLAGS(5);
-    data        PT_LOAD FLAGS(6);
+    rmode     PT_LOAD FLAGS(5);
+    text      PT_LOAD FLAGS(5);
+    data      PT_LOAD FLAGS(6);
 }
 
-SECTIONS  {
+SECTIONS {
     /* for 16-bit real mode */
 
     . = rmode_addr;
@@ -19,30 +19,38 @@ SECTIONS  {
     .rmode ALIGN(16) : {
         __rmode_start = .;
         *(.rmode)
-        *(rmode*)
+        *(.rmode*)
         __rmode_end = .;
     } :rmode
 
     __rmode_size = __rmode_end - __rmode_start;
-    __rmode_seg  = rmode_addr / 16; 
+    __rmode_seg = rmode_addr / 16;
 
-    /* for 32-bit protected mode */
+    /* for 64-bit long mode */
 
-    . = pmode_addr;
+    . = lmode_addr;
 
     .text ALIGN(4096) : {
         __text_start = .;
+        *(.text._start)
         *(.text)
         *(.text*)
-        *(.text.start)
         __text_end = .;
-    } :text 
+    } :text
 
     .data ALIGN(4096) : {
         __data_start = .;
         *(.data)
         *(.data*)
-    } :data 
+        __data_end = .;
+    } :data
+
+    .rodata ALIGN(4096) : {
+        __rodata_start = .;
+        *(.rodata)
+        *(.rodata*)
+        __rodata_end = .;
+    } :text
 
     .bss ALIGN(4096) : {
         __bss_start = .;
@@ -50,24 +58,25 @@ SECTIONS  {
         *(.bss*)
         *(COMMON)
         __bss_end = .;
-    } :data 
+    } :data
 
-    .rodata ALIGN(4096) : {
-        __rodata_start = .;
-        *(.rodata)
-        *(.rodata*)
-    } :text 
+    .stack (NOLOAD) : ALIGN(16) {
+        stack_bot = .;
+        . += 0x10000;
+        stack_top = .;
+    }
 
-    .heap ALIGN(4096) : {
+    .heap (NOLOAD) : ALIGN(4096) {
         _heap_start = .;
-        . = . + 4 * 1024 * 1024;
+        . = . + 256* 1024;
         _heap_end = .;
     } :data
 
-    . = ALIGN(4096);
-    stack_bot = .;
-    . += 0x4000;
-    stack_top = .;
+    /DISCARD/ : {
+        *(.eh_frame)
+        *(.comment)
+        *(.note.*)
+    }
 
     __end = .;
 }
