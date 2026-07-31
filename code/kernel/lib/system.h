@@ -146,7 +146,6 @@ void initProc(const char* pname, pid_t pid);
 sys_process_t *spawnInit(void);
 sys_process_t *spawnKIdle(void);
 void initializeProcessTree(void);
-void switchPageDir(page_dir_t *dir);
 void taskingInstall(void);
 void taskExit(int retval);
 int __attribute((noreturn)) *sysExit(int retval);
