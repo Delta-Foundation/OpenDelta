@@ -1,4 +1,4 @@
-[bits 32]
+[bits 64]
 
 %include "cpu/asm/isr.asm"
 %include "cpu/asm/irq.asm"
@@ -25,8 +25,8 @@ panic:
 
 crash_me:
     ; div by 0
-    ; mov ecx, 0x1337
-    ; mov eax, 0
-    ; div eax
+    ; mov rcx, 0x1337
+    ; mov rax, 0
+    ; div rax
     int 0x80
     ret
