@@ -1,27 +1,27 @@
-[bits 32]
+[bits 64]
 
 global gdt_load
 
 gdt_load:
-    push ebp
-    mov ebp, esp
+    push rbp
+    mov rbp, rsp
 
-    mov eax, [ebp + 8]
-    lgdt [eax]
+    mov rax, [rbp + 8]
+    lgdt [rax]
 
-    mov eax, [ebp + 12]
-    push eax
+    mov rax, [rbp + 12]
+    push rax
     push reload_cs
     retf
 
 reload_cs:
-    mov ax, [ebp + 16]
+    mov ax, [rbp + 16]
     mov ds, ax 
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
 
-    mov esp, ebp
-    pop ebp
+    mov rsp, rbp
+    pop rbp
     ret
