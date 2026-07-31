@@ -22,12 +22,12 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     boolean ok = TRUE;
     elf_header* header = (elf_header*)header_buf;
     ok = ok && (memcmp(header->magic, ELF_MAGIC, 4) != 0);
-    ok = ok && (header->bitness == ELF_BITNESS_32BIT);
+    ok = ok && (header->bitness == ELF_BITNESS_64BIT);
     ok = ok && (header->endianness == ELF_ENDIANNESS_LITTLE);
     ok = ok && (header->elf_header_version == 1);
     ok = ok && (header->elf_version == 1);
     ok = ok && (header->type == ELF_TYPE_EXECUTABLE);
-    ok = ok && (header->instruction_set == ELF_INSTRUCTION_SET_X86);
+    ok = ok && (header->instruction_set == ELF_INSTRUCTION_SET_X64);
 
     *entry_point = (void*)header->program_entry_position;
 
