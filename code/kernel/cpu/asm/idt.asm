@@ -1,14 +1,14 @@
-[bits 32]
+[bits 64]
 
 global idt_load
 idt_load:
-    push ebp
-    mov ebp, esp
+    push rbp
+    mov rbp, rsp
 
-    mov eax, [ebp + 8]
-    lidt [eax]
+    mov rax, [rbp + 8]
+    lidt [rax]
 
-    mov esp, ebp
+    mov rsp, rbp
     sti
-    pop ebp
+    pop rbp
     ret
