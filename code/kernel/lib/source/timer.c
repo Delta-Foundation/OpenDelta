@@ -20,7 +20,7 @@ static void timer_callback(regs_t regs)
 
 void init_timer(uint32_t freq)
 {
-    register_interrupt_handler(IRQ0, timer_callback);
+    register_interrupt_handler(IRQ0, (isr_t)timer_callback);
     
     uint32_t divisior =  1193180 / freq;
     uint8_t low = (uint8_t)(divisior & 0x0F);
