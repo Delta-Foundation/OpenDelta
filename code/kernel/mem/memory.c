@@ -129,12 +129,12 @@ void paggingInstall(uint32_t memsize)
     memset(kernelDir, 0, sizeof(page_dir_t));
 
     __asm__ volatile (
-        "mov $0x277, %%ecx\n"
+        "mov $0x277, %%rcx\n"
         "rdmsr\n"
-        "or $0x1000000, %%edx\n"
-        "and $0xf9ffffff, %%edx\n"
+        "or $0x1000000, %%rdx\n"
+        "and $0xf9ffffff, %%rdx\n"
         "wrmsr\n"
-        : : : "ecx", "edx", "eax"
+        : : : "rcx", "rdx", "rax"
     );
 }
 
@@ -150,10 +150,10 @@ void switchPageDir(page_dir_t *dir)
     page_dir_t *currentDir = dir;
     __asm__ volatile(
         "mov %0, %%cr3\n"
-        "mov %%cr0, %%eax\n"
-        "orl $0x80000000, %%eax\n"
-        "mov %%eax, %%cr3\n"
+        "mov %%cr0, %%rax\n"
+        "orl $0x80000000, %%rax\n"
+        "mov %%rax, %%cr3\n"
         :: "r"(dir->physical_address)
-        : "%eax"
+        : "%rax"
     );
 }
