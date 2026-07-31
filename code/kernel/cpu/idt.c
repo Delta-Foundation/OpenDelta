@@ -20,11 +20,13 @@ void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[n].high_offset = high_16(base);
 }
 
+/*
 void set_idt(void) {
     idt_reg.base = (idt_gate_t *)idt;
     idt_reg.limit = IDT_ENTRIES * sizeof(idt_gate_t) - 1;
     __asm__ __volatile__ ("lidtl (%0)" : : "r" (&idt_reg));
 }
+*/
 
 void idt_init(void) {
     idt_load(&idt_descriptor);
