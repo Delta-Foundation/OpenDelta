@@ -16,21 +16,21 @@ void enable_fpu(void)
 {
     __asm__ volatile ("clts");
     unsigned int t;
-    __asm__ volatile ("mov %%cr0, %0" : "=r"(t));
+    __asm__ volatile ("mov %%cr0, %%rax" : "=r"(t));
     t &= ~(1 << 2);
     t |= (1 << 1);
-    __asm__ volatile ("mov %0, %%cr0" :: "r"(t));
+    __asm__ volatile ("mov %%rax, %%cr0" :: "r"(t));
 
-    __asm__ volatile ("mov %%cr4, %0" : "=r"(t));
+    __asm__ volatile ("mov %%cr4, %%rax" : "=r"(t));
     t |= 3 << 9;
-    __asm__ volatile ("mov %0, %%cr4" :: "r"(t));
+    __asm__ volatile ("mov %%rax, %%cr4" :: "r"(t));
 }
 
 void disable_fpu(void) {
     unsigned int t;
-    __asm__ volatile ("mov %%cr0, %0" : "=r"(t));
+    __asm__ volatile ("mov %%cr0, %%rax" : "=r"(t));
     t |= 1 << 3;
-    __asm__ volatile ("mov %0, %%cr0" :: "r"(t));
+    __asm__ volatile ("mov %%rax, %%cr0" :: "r"(t));
 }
 
 uint8_t saves[512] __attribute__((aligned(16)));
