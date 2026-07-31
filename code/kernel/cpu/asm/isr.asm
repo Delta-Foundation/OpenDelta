@@ -1,4 +1,4 @@
-[bits 32]
+[bits 64]
 
 ; ==============================================================
 ; ISR (Interrupt Service Routines) - Expection handlers 0-31
@@ -7,12 +7,18 @@
 global isr_common_stub
 
 isr_common_stub:
-	pusha	; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+	push rdi 
+    push rsi 
+    push rbp
+    push rsp 
+    push rbx 
+    push rdx 
+    push rcx 
     cld
 
-    xor eax, eax
+    xor rax, rax
     mov	ax, ds		; lower 16-bits of eax = ds
-	push eax             ; save the data segment descriptor
+	push rax             ; save the data segment descriptor
 
     mov	ax, 0x10	; kernel data segment descriptor
 	mov	ds, ax
@@ -20,19 +26,25 @@ isr_common_stub:
 	mov	fs, ax
 	mov	gs, ax
 
-    push esp
+    push rsp
     extern isr_handler
     call	isr_handler
-    add esp, 4
+    add rsp, 4
 
-	pop	eax
+	pop	rax
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
 
-	popa
-	add esp, 8		; cleans up the pushed error code and pushed ISR number
+	pop rcx
+    pop rdx 
+    pop rbx 
+    pop rsp 
+    pop rbp
+    pop rsi 
+    pop rdi
+	add rsp, 8		; cleans up the pushed error code and pushed ISR number
     iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 global isr0
@@ -71,21 +83,21 @@ global isr31
 ; 0: Divide by Zero (no error code)
 isr0:
     cli
-    push byte 0 
+    push byte 0
     push byte 0        ; interrupt number
     jmp isr_common_stub
 
 ; 1: Debug (no error code)
 isr1:
     cli
-    push byte 0 
+    push byte 0
     push byte 1
     jmp isr_common_stub
 
 ; 2: NMI (no error code)
 isr2:
     cli
-    push byte 0 
+    push byte 0
     push byte 2
     jmp isr_common_stub
 
@@ -198,7 +210,7 @@ isr18:
 ; 19: SIMD FP Exception (no error code)
 isr19:
     cli
-    push byte 0 
+    push byte 0
     push byte 19
     jmp isr_common_stub
 
@@ -218,7 +230,7 @@ isr21:
 ; 22: Reserved (no error code)
 isr22:
     cli
-    push byte 0 
+    push byte 0
     push byte 22
     jmp isr_common_stub
 
@@ -232,7 +244,7 @@ isr23:
 ; 24: Reserved (no error code)
 isr24:
     cli
-    push byte 0 
+    push byte 0
     push byte 24
     jmp isr_common_stub
 
@@ -260,7 +272,7 @@ isr27:
 ; 28: Reserved (no error code)
 isr28:
     cli
-    push byte 0 
+    push byte 0
     push byte 28
     jmp isr_common_stub
 
