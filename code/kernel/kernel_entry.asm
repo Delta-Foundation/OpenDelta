@@ -1,4 +1,4 @@
-[bits 32]
+[bits 64]
 
 section .data
     ; asm functions
@@ -32,20 +32,20 @@ _start:
     mov gs, ax
     mov ss, ax
 
-    mov esp, stack_top
-    and esp, 0xFFFFFFF0
-    sub esp, 4
+    mov rsp, stack_top
+    and rsp, 0xFFFFFFF0
+    sub rsp, 4
 
     ; Marker 1: segments + stack ready. Kernel started
     mov dword [VIDEO_MEMORY], 0x2F312F31
 
-    mov edi, __bss_start
-    mov ecx, __bss_end
-    cmp ecx, edi
+    mov rdi, __bss_start
+    mov rcx, __bss_end
+    cmp rcx, rdi
     jbe .bss_clear_done
 
-    sub ecx, edi
-    xor eax, eax
+    sub rcx, rdi
+    xor rax, rax
     cld
     rep stosb
 .bss_clear_done:
@@ -56,8 +56,8 @@ _start:
     ; Marker 3: call kmain
     mov dword [VIDEO_MEMORY + 8], 0x2F332F33
 
-    mov eax, kmain
-    test eax, eax
+    mov rax, kmain
+    test rax, rax
     jz .halt
 
     call kmain
@@ -68,26 +68,26 @@ _start:
     jmp .halt
 
 readp:
-    push ebp
+    push rbp
 
-    mov ebp, esp
-    xor eax, eax
-    mov dx, word [ebp + 8]
-    mov al, byte [ebp + 12]
+    mov rbp, rsp
+    xor rax, rax
+    mov dx, word [rbp + 8]
+    mov al, byte [rbp + 12]
     in al, dx
 
-    pop ebp
+    pop rbp
     ret
 
 writep:
-    push ebp
+    push rbp
 
-    mov ebp, esp
-    mov dx, word [ebp + 8]
-    mov al, byte [ebp + 12]
+    mov rbp, rsp
+    mov dx, word [rbp + 8]
+    mov al, byte [rbp + 12]
     out dx, al
 
-    pop ebp
+    pop rbp
     ret
 
 section .bss
