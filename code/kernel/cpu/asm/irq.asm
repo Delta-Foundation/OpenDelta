@@ -1,4 +1,4 @@
-[bits 32]
+[bits 64]
 
 ; =============================================================================
 ; || IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47 ||
@@ -7,12 +7,18 @@
 global irq_common_stub
 
 irq_common_stub:
-	pusha
+	push rdi 
+    push rsi 
+    push rbp
+    push rsp 
+    push rbx 
+    push rdx 
+    push rcx 
     cld
 
-    xor eax, eax
+    xor rax, rax
 	mov	ax, ds
-	push eax
+	push rax
 
     mov	ax, 0x10
 	mov	ds, ax
@@ -20,19 +26,25 @@ irq_common_stub:
 	mov fs, ax
 	mov	gs, ax
 
-    push esp
+    push rsp
     extern irq_handler
 	call irq_handler	; different than the ISR code
-	add esp, 4
+	add rsp, 4
 
-	pop	eax
+	pop	rax
 	mov	ds, ax
 	mov	es, ax
 	mov	fs, ax
 	mov	gs, ax
 
-	popa
-	add	esp, 8
+	pop rcx
+    pop rdx 
+    pop rbx 
+    pop rsp 
+    pop rbp
+    pop rsi 
+    pop rdi
+	add	rsp, 8
 
 	iret
 
@@ -126,28 +138,28 @@ irq9:
 ; IRQ 10 - Free
 irq10:
     cli
-    push byte 10 
+    push byte 10
     push byte 42
     jmp irq_common_stub
 
 ; IRQ 11 - Free
 irq11:
     cli
-    push byte 11 
+    push byte 11
     push byte 43
     jmp irq_common_stub
 
 ; IRQ 12 - PS/2 Mouse
 irq12:
     cli
-    push byte 12 
+    push byte 12
     push byte 44
     jmp irq_common_stub
 
 ; IRQ 13 - FPU
 irq13:
     cli
-    push byte 13 
+    push byte 13
     push byte 45
     jmp irq_common_stub
 
