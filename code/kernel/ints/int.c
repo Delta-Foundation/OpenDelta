@@ -25,7 +25,7 @@ void intended_usage(void) {
 }
 
 void cpuid(int code, uint32_t *a, uint32_t *b) {
-    __asm__ volatile ("cpuid" : "=a"(*a), "=d"(*b) : "0"(code) : "ebx", "ecx");
+    __asm__ volatile ("cpuid" : "=a"(*a), "=d"(*b) : "0"(code) : "rbx", "rcx");
 }
 
 static inline unsigned long read_cr0(void) {
