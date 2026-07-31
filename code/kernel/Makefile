@@ -8,7 +8,7 @@ LD = ld.lld
 OBJCOPY = llvm-objcopy
 
 # source code
-BOOT_SRC = boot/i386/boot.asm
+BOOT_SRC = boot/x86_64/boot.asm
 ENTRY_SRC = kernel_entry.asm
 KERNEL_SRC = kernel.c
 GDT_SRC = arch/gdt/gdt.c
@@ -132,16 +132,13 @@ OBJS = $(ENTRY) \
 	   $(TOOLS)
 
 # Compiler flags for build on i386
-FLAGS = --target=i386-elf -m32 -march=i386 -std=c17 \
+FLAGS = --target=x86_64-unknown-elf -m64 -std=c17 \
 		-ffreestanding -nostdlib \
 		-fno-builtin -fno-stack-protector -nodefaultlibs \
-        -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -mno-sse4 \
-		-mno-sse4.1 -mno-sse4.2 -mno-avx -mno-avx2 -mno-3dnow \
-        -msoft-float -mno-red-zone -mno-80387 \
         -O2 -g -Wall
 
 # Linker flags 
-LD_FLAGS = -z noexecstack -T link.ld -Map kernel.map
+LD_FLAGS = -z noexecstack -T link64.ld -Map kernel.map
 
 # Image file
 IMG = img/open-delta.img
@@ -156,7 +153,7 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 all: run
 
 $(KERNEL_ELF): $(OBJS)
-	$(LD) -m elf_i386 -o $@ $(OBJS) $(LD_FLAGS)
+	$(LD) -m elf_x86_64 -o $@ $(OBJS) $(LD_FLAGS)
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
@@ -168,19 +165,19 @@ $(BOOT): $(BOOT_SRC)
 	$(AS) $< -f bin -o $@
 
 $(ENTRY): $(ENTRY_SRC)
-	$(AS) $< -f elf32 -o $@
+	$(AS) $< -f elf64 -o $@
 
 $(GDT_ASM): $(GDT_ASM_SRC)
-	$(AS) $< -f elf32 -o $@
+	$(AS) $< -f elf64 -o $@
 
 $(IDT_ASM): $(IDT_ASM_SRC)
-	$(AS) $< -f elf32 -o $@
+	$(AS) $< -f elf64 -o $@
 
 $(INTS_ASM): $(INTS_ASM_SRC)
-	$(AS) $< -f elf32 -o $@
+	$(AS) $< -f elf64 -o $@
 
 $(TOOLS): $(TOOLS_SRC)
-	$(AS) $< -f elf32 -o $@
+	$(AS) $< -f elf64 -o $@
 
 # ===================
 # | Building C code |
