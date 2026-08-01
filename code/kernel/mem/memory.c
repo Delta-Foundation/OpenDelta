@@ -128,13 +128,14 @@ void paggingInstall(uint32_t memsize)
     kernelDir = (page_dir_t *)kmalloc(0, sizeof(page_dir_t), (uint32_t *)&phys);
     memset(kernelDir, 0, sizeof(page_dir_t));
 
-    __asm__ volatile (
-        "mov $0x277, %%rcx\n"
-        "rdmsr\n"
-        "or $0x1000000, %%rdx\n"
-        "and $0xf9ffffff, %%rdx\n"
-        "wrmsr\n"
-        : : : "rcx", "rdx", "rax"
+    __asm__ __volatile__ (
+        "movq %%cr0, %%rdx \n\t"
+        "movq $0xfffffffff9ffffff, %%rcx \n\t"
+        "andq %%rcx, %%rdx \n\t"
+        "movq %%rdx, %%cr0 \n\t"
+        : 
+        : 
+        : "%rdx", "%rcx", "memory"
     );
 }
 
@@ -148,12 +149,14 @@ void heapInstall(void) {
 void switchPageDir(page_dir_t *dir)
 {
     page_dir_t *currentDir = dir;
-    __asm__ volatile(
-        "mov %0, %%cr3\n"
-        "mov %%cr0, %%rax\n"
-        "orl $0x80000000, %%rax\n"
-        "mov %%rax, %%cr3\n"
-        :: "r"(dir->physical_address)
-        : "%rax"
+    __asm__ __volatile__ (
+        "movq %0, %%cr3 \n\t" 
+        "movq %%cr0, %%rax \n\t"
+        "movq $0x80000000, %%rcx \n\t"
+        "orq %%rcx, %%rax \n\t"
+        "movq %%rax, %%cr0 \n\t"
+        :
+        : "r"((uintptr_t)dir->physical_address)
+        : "%rax", "%rcx", "memory"
     );
 }
