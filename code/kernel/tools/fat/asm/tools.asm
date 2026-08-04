@@ -1,6 +1,6 @@
 %include "tools/fat/asm/macros.asm"
 
-RM_STACK_TOP equ 0x7000
+RM_STACK_TOP equ 0x7C00
 
 OP_DISK_GET_DRIVE_PARAMS equ 0
 OP_DISK_RESET            equ 1
@@ -30,8 +30,10 @@ section .rmode
     rm_return_addr: dq 0
 
 rm_arg_buf:
-    .op:   resb 1
-    .args: resb 31
+.op:
+    db 0 
+.args: 
+    times 31 db 0
 
 align 4
 enter_real_mode:
