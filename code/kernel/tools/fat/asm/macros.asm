@@ -1,12 +1,13 @@
 %define RMODE_ADDR  0x8000
-%define RMODE_SEG   0x800       /* RMODE_ADDR / 16, должен совпадать с linker script */
+%define RMODE_SEG   0x800
 
-%define GDT_CODE16  RMODE_SEG
-%define GDT_DATA16  (RMODE_SEG + 8)
-%define GDT_CODE32  (RMODE_SEG + 0x10)
-%define GDT_DATA32  (RMODE_SEG + 0x18)
-%define GDT_CODE64  (RMODE_SEG + 0x20)
-%define GDT_DATA64  (RMODE_SEG + 0x28)
+%assign GDT_CODE16  RMODE_SEG
+%assign GDT_DATA16  (RMODE_SEG + 8)
+%assign GDT_CODE32  (RMODE_SEG + 0x10)
+%assign GDT_DATA32  (RMODE_SEG + 0x18)
+%assign GDT_CODE64  (RMODE_SEG + 0x20)
+%assign GDT_DATA64  (RMODE_SEG + 0x28)
+%assign GDT_PAD     (RMODE_SEG / 8)
 
 ; +--------------------------------------+
 ; | GDT_ENTRY base, limit, access, flags |
@@ -29,7 +30,7 @@
 %macro MAKE_GDT 0
 gdt_start:
     GDT_ENTRY 0, 0, 0x00, 0x0
-    times (RMODE_SEG / 8) dq 0
+    times GDT_PAD dq 0
     GDT_ENTRY RMODE_ADDR, 0xFFFFF, 0x9A, 0x8   ; 16-bit code
     GDT_ENTRY 0,          0xFFFFF, 0x92, 0x8   ; 16-bit data
     GDT_ENTRY 0,          0xFFFFF, 0x9A, 0xC   ; 32-bit code
@@ -51,9 +52,14 @@ gdt_descriptor:
 [bits 16]
     cli
 
-    mov dword [pml4], (pdpt) | 3
-    mov dword [pml4 + 4], 0
-    mov dword [pdpt], (pd) | 3
+    mov eax, pdpt
+    or eax, 3 
+    mov [pml4], eax 
+    mov dword [pml4 + 4], 0 
+
+    mov eax, pd 
+    or eax, 3 
+    mov [pdpt], eax 
     mov dword [pdpt + 4], 0
 
     mov di, pd
@@ -69,7 +75,7 @@ gdt_descriptor:
     o32 lgdt [gdt_descriptor]
 
     mov eax, cr0
-    or al, 1
+    or al, 0x1
     mov cr0, eax
 
     jmp dword GDT_CODE32:%%pmode
@@ -82,6 +88,8 @@ gdt_descriptor:
     mov ax, GDT_DATA32
     mov ds, ax
     mov es, ax
+    mov fs, ax 
+    mov gs, ax
     mov ss, ax
     mov esp, RM_STACK_TOP
 
@@ -108,13 +116,13 @@ gdt_descriptor:
 ; +---------------------------------------+
 [bits 64]
 %%lmode:
-    mov ax, GDT_DATA64
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov rax, [rm_return_addr]
+;    mov ax, GDT_DATA64
+;    mov ds, ax
+;    mov es, ax
+;    mov fs, ax
+;    mov gs, ax
+;    mov ss, ax
+    mov rax, [rel rm_return_addr]
     jmp rax
 %endmacro
 
@@ -125,15 +133,20 @@ gdt_descriptor:
 %macro ENTER_REAL_MODE 0
     [bits 64]
     cli
-
-    jmp GDT_CODE32:%%compat32
+    
+    push qword GDT_CODE32
+    lea rax, [rel %%compat32]
+    push rax 
+    o64 retf
 
 [bits 32]
 %%compat32:
-    mov ax, GDT_DATA32
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
+;    mov ax, GDT_DATA32
+;    mov ds, ax
+;    mov es, ax
+;    mov fs, ax 
+;    mov gs, ax 
+;    mov ss, ax
 
     mov eax, cr0
     and eax, ~(1 << 31)
@@ -148,20 +161,22 @@ gdt_descriptor:
     and eax, ~(1 << 8)
     wrmsr
 
-    jmp word GDT_CODE16:%%pmode16
+    jmp dword GDT_CODE16:%%pmode16
 
 [bits 16]
 %%pmode16:
-    mov ax, GDT_DATA16
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
+;    mov ax, GDT_DATA16
+;    mov ds, ax
+;    mov es, ax
+;    mov fs, ax 
+;    mov gs, ax 
+;    mov ss, ax
 
     mov eax, cr0
     and al, ~1
     mov cr0, eax
 
-    jmp GDT_CODE16:%%rmode
+    jmp 0:%%rmode
 
 %%rmode:
     xor ax, ax
