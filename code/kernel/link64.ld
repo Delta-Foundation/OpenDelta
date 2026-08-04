@@ -1,4 +1,4 @@
-OUTPUT_FORMAT(elf_x86_64)
+OUTPUT_FORMAT(elf64-x86-64)
 OUTPUT_ARCH(x86_64)
 ENTRY(_start)
 
@@ -24,7 +24,7 @@ SECTIONS {
     } :rmode
 
     __rmode_size = __rmode_end - __rmode_start;
-    __rmode_seg = rmode_addr / 16;
+    __rmode_seg = rmode_addr / 16; /* 0x800 */
 
     /* for 64-bit long mode */
 
@@ -68,7 +68,7 @@ SECTIONS {
 
     .heap (NOLOAD) : ALIGN(4096) {
         _heap_start = .;
-        . = . + 256* 1024;
+        . = . + 256 * 1024;
         _heap_end = .;
     } :data
 
