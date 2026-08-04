@@ -106,7 +106,7 @@ OBJS = $(ENTRY) \
 	   $(HAL) \
 	   $(PORTS) \
 	   $(FPU) \
-       $(SCREEN) \
+	   $(SCREEN) \
 	   $(SPEAKER) \
 	   $(MOUSE) \
 	   $(KEYBOARD) \
@@ -162,7 +162,7 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 # | Building ASM code |
 # =====================
 $(BOOT): $(BOOT_SRC)
-	$(AS) $< -f bin -o $@
+	$(AS) -f bin $< -o $@
 
 $(ENTRY): $(ENTRY_SRC)
 	$(AS) $< -f elf64 -o $@
@@ -281,9 +281,9 @@ $(DISK): $(DISK_SRC)
 # =====================
 # | Creating OS image |
 # =====================
-$(IMG): $(BOOT) $(KERNEL_BIN)
+$(IMG): $(BOOT) $(STAGE2) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
-	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1
+	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 # Running
@@ -300,7 +300,8 @@ clean:
 		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
 		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
 		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL)     \
-		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER) $(KEYBOARD)
+		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER) \
+		  $(KEYBOARD)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
 	rm -f kernel.map
 
