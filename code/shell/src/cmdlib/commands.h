@@ -24,12 +24,14 @@ typedef struct {
     const char *iwgnig[128];
     const char *neu_delta[128];
     const char *deltonium[128];
-    const char *open_dlt_sh[128];    
+    const char *open_dlt_sh[128];
+    const char *v_0_0_14_d[128];
 } Versions;
 
-void your_version();
+void shell_version();
+void clear_screen();
+void calculator();
 void editor();
 void print_fetch();
 
 #endif
-
