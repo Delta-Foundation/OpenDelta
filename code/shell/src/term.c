@@ -5,9 +5,12 @@
 #include <unistd.h>
 #include <sys/unistd.h>
 #include <sys/types.h>
+
 #include "cmdlib/commands.h"
 #include "cmdlib/simple_comms.h"
 #include "cmdlib/files.h"
+#include "cmdlib/editor.h"
+
 #include "lib/dltsh.h"
 #include "lib/colors.h"
 
@@ -26,11 +29,6 @@ struct console {
     char *flag;
 };
 
-static void clear_screen() {
-    const char *clear_screen_ansi = "\e[1;1H\e[2J";
-    write(STDOUT_FILENO, clear_screen_ansi, 11);
-}
-
 int main(void)
 {
     set_keyword();
@@ -38,145 +36,141 @@ int main(void)
     set_values();
     set_types();
 
-
-    const char *argc[128];
-    const char *argv[128];
+    char input[256];
 
     welcome();
-    struct console console;
 
     while (true) {
 
-        printf("$: %s", T_BLUE "~" T_RESET);
         printf("> ");
 
-        if (scanf("%255s", console.command) != 1) {
-            fprintf(stderr, T_RED "[err]: [ошибка ввода команды!]\n" T_RESET);
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            break;
         }
 
-        else if (strcmp(console.command, "calcrs") == 0) {
-             system("~/OpenDelta/code/shell/bin/calc");
-        }
+        /* Variables */
+        input[strcspn(input, "\0")] = 0;
 
-        else if (strcmp(console.command, "calc") == 0) {
-            printf(T_BLUE "[калькулятор]\n" T_RESET);
-            double FRST_NUMBER;
-            double SCND_NUMBER;
-            char SYMBOL;
+        char *command  = strtok(input, " ");
+        char *filename = strtok(NULL, " ");
+        char *dirname  = strtok(NULL, " ");
+        char *flag     = strtok(NULL, " ");
+        char *target   = strtok(NULL, " ");
+        
+        int is_dir = 0;
 
-            int inputResult = scanf("%lf\n %c\n %lf", &FRST_NUMBER, &SYMBOL, &SCND_NUMBER);
-            if (inputResult != 3) {
-                fprintf(stderr, T_RED "[ERR]: [Неверный ввод]\n" T_RESET);
-                while (getchar() != '\n');
-                continue;
+        /* 
+           +------------------+
+           | Обработка команд |
+           +------------------+
+        */
+
+        /* Работа с файлами и папками. Удаление, добавление, переход и так далее... */
+        if (command != NULL && strcmp(command, "touch") == 0) {
+            if (filename != NULL) {
+                if (add_file(filename)) {
+                    printf("[OK]: файл %s успешно создан!\n", filename);
+                }
+                else {
+                    perror("Ошибка при создании файла");
+                }
             }
 
-            double RES;
-
-            switch (SYMBOL) {
-                case '+':
-                    RES = FRST_NUMBER + SCND_NUMBER;
-                    break;
-                case '-':
-                    RES = FRST_NUMBER - SCND_NUMBER;
-                    break;
-                case '*':
-                    RES = FRST_NUMBER * SCND_NUMBER;
-                    break;
-                case '/':
-                    if (SCND_NUMBER == 0) {
-                        fprintf(stderr, T_RED "[ERR]: [Деление на ноль!]\n" T_RESET);
-                        while (getchar() != '\n');
-                        continue;
-                    }
-                    RES = FRST_NUMBER / SCND_NUMBER;
-                    break;
-                default:
-                    fprintf(stderr, T_RED "[ERR]: [Неверный символ операции!]\n" T_RESET);
-                    while (getchar() != '\n');
-                    continue;
+            else {
+                printf("[ERROR]: укажите имя файла\n");
             }
-
-            printf(T_GREEN "[результат]: " T_RESET);
-            printf("%.2lf \n", RES);
-            printf(T_CYAN "[калькулятор завершил работу]\n" T_RESET);
         }
 
-        else if (strcmp(console.command, "dex") == 0) {
+        else if (command != NULL && strcmp(command, "mkdir") == 0) {
+            if (dirname && add_dir(dirname)) {
+                printf("[OK]: Папка %s успешно создана!\n", dirname);
+            }
+            else {
+                printf("[ERROR]: ошибка при создании папки\n");
+            }
+        }  
+
+        else if (command != NULL && strcmp(command, "rm") == 0) {
+            if (flag != NULL && (flag[0] == '-')) {
+                if (strcmp(flag, "-d") == 0) {
+                    is_dir = 1;
+                }
+                else if (strcmp(flag, "-f") == 0) {
+                    is_dir = 0;
+                }
+
+                target = strtok(NULL, " ");
+            }
+            else {
+                target = flag;
+                is_dir = 0;
+            }
+
+            if (target && delete(target, (const char *)is_dir)) {
+                printf("[OK]: объект %s успешно удалён\n", target);
+            }
+            else {
+                perror("[ERROR]: ошибка при удалении объекта");
+            }
+        }    
+
+        else if (command != NULL && strcmp(command, "cat") == 0) {
+            if (filename != NULL) {
+                if (display_file(filename)) {
+                    printf("содержимое файла %s: \n");
+                }
+                else {
+                    perror("[ERROR]: ошибка открытия файла для просмотра содержимого");
+                }
+            }
+            else {
+                printf("[ERROR]: укажите имя файла\n");
+            }
+        }
+
+        else if (command != NULL && strcmp(command, "ls") == 0) {
+            list_files();
+        }
+
+        else if (command != NULL && strcmp(command, "pwd") == 0) {
+            show_this_dir();
+        }
+
+        /* Остальные команды */
+        else if (command != NULL && strcmp(command, "calc") == 0) {
+            calculator();
+        }
+
+        else if (command != NULL && strcmp(command, "dex") == 0) {
             editor();
         }
 
-        else if (strcmp(console.command, "dltinfo") == 0) {
+        else if (command != NULL && strcmp(command, "dlt-fetch") == 0) {
             print_fetch();
         }
 
-        else if (strcmp(console.command, "ver") == 0) {
-            your_version();
+        else if (command != NULL && strcmp(command, "ver") == 0) {
+            shell_version();
         }
 
-        else if (strcmp(console.command, "help") == 0) {
-            system("~/OpenDelta/code/shell/bin/table");            
+        else if (command != NULL && strcmp(command, "help") == 0) {
+            system("~/open-delta/code/shell/bin/table");
         }
 
-        else if (strcmp(console.command, "clear") == 0) {
-            clear_screen();           
+        else if (command != NULL && strcmp(command, "clear") == 0) {
+            clear_screen();
         }
 
-        else if (strcmp(console.command, "clocks") == 0) {
-            system("~/OpenDelta/code/shell/bin/clock");
+        else if (command != NULL && strcmp(command, "clocks") == 0) {
+            system("~/open-delta/code/shell/bin/clocks");
         }
-
-        else if (strcmp(console.command, "ls") == 0 ) {
-            list();
+ 
+        else if (command != NULL && strcmp(command, "dexide") == 0) {
+            clear_screen();
+            system("~/open-delta/code/shell/bin/dexide");
         }
-
-        else if (strcmp(console.command, "pwd") == 0) {
-            showThisDir();
-        }
-
-        else if (strcmp(console.command, "cd") == 0) {
-            const char *dirPath = *console.folderName;
-            goToDir(dirPath);
-        }
-
-        else if (strcmp(console.command, "add") == 0) {
-            const char *flag[3];
-            const char *name[MFNL];
-            system("python3 ~/OpenDelta/scripts/shell/add-file.py");
-        }
-
-        else if (strcmp(console.command, "dexide") == 0) {
-            system("clear");
-            system("~/OpenDelta/code/shell/bin/dexide");
-        }
-
-        else if (strcmp(console.command, "touch") == 0) {
-            printf(T_CYAN "[добавление файла]\n" T_RESET);
-            char fileName[256];
-            add_file(fileName);
-        }
-
-        else if (strcmp(console.command, "mkdir") == 0) {
-            printf(T_CYAN "[добавление папки]\n" T_RESET);
-            add_dir();
-        }
-
-        else if (strcmp(console.command, "rm") == 0) {
-            if (argc < 3) {
-                printf(T_RED "[err]: [использование: rm [flag] [name] ]\n" T_RESET);
-                break;
-            }
-            const char *flag = argv[1]; 
-            const char *name = argv[2];
-            _remove(flag, name);
-        }
-
-        else if (strcmp(console.command, "cat") == 0) {
-            printf(T_CYAN "[содержимое файла]\n" T_RESET);
-            displayFile(console.fileName);
-        }
-
-        else if (strcmp(console.command, "exit") == 0) {
+ 
+        else if (command != NULL && strcmp(command, "exit") == 0) {
             printf(T_GREEN "[завершение программы]\n" T_RESET);
             break;
         }
