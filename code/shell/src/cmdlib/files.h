@@ -22,30 +22,27 @@
 #define MAX_FOLDER_NAME_LENGTH 1024
 #define MAX_LINES 512
 #define MAX_LINE_LENGTH 1024
-#define MAX_FOLDER_LENGTH 128
 #define MAX_PATH_LENGTH 128
 
 typedef struct {
-    char fileName[MFNL];
+    char file_name[MFNL];
     char token[MAX_TOKEN_LENGTH];
     char line[MAX_LINES];
-    char folderName[MAX_FOLDER_LENGTH];
+    char folder_name[MAX_FOLDER_NAME_LENGTH];
     char cwd[MAX_FOLDER_NAME_LENGTH];
     FILE * file;
-    int numFiles;
-    int isCreated;
-    int isDeleted;
-    int isDisplaying;
+    int num_files;
+    int is_created;
+    int is_deleted;
+    int is_displaying;
 } file_explorer;
 
-void add_file(char fileName[MFNL]);
-void add_dir();
-void del();
-void _remove(const char *flag, const char *name);
-void displayFile(const char *fileName);
-void showThisDir();
-void goToDir(const char *path);
-void list();
+int add_file(const char fileName[MFNL]);
+int add_dir(const char dirName[MAX_FOLDER_NAME_LENGTH]);
+int delete(const char *target, const char *is_directory);
+int display_file(const char *fileName);
+void show_this_dir();
+void go_to_dir(const char *path);
+void list_files();
 
 #endif
-
