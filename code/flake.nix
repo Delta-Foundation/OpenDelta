@@ -26,6 +26,8 @@
                     echo "[Dev env loaded!]"
                     echo "[building dltsh]: "
                     cd shell/ && make build
+                    make run
+                    exit
                 '';
             };
         };
