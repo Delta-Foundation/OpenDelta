@@ -36,11 +36,12 @@ int main()
     mvwprintw(win, 5, 40, "6.touch - add file;");
     mvwprintw(win, 6, 40, "8.dex - small editor");
     mvwprintw(win, 7, 40, "10.clear - clear screen");
-    mvwprintw(win, 8, 40, "12.dltinfo - like neofetch, but for dltsh");
+    mvwprintw(win, 8, 40, "12.dlt-fetch - like neofetch, but for dltsh");
+    mvwprintw(win, 9, 40, "13.mkdir - create directory");
 
     mvwvline(win, 3, 85, ACS_VLINE, 6);
 
-    mvwprintw(win, 3, 87, "13.exit - exit dltsh");
+    mvwprintw(win, 3, 87, "14.exit - exit dltsh");
 
     mvwprintw(win, 10, 1, "Dltsh Commands on rust");
     mvwprintw(win, 11, 1, "1.dexide - dex rewritten on rust and without crates; 1.calcrs - calculator on rust");
