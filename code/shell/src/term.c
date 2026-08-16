@@ -38,6 +38,7 @@ int main(void)
 
     char input[256];
 
+    write_logo();
     welcome();
 
     while (true) {
@@ -49,7 +50,7 @@ int main(void)
         }
 
         /* Variables */
-        input[strcspn(input, "\0")] = 0;
+        input[strcspn(input, "\n")] = 0;
 
         char *command  = strtok(input, " ");
         char *filename = strtok(NULL, " ");
@@ -179,7 +180,7 @@ int main(void)
             printf(T_RED "[err]: [неизвестная команда!]\n" T_RESET);
         }
 
-        int c;
+        int c; 
         while ((c = getchar()) != '\n' && c != EOF) {}
     }
 
