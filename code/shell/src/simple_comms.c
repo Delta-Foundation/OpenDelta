@@ -19,23 +19,23 @@ void help()
 
 void write_logo()
 {
-    printf(T_CYAN " ___________       ___________  ___          _________________            ____ \n" T_RESET);
-    printf(T_CYAN " | |      XX       | |     | |  |  |         |______   ______|            //XX  \n" T_RESET);
-    printf(T_CYAN " | |       XX      | |     | |  |  |                | |                  //  XX  \n" T_RESET);
-    printf(T_CYAN " | |        XX     | |     | |  |  |                | |                 //    XX  \n" T_RESET);
-    printf(T_CYAN " | |         XX    |_|_____|_|  |  |                | |                //      XX  \n" T_RESET);
-    printf(T_CYAN " | |          XX   | |          |  |                | |               //        XX  \n" T_RESET);
-    printf(T_CYAN " | |           XX  | |          |  |                | |              //==========XX  \n" T_RESET);
-    printf(T_CYAN " | |           //  | |     ___  |  |      ___       | |             //            XX  \n" T_RESET);
-    printf(T_CYAN " | |          //   | |     | |  |  |      | |       | |            //              XX  \n" T_RESET);
-    printf(T_CYAN " | |_________//    |_|_____|_|  |__|______|_|       |_|           //                XX  \n" T_RESET);
+    printf(T_CYAN " ___________       ___________  ____          _________________            ____ \n" T_RESET);
+    printf(T_CYAN " | |      \\\\       | |     | |  |  |         |______   ______|            //\\\\  \n" T_RESET);
+    printf(T_CYAN " | |       \\\\      | |     | |  |  |                | |                  //  \\\\  \n" T_RESET);
+    printf(T_CYAN " | |        \\\\     | |     | |  |  |                | |                 //    \\\\  \n" T_RESET);
+    printf(T_CYAN " | |         \\\\    |_|_____|_|  |  |                | |                //      \\\\  \n" T_RESET);
+    printf(T_CYAN " | |          ||   | |          |  |                | |               //        \\\\  \n" T_RESET);
+    printf(T_CYAN " | |          //   | |          |  |                | |              //==========\\\\  \n" T_RESET);
+    printf(T_CYAN " | |         //    | |     ___  |  |      ___       | |             //            \\\\  \n" T_RESET);
+    printf(T_CYAN " | |        //     | |     | |  |  |      | |       | |            //              \\\\  \n" T_RESET);
+    printf(T_CYAN " | |_______//      |_|_____|_|  |__|______|_|       |_|           //                \\\\  \n" T_RESET);
 }
 
 void welcome()
 {
     const char frstln[] = "._____________________________.";
     const char newlin[] = "|                             |";
-    const char thrdln[] = "|[ Welcome to the OpenDelta! ]|";
+    const char thrdln[] = "|[   Welcome to the DLTSH!   ]|";
     const char endlne[] = "|_____________________________|";
 
     printf("%s\n", frstln);
