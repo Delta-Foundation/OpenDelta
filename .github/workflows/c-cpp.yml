@@ -1,0 +1,23 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: install-dependencies
+      run: sudo apt install nasm clang llvm lld qemu-system-x86 ncurses rustc 
+
+    - name: build-and-run-kernel 
+      run: cd ~/OpenDelta/code/kernel/ && make
+
+    - name: build-and-run-shell
+      run: cd ~/OpenDelta/code/shell/ && make && make run
