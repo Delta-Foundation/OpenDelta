@@ -150,7 +150,10 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -no-reboot -no-shutdown \
              -display gtk,full-screen=off,gl=off,show-cursor=on
 
-all: run
+all: 
+	$(MAKE) $(BOOT)
+	$(MAKE) $(KERNEL_ELF)
+	$(MAKE) $(IMG)
 
 $(KERNEL_ELF): $(OBJS)
 	$(LD) -m elf_x86_64 -o $@ $(OBJS) $(LD_FLAGS)
