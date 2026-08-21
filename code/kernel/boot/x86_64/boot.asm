@@ -2,46 +2,46 @@
 [bits 16]
 [org 0x7C00]
 
-SECOND_STAGE_ADDR equ 0x7E00
-SECOND_STAGE_SECTORS equ 4
-
-PAGE_BASE equ 0x1000       ; page tables at 0x1000 (safe area)
+global _start
+global second_stage_entry
 
 _start:
     cli
+    cld 
+    jmp 0x0000:flush_segments
+
+flush_segments:
+    mov sp, _start 
     xor ax, ax 
     mov ds, ax 
     mov es, ax 
     mov ss, ax 
     mov sp, 0x7C00
-
-    mov [boot_drive], dl 
+    
+    mov byte [boot_drive], dl 
 
     mov ax, 0x0003
     int 0x10
 
     mov si, str_16_loading
-    call print16
-
-    mov ah, 0x02
-    mov al, SECOND_STAGE_SECTORS
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov dl, [boot_drive]
-    mov bx, SECOND_STAGE_ADDR
-
-    int 0x13
-    jc disk_error
+    call print_rmode 
+    
+    mov ax, 0x0241
+    mov bx, 0x7E00 
+    mov cx, 0x0002
+    xor dh, dh 
+    
+    int 0x13 
+    jc disk_error 
 
     jmp second_stage_entry
 
 disk_error:
     mov si, str_disk_error
-    call print16 
+    call print_rmode 
     jmp $
 
-print16:
+print_rmode:
     pusha
 .loop:
     lodsb
@@ -54,34 +54,71 @@ print16:
     popa 
     ret 
 
-; --- data of boot sector --- ;
-boot_drive:     db 0
-str_16_loading: db "[DBL 16]: Loading second stage of boot...", 13, 10, 0
-str_disk_error: db "[DBL ERROR]: Disk read failed!!!", 13, 10, 0
+; === data of 16-bit real mode. Boot sector === ;
+boot_drive:       db 0
+str_16_loading:   db "[DBL 16]: Loading second stage of boot...", 13, 10, 0
+str_disk_error:   db "[DBL ERROR]: Disk read error!!!", 13, 10, 0
 
 ; --- boot signature --- ;
 times 510 - ($ - $$) db 0
 dw 0xAA55
 
 ; === SECTOR 2+: second stage of boot === ;
+[bits 16]
 second_stage_entry:
     mov si, str_16_bit_start
-    call print16 
+    call print_rmode 
 
     ; --- Enable A20 --- ;
     mov si, str_a20
-    call print16 
+    call print_rmode
 
     in al, 0x92
     or al, 2 
     and al, 0xFE
     out 0x92, al 
 
-    ; --- Check CPUID --- ;
+    mov si, str_jump_to_32
+    call print_rmode
+
+    ; --- siwtch to 32-bit Protected Mode --- ;
+    cli 
+    lgdt [gdt32_ptr]
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax 
+    jmp 0x08:pmode_entry
+
+; === 32-bit protected mode === ;
+[bits 32]
+pmode_entry:
+    mov ax, 0x10
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax 
+    mov esp, 0x90000
+
+    mov edi, 0xB8000 + 3 * 160
+    mov esi, str_32_bit_start
+    mov ah, 0x0B
+    call print_pmode 
+
+    mov edi, 0xB8000 + 4 * 160
+    mov esi, str_cpuid
+    mov ah, 0x0B 
+    call print_pmode 
+
+    call check_cpuid
+    call setup_pages
+    call swtich_lmode
+
+check_cpuid:
     pushfd
     pop eax
     mov ecx, eax 
-    xor eax, 1 << 21
+    xor eax, (1 << 21)
     push eax 
     popfd 
     
@@ -90,101 +127,152 @@ second_stage_entry:
     push ecx 
     popfd 
     cmp eax, ecx 
-    je .no_long_mode_16
+    jz no_cpuid
 
-    ; --- Check long mode support --- ;
     mov eax, 0x80000001
     cpuid 
-    test edx, 1 << 29 
-    jz .no_long_mode_16
+    test edx, (1 << 29) 
+    jz halt32 
 
-    mov si, str_cpuid_ok
-    call print16
+no_cpuid:
+    mov si, str_no_cpuid
+    call print_pmode
+    cli 
+    hlt 
 
+setup_pages:
     ; --- Setup page tables at PAGE_BASE --- ;
-    mov si, str_setup_pages
-    call print16
+    mov edi, 0xB8000 + 5 * 160
+    mov esi, str_pages_ready
+    mov ah, 0x0B
+    call print_pmode 
 
     ; Clear 16KB for page tables
-    mov ax, PAGE_BASE >> 4
-    mov es, ax 
-    xor di, di 
-    xor ax, ax 
-    mov cx, 0x2000
-    rep stosw
-    xor ax, ax 
-    mov es, ax 
+    mov edi, PAGE_BASE
+    xor eax, eax 
+    mov ecx, 4096
+    rep stosd
 
     mov dword [PAGE_BASE], PAGE_BASE + 0x1003
-    mov dword [PAGE_BASE + 4], 0
-
     mov dword [PAGE_BASE + 0x1000], PAGE_BASE + 0x2003
-    mov dword [PAGE_BASE + 0x1004], 0
 
     mov dword [PAGE_BASE + 0x2000], 0x000083
     mov dword [PAGE_BASE + 0x2008], 0x200083
     mov dword [PAGE_BASE + 0x2010], 0x400083
     mov dword [PAGE_BASE + 0x2018], 0x600083
 
-    mov si, str_jump_to_64
-    call print16
+    mov edi, 0xB8000 + 6 * 160
+    mov esi, str_jump_to_64
+    mov ah, 0x0B
+    call print_pmode 
 
-    ; --- enter long mode directly from real mode --- ;
-    cli 
-
-    ; Load GDT
-    lgdt [gdt_ptr]
-
-    ; Enable PAE in CR4
+swtich_lmode
+    ; --- switch to 64-bit Long Mode --- ;
     mov eax, cr4 
-    or eax, 1 << 5
+    or eax, (1 << 5)
     mov cr4, eax 
 
-    ; Set CR3 to page table base
     mov eax, PAGE_BASE
     mov cr3, eax 
 
-    ; Enable long mode in EFER MSR
-    mov ecx, 0xC0000080
+    mov ecx, 0xC000008
     rdmsr
-    or eax, 1 << 8
+    or eax, (1 << 8)
     wrmsr
 
-    ; Enable paging + protected mode
-    mov eax, cr0
-    or eax, (1 << 31) | (1 << 0)
+    mov eax, cr0 
+    or eax, (1 << 8)
     mov cr0, eax 
 
-    ; Far jump to 64-bit mode
-    jmp 0x08:long_mode_entry 
+    lgdt [gdt64_ptr]
+    jmp 0x08:lmode_entry 
 
-.no_long_mode_16:
-    mov si, str_error_long_mode
-    call print16 
+halt32:
+    mov edi, 0xB8000 + 5 * 160
+    mov esi, str_error 
+    mov ah, 0x0C
+    call print_pmode 
     jmp $
+
+print_pmode:
+    push edi 
+    push esi 
+.loop:
+    lodsb 
+    test al, al 
+    jz .done 
+    stosw 
+    jmp .loop 
+.done:
+    pop esi 
+    pop edi 
+    ret
+
+; === data of 32-bit protected mode and 16-bit real mode. Stage 2 === ;
+PAGE_BASE equ 0x1000
+
+str_16_bit_start: db "[DBL 16]: Real mode   [OK]", 13, 10, 0
+str_a20:          db "[DBL 16]: A20 enabled", 13, 10, 0
+str_jump_to_32:   db "[DBL 16]: -> Protecterd Mode... ", 13, 10, 0
+
+str_32_bit_start: db "[DBL 32]: Protected mode   [OK]", 0
+str_cpuid:        db "[DBL 32]: CPUID: Long Mode [OK]", 0
+str_pages_ready:  db "[DBL 32]: Page tables ready", 0
+str_jump_to_64:   db "[DBL 32]: -> Long Mode... ", 0
+
+; --- Errors --- ;
+str_error:        db "[DBL ERROR]: No Long Mode!", 0
+str_no_cpuid:     db "[DBL ERROR]: No CPUID!", 0
+
+; ============  GDT 32-bit  ============
+align 8
+gdt32:
+    dq 0                        ; null
+    dq 0x00CF9A000000FFFF       ; 32-bit code
+    dq 0x00CF92000000FFFF       ; 32-bit data
+gdt32_end:
+gdt32_ptr:
+    dw gdt32_end - gdt32 - 1
+    dd gdt32
 
 ; === 64-bit long mode === ;
 [bits 64]
-long_mode_entry:
+lmode_entry:
     mov ax, 0x10
     mov ds, ax 
     mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
     mov ss, ax 
     mov rsp, 0x90000
 
     mov edi, 0xB8000 + 7 * 160
     mov rsi, str_64_bit_start
     mov ah, 0x0D
-    call print64
+    call print_lmode 
 
     mov edi, 0xB8000 + 8 * 160
     mov rsi, str_64_bit_done
     mov ah, 0x0A
-    call print64
+    call print_lmode 
 
-    jmp $
+    cli 
 
-print64:
+    xor rax, rax 
+    xor rbx, rbx
+    xor rcx, rcx 
+    xor rdx, rdx 
+    xor rdi, rdi 
+
+    mov rsp, 0x10000
+    mov rbp, rsp 
+
+    call _start 
+
+    cli 
+    hlt 
+
+print_lmode:
     push rdi
     push rsi
 .loop:
@@ -198,14 +286,7 @@ print64:
     pop rdi
     ret
 
-; ===============  DATA  ===============
-str_16_bit_start: db "[DBL 16]: Real mode OK", 13, 10, 0
-str_a20:          db "[DBL 16]: A20 enabled", 13, 10, 0
-str_cpuid_ok:     db "[DBL 16]: CPUID: Long Mode OK", 13, 10, 0
-str_setup_pages:     db "[DBL 16]: Page tables ready", 13, 10, 0
-str_jump_to_64:      db "[DBL 16]: -> Long mode...", 13, 10, 0
-str_error_long_mode: db "[DBL ERROR]: No Long Mode!", 13, 10, 0
-
+; === data of 64-bit long mode. Stage 2 === ;
 str_64_bit_start: db "[DBL 64]: Long mode OK", 0
 str_64_bit_done:  db "[DBL 64]: All transitions done!", 0
 
@@ -215,9 +296,7 @@ gdt64:
     dq 0                        ; null
     dq 0x00AF9A000000FFFF       ; 64-bit code
     dq 0x00CF92000000FFFF       ; 64-bit data
-gdt_ptr:
-    dw $ - gdt64 - 1
+gdt64_end:
+gdt64_ptr:
+    dw gdt64_end - gdt64 - 1
     dd gdt64
-
-; pad stage2 to full sectors
-times ((1 + SECOND_STAGE_SECTORS) * 512) - ($ - $$) db 0
