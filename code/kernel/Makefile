@@ -9,7 +9,9 @@ OBJCOPY = llvm-objcopy
 
 # source code
 BOOT_SRC = boot/x86_64/boot.asm
+STAGE2_SRC = boot/x86_64/stage2.asm 
 ENTRY_SRC = kernel_entry.asm
+
 KERNEL_SRC = kernel.c
 GDT_SRC = arch/gdt/gdt.c
 GDT_ASM_SRC = arch/gdt/gdt.asm
@@ -50,6 +52,7 @@ TOOLS_SRC = tools/fat/asm/tools.asm
 
 # Variables for freestanding binary files 
 BOOT = img/boot.bin
+STAGE2 = img/stage2.bin 
 KERNEL_ELF = img/kernel.elf
 KERNEL_BIN = img/kernel.bin
 
@@ -152,6 +155,7 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 
 all: 
 	$(MAKE) $(BOOT)
+	$(MAKE) $(STAGE2)
 	$(MAKE) $(KERNEL_ELF)
 	$(MAKE) $(IMG)
 
@@ -165,6 +169,9 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 # | Building ASM code |
 # =====================
 $(BOOT): $(BOOT_SRC)
+	$(AS) -f bin $< -o $@
+
+$(STAGE2): $(STAGE2_SRC)
 	$(AS) -f bin $< -o $@
 
 $(ENTRY): $(ENTRY_SRC)
@@ -284,9 +291,10 @@ $(DISK): $(DISK_SRC)
 # =====================
 # | Creating OS image |
 # =====================
-$(IMG): $(BOOT) $(STAGE2) $(KERNEL_BIN)
+$(IMG): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1 status=none
+	dd if=$(STAGE2) of=$@ conv=notruc bs=512 count=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 # Running
@@ -297,14 +305,14 @@ run: img/open-delta.img
 # | Removing binary files |
 # =========================
 clean:
-	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS)    \
-		  $(STDBASE) $(TYPES) $(MEM) $(STRING) $(IDT)   \
-		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE)  \
-		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE)  \
-		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS)    \
-		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL)     \
+	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS) \
+		  $(STDBASE) $(TYPES) $(MEM) $(STRING) $(IDT) \
+		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE) \
+		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) \
+		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS) \
+		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL) \
 		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER) \
-		  $(KEYBOARD)
+		  $(KEYBOARD) $(STAGE2)
 	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
 	rm -f kernel.map
 
