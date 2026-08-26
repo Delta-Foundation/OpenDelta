@@ -294,7 +294,7 @@ $(DISK): $(DISK_SRC)
 $(IMG): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1 status=none
-	dd if=$(STAGE2) of=$@ conv=notruc bs=512 count=1 status=none
+	dd if=$(STAGE2) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 # Running
