@@ -29,8 +29,15 @@ str_no_long_mode:      db "[DBL ERROR]: No long mode!", 13, 10, 0
 str_a20_failed:        db "[DBL ERROR]: Failed to enable A20", 13, 10, 0
 
 ; === Memory data and constatns === ;
-e820_mem_start      equ (0x7E00 + 5 * 512)
+loader_file_num_of_blocks    equ 5 
+kernel_file_num_of_blocks    equ 152 
+user_prog_file_num_of_blocks equ 127
+
+e820_mem_start      equ (0x7E00 + loader_file_num_of_blocks * 512)
 e820_mem_end        equ (e820_mem_start + 4 * 512) 
 
 loader_kernel_start     equ e820_mem_end
-loader_kernel_end       equ (loader_kernel_start + 5 * 512)
+loader_kernel_end       equ (loader_kernel_start + kernel_file_num_of_blocks * 512)
+
+loader_user_prog_start  equ loader_kernel_end
+loader_user_prog_end    equ (loader_kernel_end - user_prog_file_num_of_blocks * 512)
