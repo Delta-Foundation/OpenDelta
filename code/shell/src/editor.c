@@ -51,13 +51,13 @@ static void editor_display_file(const char *filename) {
 }
 
 static void editor_logo() {
-    printf(T_MAGENTA "████████        ███████     █       █   ██  ████████        ███████\n" T_RESET);
-    printf(T_MAGENTA "██     ██      ██     ██    ██     ██       ██     ██      ██     ██\n" T_RESET);
-    printf(T_MAGENTA "██      ██    ██       ██    ██   ██    ██  ██      ██    ██       ██\n" T_RESET);
-    printf(T_MAGENTA "██       ██  ██         ██    █████     ██  ██       ██  ██         ██\n" T_RESET);
-    printf(T_MAGENTA "██       ██  █████████████   ██   ██    ██  ██       ██  █████████████\n" T_RESET);
-    printf(T_MAGENTA "██      ██    ██            ██     ██   ██  ██      ██    ██\n" T_RESET);
-    printf(T_MAGENTA "█████████      ██████████   █       █   ██  █████████      ██████████\n" T_RESET);
+    printf(T_MAGENTA "████████        ███████     █       █   \n" T_RESET);
+    printf(T_MAGENTA "██     ██      ██     ██    ██     ██   \n" T_RESET);
+    printf(T_MAGENTA "██      ██    ██       ██    ██   ██    \n" T_RESET);
+    printf(T_MAGENTA "██       ██  ██         ██    █████     \n" T_RESET);
+    printf(T_MAGENTA "██       ██  █████████████   ██   ██    \n" T_RESET);
+    printf(T_MAGENTA "██      ██    ██            ██     ██   \n" T_RESET);
+    printf(T_MAGENTA "█████████      ██████████   █       █   \n" T_RESET);
 }
 
 void editor()
