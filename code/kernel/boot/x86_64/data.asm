@@ -10,13 +10,15 @@ str_16_bit_start:    db "[DBL 16]: Real mode   [OK]", 13, 10, 0
 str_16_long_mode_ok: db "[DBL 16]: has Long mode [OK]", 13, 10, 0
 str_a20:             db "[DBL 16]: A20 enabled", 13, 10, 0
 str_jump_to_32:      db "[DBL 16]: -> Protecterd Mode... ", 13, 10, 0
+str_loading_32_gdt:  db "[DBL 16]: Loading 32-bit GDT", 13, 10, 0
 
 str_32_bit_start: db "[DBL 32]: Protected mode   [OK]", 13, 10, 0 
 str_cpuid:        db "[DBL 32]: CPUID: Long Mode [OK]", 13, 10, 0
 str_pages_ready:  db "[DBL 32]: Page tables ready", 13, 10, 0
 str_jump_to_64:   db "[DBL 32]: -> Long Mode... ", 13, 10, 0
 
-str_64_bit_start:       db "[DBL 64]: Long mode OK", 13, 10, 0
+str_64_bit_supported:   db "[DBL 64]: Support   [OK]", 13, 10, 0 
+str_64_bit_start:       db "[DBL 64]: Long mode [OK]", 13, 10, 0
 str_64_bit_done:        db "[DBL 64]: All transitions done!", 13, 10, 0
 str_64_bit_kernel_load: db "[DBL 64]: Loading kernel... ", 13, 10, 0 
 
@@ -27,6 +29,9 @@ str_no_cpuid:          db "[DBL ERROR]: No CPUID!", 13, 10, 0
 str_kernel_load_error: db "[DBL ERROR]: Failed to load kernel!", 13, 10, 0 
 str_no_long_mode:      db "[DBL ERROR]: No long mode!", 13, 10, 0
 str_a20_failed:        db "[DBL ERROR]: Failed to enable A20", 13, 10, 0
+str_e820_not_supported: db "[DBL ERROR]: BIOS E820 is not supported.", 13, 10, 0 
+str_e820_loading_error: db "[DBL ERROR]: BIOS E820 failed to read next memory entry", 13, 10, 0
+str_64_bit_not_supported: db "[DBL ERROR]: 64-bit not supported", 13, 10, 0
 
 ; === Memory data and constatns === ;
 loader_file_num_of_blocks    equ 5 
