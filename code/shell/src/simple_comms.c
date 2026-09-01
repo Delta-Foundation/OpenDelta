@@ -19,7 +19,7 @@ void help()
 
 void write_logo()
 {
-    printf(T_CYAN " ___________       ___________  ____          _________________            ____ \n" T_RESET);
+    printf(T_CYAN " ___________       ___________  ____         _________________            ____ \n" T_RESET);
     printf(T_CYAN " | |      \\\\       | |     | |  |  |         |______   ______|            //\\\\  \n" T_RESET);
     printf(T_CYAN " | |       \\\\      | |     | |  |  |                | |                  //  \\\\  \n" T_RESET);
     printf(T_CYAN " | |        \\\\     | |     | |  |  |                | |                 //    \\\\  \n" T_RESET);
