@@ -8,8 +8,7 @@ LD = ld.lld
 OBJCOPY = llvm-objcopy
 
 # source code
-BOOT_SRC = boot/x86_64/boot.asm
-STAGE2_SRC = boot/x86_64/stage2.asm 
+BOOT_SRC = boot/x86_64/main.asm
 ENTRY_SRC = kernel_entry.asm
 
 KERNEL_SRC = kernel.c
@@ -52,7 +51,6 @@ TOOLS_SRC = tools/fat/asm/tools.asm
 
 # Variables for freestanding binary files 
 BOOT = img/boot.bin
-STAGE2 = img/stage2.bin 
 KERNEL_ELF = img/kernel.elf
 KERNEL_BIN = img/kernel.bin
 
@@ -155,7 +153,6 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 
 all: 
 	$(MAKE) $(BOOT)
-	$(MAKE) $(STAGE2)
 	$(MAKE) $(KERNEL_ELF)
 	$(MAKE) $(IMG)
 
@@ -169,9 +166,6 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 # | Building ASM code |
 # =====================
 $(BOOT): $(BOOT_SRC)
-	$(AS) -f bin $< -o $@
-
-$(STAGE2): $(STAGE2_SRC)
 	$(AS) -f bin $< -o $@
 
 $(ENTRY): $(ENTRY_SRC)
@@ -294,7 +288,6 @@ $(DISK): $(DISK_SRC)
 $(IMG): $(BOOT) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT) of=$@ conv=notrunc bs=512 count=1 status=none
-	dd if=$(STAGE2) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc seek=1 bs=512
 
 # Running
