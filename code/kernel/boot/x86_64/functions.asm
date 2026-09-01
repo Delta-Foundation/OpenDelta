@@ -1,5 +1,11 @@
-%include "./print.asm"
-%include "./data.asm"
+%include "./boot/x86_64/print.asm"
+%include "./boot/x86_64/data.asm"
+
+; +------------------+
+; |                  |
+; | 16-bit functions |
+; |                  |
+; +------------------+
 
 ; ======================== ;
 ;   Enable and test A20    ;
@@ -23,7 +29,7 @@ enable_A20:
 
         mov     al,     0xad
         out     0x64,   al
-        call .  attempt2.wait1
+        call    .attempt2.wait1
 
         mov     al,     0xd0
         out     0x64,   al
@@ -123,6 +129,40 @@ test_A20:
         pop     es 
         pop     ds 
         ret 
+
+; |==============================================================|
+; | switch_protected_mode                                        |
+; |                                                              |
+; | Prepare the system to enter the protected mode (32-bits).    |
+; |                                                              |
+; | Return flags:                                                |
+; |     None                                                     |
+; |                                                              |
+; | Killed registers:                                            |
+; |     All, nothing will be saved.                              |
+; |==============================================================|
+switch_protected_mode:
+    cli
+
+    mov     si,     str_set_gdt_32
+    call    print_rmode
+
+    lgdt    [gdt32_table_pointer]
+
+    mov     si,     str_jump_to_32
+    call    print_rmode
+
+    mov     eax,    cr0
+    or      eax,    (1 << 0)    ; CR.PE
+    mov     cr0,    eax
+
+    jmp     0x08:protected_mode
+
+; +------------------+
+; |                  |
+; | 32-bit functions |
+; |                  |
+; +------------------+
 
 ; ====================================== ;
 ; Read kernel and user program from disk ;
@@ -342,30 +382,192 @@ cpu_supports_64_bit_mode:
  
         jmp     endless_loop
 
-; |==============================================================|
-; | switch_protected_mode                                        |
-; |                                                              |
-; | Prepare the system to enter the protected mode (32-bits).    |
-; |                                                              |
-; | Return flags:                                                |
-; |     None                                                     |
-; |                                                              |
-; | Killed registers:                                            |
-; |     All, nothing will be saved.                              |
-; |==============================================================|
-switch_protected_mode:
-    cli
+; |===========================================================|
+; | move_kernel                                               |
+; |                                                           |
+; | Move the kernel blocks to a different location in memory  |
+; |                                                           |
+; | Killed registers:                                         |
+; |     None                                                  |
+; |===========================================================|
+move_kernel:
+    pusha 
 
-    mov     si,     str_loading_32_gdt
-    call    print_rmode
+    cld 
+    xor     edi,    edi 
+    xor     ecx,    ecx 
+    xor     esi,    esi 
 
-    lgdt    [gdt32_table_pointer]
+    mov     edi,    kernel_new_start
+    mov     esi,    loader_kernel_start
+    mov     ecx,    (512 * kernel_file_num_of_blocks) / 4 
+    rep     movsd 
 
-    mov     si,     str_jump_to_32
-    call    print_rmode
+    popa 
+    ret 
+
+; |=======================================================================================|
+; | set_cursor                                                                            |
+; |                                                                                       |
+; | Set the hardware cursor position based on the current columnt (current_column) and    |
+; | current row (current_row) coordinates                                                 |
+; | See:      https://wiki.osdev.org/Text_Mode_Cursor#Moving_the_Cursor_2                 |
+; | See:      https://stackoverflow.com/a/53866689/832748                                 |
+; |                                                                                       |
+; | Killed registers:                                                                     |
+; |     ecx, edx                                                                          |
+; |=======================================================================================|
+set_cursor:
+    mov     ecx,    [current_row]
+    imul    ecx,    [screen_width]
+    add     ecx,    [current_column]
+
+    mov     edx,    0x3d4 
+    mov     al,     0x0f 
+
+    out     dx,     al 
+    inc     edx
+    mov     al,     cl 
+    out     dx,     al 
+
+    dec     edx 
+    mov     al,     0x0e 
+    out     dx,     al 
+    inc     edx 
+    mov     al,     ch 
+    out     dx,     al 
+
+    ret 
+
+; |===============================================================================|
+; | retrive_video_cursor_settings                                                 |
+; |                                                                               |
+; | Obtains BIOS cursor position that was used in real mode so new messages can   |
+; | be printed where the BIOS stopped at                                          |
+; |                                                                               |
+; | Killed registers:                                                             |
+; |     None                                                                      |
+; |===============================================================================|
+retrive_video_cursor_settings:
+    push    eax 
+    
+    xor     eax,    eax 
+    mov     al,     [0x45]
+    mov     [current_row],  eax 
+    mov     al,     [0x450 + 1]
+    mov     [current_row],  eax 
+    mov     ax,     word [0x44a]
+    mov     [screen_width], eax 
+
+    pop     eax 
+    ret 
+
+; |=============================================================================|
+; | setup_page_tables                                                           |
+; |                                                                             |
+; | Setup Paging mechanism used in long mode (64-bits). This routine cleans the |
+; | memory used, create pages and enable paging                                 |
+; |                                                                             |
+; | Return flags:                                                               |
+; |     None                                                                    |
+; |                                                                             |
+; | Killed registers:                                                           |
+; |     None                                                                    |
+; |=============================================================================|
+setup_page_tables:
+    pusha
+
+    .clean_memory:
+        mov     eax,    str_32_second_stage_clean_pages
+        call    print_pmode
+
+        cld
+        xor     eax,    eax
+        xor     ecx,     ecx
+
+        mov     edi, mem_pml4
+        mov     ecx, (paging_end - paging_end) >> 2
+
+        rep     stosd
+
+    .setup_tables:
+
+        .std_bits   equ 0x03
+        .pde_ps	    equ (1 << 7)
+
+        mov dword [mem_pml4], (mem_pdpe) | .std_bits
+
+        mov dword [mem_pml4 + 256 * 0x08], (mem_pdpe) | .std_bits
+
+        mov     edi,    mem_pdpe
+        mov     ecx,    64
+        mov     eax,    mem_pde | .std_bits
+
+        .make_pdpe_page:
+            mov     [edi],  eax
+            add     edi,    0x8
+            add     eax,    0x1000
+            loop    .make_pdpe_page
+
+        mov     edi,    mem_pde
+        mov     ecx,    512 * 64
+        mov     eax,    .std_bits | .pde_ps
+
+        .make_pde_page:
+            mov     [edi],  eax
+            add     edi,    0x8
+            add     eax,    0x200000
+            loop    .make_pde_page
+
+    mov     eax,    str_32_second_stage_pages_build
+    call    print_pmode 
+
+    popa
+    ret
+
+; |=======================================================|
+; | switch_long_mode                                      |
+; |                                                       |
+; | Prepare the system to enter the long mode (64-bits).  |
+; |                                                       |
+; | Return flags:                                         |
+; |     None                                              |
+; |                                                       |
+; | Killed registers:                                     |
+; |     All, nothing will be saved.                       |
+; |=======================================================|
+switch_long_mode:
+    cli 
+
+    mov     si,     str_set_gdt_64 
+    call    print_pmode 
+
+    lgdt    [gdt64_table_pointer]
+ 
+    mov     si,     str_jump_to_64
+    call    print_pmode 
+
+    mov     eax,    cr4 
+    or      eax,    (1 << 5)
+    or      eax,    (1 << 7)
+    mov     cr4,    eax 
+
+    mov     eax,    paging_start
+    mov     cr3,    eax 
+
+    mov     ecx,    0xc0000080
+    rdmsr
+    or      eax,    (1 << 8)
+    wrmsr
 
     mov     eax,    cr0
-    or      eax,    (1 << 0)    ; CR.PE
-    mov     cr0,    eax
+    or      eax,    (1 << 31)
+    mov     cr0,    eax 
 
-    jmp     0x08:protected_mode
+    jmp     0x08:long_mode
+
+endless_loop:
+    cli 
+    .end:
+        hlt
+        jmp .end 
