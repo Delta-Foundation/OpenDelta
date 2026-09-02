@@ -45,3 +45,29 @@ protected_mode:
     mov gs, ax 
     mov ss, ax 
     mov sp, 0x7E00
+
+    call retrive_video_cursor_settings
+    
+    mov eax, str_32_bit_start
+    call print_pmode
+
+    call setup_page_tables
+    call switch_long_mode
+    jmp endless_loop
+
+[bits 64]
+long_mode:
+    mov ax, 0x10 
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax 
+    mov rsp, kernel_new_start_virt
+
+    mov rax, str_64_bit_start 
+    call print_lmode
+
+    jmp kernel_new_start_virt + kernel_new_elf_text_header_offset
+
+times (loader_file_num_of_blocks * 512) - ($ - $$) db 0
