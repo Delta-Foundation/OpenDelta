@@ -3,7 +3,8 @@ OUTPUT_ARCH(x86_64)
 ENTRY(_start)
 
 rmode_addr = 0x8000;
-lmode_addr = 0x10000;
+/* lmode_addr = 0x10000; */
+lmode_addr = 0xffff800000200000;
 
 PHDRS {
     rmode     PT_LOAD FLAGS(5);
