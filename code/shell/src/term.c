@@ -29,7 +29,7 @@ struct console {
     char *flag;
 };
 
-int main(void)
+int main(int argc, char * argv[])
 {
     set_keyword();
     set_symbols();
@@ -42,16 +42,15 @@ int main(void)
     welcome();
 
     while (true) {
-
         printf("> ");
-
+    
         if (fgets(input, sizeof(input), stdin) == NULL) {
             break;
+            while (getchar() != '\n');
         }
-
-        /* Variables */
+ 
         input[strcspn(input, "\n")] = 0;
-
+    
         char *command  = strtok(input, " ");
         char *filename = strtok(NULL, " ");
         char *dirname  = strtok(NULL, " ");
@@ -60,11 +59,6 @@ int main(void)
         
         int is_dir = 0;
 
-        /* 
-           +------------------+
-           | Обработка команд |
-           +------------------+
-        */
 
         /* Работа с файлами и папками. Удаление, добавление, переход и так далее... */
         if (command != NULL && strcmp(command, "touch") == 0) {
@@ -155,7 +149,7 @@ int main(void)
         }
 
         else if (command != NULL && strcmp(command, "help") == 0) {
-            system("~/open-delta/code/shell/bin/table");
+            system("~/OpenDelta/code/shell/bin/table");
         }
 
         else if (command != NULL && strcmp(command, "clear") == 0) {
@@ -163,12 +157,16 @@ int main(void)
         }
 
         else if (command != NULL && strcmp(command, "clocks") == 0) {
-            system("~/open-delta/code/shell/bin/clocks");
+            system("~/OpenDelta/code/shell/bin/clocks");
         }
  
         else if (command != NULL && strcmp(command, "dexide") == 0) {
             clear_screen();
-            system("~/open-delta/code/shell/bin/dexide");
+            system("~/OpenDelta/code/shell/bin/dexide");
+        }
+
+        else if (command != NULL && strcmp(command, "calcrs") == 0) {
+            system("~/OpenDelta/code/shell/bin/calc");
         }
  
         else if (command != NULL && strcmp(command, "exit") == 0) {
