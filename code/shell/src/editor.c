@@ -11,7 +11,7 @@
 
 // !!realizations for editor!!
 static void editor_add_file(char filename[MFNL]) {
-    int is_created = 0; 
+    int is_created = 0;
     FILE * file = fopen(filename, "a");
 
     if (file == NULL) {
@@ -24,7 +24,7 @@ static void editor_add_file(char filename[MFNL]) {
     }
 }
 
-static void editor_display_file(const char *filename) {
+static void editor_display_file(char * filename) {
     file_explorer var;
     var.file = NULL;
     var.is_displaying = 0;
@@ -64,7 +64,7 @@ void editor()
 {
     char lines[MAX_LINES][MAX_LINE_LENGTH];
    //char inputLine[MAX_LINE_LENGTH];
-    char filename[100];
+    char * filename;
     char mode;
     int line_count;
     FILE * file;
@@ -74,13 +74,13 @@ void editor()
     printf(T_BLUE "[текстовый редактор]\n" T_RESET);
 
     printf(T_CYAN "[Введите имя файла для редактирования]: " T_RESET);
-    scanf("%s", filename);
+    scanf("%511s", filename);
     getchar();
     editor_add_file(filename);
 
     file = fopen(filename, "r");
     if (file == NULL) {
-        fprintf(stderr, T_RED "[err]: [не удалось открыть файл: %s]\n" T_RESET, filename);
+        fprintf(stderr, T_RED "[err]: [не удалось открыть файл: %s]\n" T_RESET, *filename);
         return;
     }
 
@@ -92,9 +92,9 @@ void editor()
     printf(T_CYAN "[нажмите 'w' для ввода текста, 'r' для чтения, 'q' для выхода]: \n" T_RESET);
     while ((mode = getchar()) != 'q') {
         if (mode == 'w') {
-            
+
             printf(T_CYAN "[начните ввод (введите 'Q' для выхода)]: \n" T_RESET);
-            
+
             while (line_count < MAX_LINES) {
                 printf("%d: ", line_count + 1);
 
@@ -139,5 +139,3 @@ void editor()
     clear_screen();
     welcome();
 }
-
-
