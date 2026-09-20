@@ -43,76 +43,77 @@ int main(int argc, char * argv[])
 
     while (true) {
         printf("> ");
-    
+
         if (fgets(input, sizeof(input), stdin) == NULL) {
             break;
-            while (getchar() != '\n');
         }
- 
-        input[strcspn(input, "\n")] = 0;
-    
-        char *command  = strtok(input, " ");
-        char *filename = strtok(NULL, " ");
-        char *dirname  = strtok(NULL, " ");
-        char *flag     = strtok(NULL, " ");
-        char *target   = strtok(NULL, " ");
-        
-        int is_dir = 0;
 
+        input[strcspn(input, "\n")] = 0;
+
+        char *command  = strtok(input, " ");
+        if (command == NULL) {
+            continue;
+        }
+
+        char * arg1 = strtok(NULL, " ");
+        char * arg2 = strtok(NULL, " ");
 
         /* Работа с файлами и папками. Удаление, добавление, переход и так далее... */
-        if (command != NULL && strcmp(command, "touch") == 0) {
-            if (filename != NULL) {
-                if (add_file(filename)) {
-                    printf("[OK]: файл %s успешно создан!\n", filename);
+        if (strcmp(command, "touch") == 0) {
+            if (arg1) {
+                if (add_file(arg1)) {
+                    printf(T_GREEN "[OK]: файл %s успешно создан!\n" T_RESET, arg1);
                 }
                 else {
-                    perror("Ошибка при создании файла");
+                    perror(T_RED "Ошибка при создании файла\n" T_RESET);
                 }
             }
 
             else {
-                printf("[ERROR]: укажите имя файла\n");
+                printf(T_RED "[ERROR]: укажите имя файла\n" T_RESET);
             }
         }
 
-        else if (command != NULL && strcmp(command, "mkdir") == 0) {
-            if (dirname && add_dir(dirname)) {
-                printf("[OK]: Папка %s успешно создана!\n", dirname);
+        else if (strcmp(command, "mkdir") == 0) {
+            if (arg1 && add_dir(arg1)) {
+                printf(T_GREEN "[OK]: Папка %s успешно создана!\n" T_RESET, arg1);
             }
             else {
-                printf("[ERROR]: ошибка при создании папки\n");
+                printf(T_RED "[ERROR]: ошибка при создании папки\n" T_RESET);
             }
-        }  
+        }
 
-        else if (command != NULL && strcmp(command, "rm") == 0) {
-            if (flag != NULL && (flag[0] == '-')) {
-                if (strcmp(flag, "-d") == 0) {
+        else if (strcmp(command, "rm") == 0) {
+            char * target = NULL;
+            int is_dir = 0;
+
+            if (arg1 && arg1[0] == '-') {
+                if (strcmp(arg1, "-d") == 0) {
                     is_dir = 1;
+                    target = arg2;
                 }
-                else if (strcmp(flag, "-f") == 0) {
+                else if (strcmp(arg1, "-f") == 0) {
                     is_dir = 0;
+                    target = arg2;
                 }
-
-                target = strtok(NULL, " ");
             }
             else {
-                target = flag;
+                target = arg1;
                 is_dir = 0;
             }
 
-            if (target && delete(target, (const char *)is_dir)) {
-                printf("[OK]: объект %s успешно удалён\n", target);
+            if (target && delete(target, is_dir)) {
+                printf(T_GREEN "[OK]: объект %s удалён\n" T_RESET, target);
             }
             else {
-                perror("[ERROR]: ошибка при удалении объекта");
+                perror(T_RED "[ERROR]: ошибка удаления\n" T_RESET);
             }
-        }    
+        }
 
-        else if (command != NULL && strcmp(command, "cat") == 0) {
-            if (filename != NULL) {
-                if (display_file(filename)) {
-                    printf("содержимое файла %s: \n");
+        else if (strcmp(command, "cat") == 0) {
+            if (arg1 != NULL) {
+                if (display_file(arg1)) {
+                    printf("содержимое файла %s: \n", arg1);
                 }
                 else {
                     perror("[ERROR]: ошибка открытия файла для просмотра содержимого");
@@ -122,54 +123,73 @@ int main(int argc, char * argv[])
                 printf("[ERROR]: укажите имя файла\n");
             }
         }
+    
+        else if (strcmp(command, "cd") == 0) {
+            char * path = arg1;
 
-        else if (command != NULL && strcmp(command, "ls") == 0) {
+            if (path != NULL) {
+                go_to_dir(path);
+            }
+            else {
+                char * home = getenv("HOME");
+                if (home && chdir(home) == 0) {
+                    printf(T_GREEN "[OK]: переход в домашнюю директорию\n" T_RESET);
+                }
+                else {
+                    printf(T_RED "[ERROR]: не удалось найти домашнюю папку" T_RESET);
+                }
+
+                // printf(T_RED "[ERROR]: укажите путь\n" T_RESET);   
+            }
+        }
+
+        else if (strcmp(command, "ls") == 0) {
             list_files();
         }
 
-        else if (command != NULL && strcmp(command, "pwd") == 0) {
+        else if (strcmp(command, "pwd") == 0) {
             show_this_dir();
         }
 
         /* Остальные команды */
-        else if (command != NULL && strcmp(command, "calc") == 0) {
+        else if (strcmp(command, "calc") == 0) {
             calculator();
         }
 
-        else if (command != NULL && strcmp(command, "dex") == 0) {
+        else if (strcmp(command, "dex") == 0) {
             editor();
         }
 
-        else if (command != NULL && strcmp(command, "dlt-fetch") == 0) {
+        else if (strcmp(command, "dlt-fetch") == 0) {
             print_fetch();
         }
 
-        else if (command != NULL && strcmp(command, "ver") == 0) {
+        else if (strcmp(command, "ver") == 0) {
             shell_version();
         }
 
-        else if (command != NULL && strcmp(command, "help") == 0) {
+        else if (strcmp(command, "help") == 0) {
             system("~/OpenDelta/code/shell/bin/table");
         }
 
-        else if (command != NULL && strcmp(command, "clear") == 0) {
+        else if (strcmp(command, "clear") == 0) {
             clear_screen();
         }
 
-        else if (command != NULL && strcmp(command, "clocks") == 0) {
+        else if (strcmp(command, "clocks") == 0) {
             system("~/OpenDelta/code/shell/bin/clocks");
         }
- 
-        else if (command != NULL && strcmp(command, "dexide") == 0) {
+
+        else if (strcmp(command, "dexide") == 0) {
             clear_screen();
             system("~/OpenDelta/code/shell/bin/dexide");
         }
 
-        else if (command != NULL && strcmp(command, "calcrs") == 0) {
+        else if (strcmp(command, "calcrs") == 0) {
             system("~/OpenDelta/code/shell/bin/calc");
         }
- 
-        else if (command != NULL && strcmp(command, "exit") == 0) {
+
+        else if (strcmp(command, "exit") == 0) {
             printf(T_GREEN "[завершение программы]\n" T_RESET);
             break;
         }
@@ -177,9 +197,6 @@ int main(int argc, char * argv[])
         else {
             printf(T_RED "[err]: [неизвестная команда!]\n" T_RESET);
         }
-
-        int c; 
-        while ((c = getchar()) != '\n' && c != EOF) {}
     }
 
     return 0;
