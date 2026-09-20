@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
                 is_dir = 0;
             }
 
-            if (target && delete(target, is_dir)) {
+            if (target && delete_dir_or_file(target, is_dir)) {
                 printf(T_GREEN "[OK]: объект %s удалён\n" T_RESET, target);
             }
             else {
@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
                 printf("[ERROR]: укажите имя файла\n");
             }
         }
-    
+
         else if (strcmp(command, "cd") == 0) {
             char * path = arg1;
 
@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
                     printf(T_RED "[ERROR]: не удалось найти домашнюю папку" T_RESET);
                 }
 
-                // printf(T_RED "[ERROR]: укажите путь\n" T_RESET);   
+                // printf(T_RED "[ERROR]: укажите путь\n" T_RESET);
             }
         }
 
