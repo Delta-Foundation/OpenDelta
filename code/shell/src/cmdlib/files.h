@@ -39,7 +39,7 @@ typedef struct {
 
 int add_file(const char fileName[MFNL]);
 int add_dir(const char dirName[MAX_FOLDER_NAME_LENGTH]);
-int delete(const char *target, int is_directory);
+int delete_dir_or_file(const char *target, int is_directory);
 int display_file(const char *fileName);
 void show_this_dir();
 void go_to_dir(char * path);
