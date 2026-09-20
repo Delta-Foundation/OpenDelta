@@ -10,7 +10,7 @@
 #include "lib/colors.h"
 
 // !!realizations for editor!!
-static void editor_add_file(char filename[MFNL]) {
+static void editor_add_file(char * filename) {
     int is_created = 0;
     FILE * file = fopen(filename, "a");
 
@@ -29,12 +29,6 @@ static void editor_display_file(char * filename) {
     var.file = NULL;
     var.is_displaying = 0;
 
-    printf(T_CYAN "[введите имя файла]: " T_RESET);
-    if (scanf("%511s", filename) != 1) {
-        printf(T_RED "[ошибка чтения имени файла]\n" T_RESET);
-        return;
-    }
-
     var.file = fopen(filename, "r");
     if (var.file == NULL) {
         printf(T_RED "[ошибка открытия файла для чтения: %s]\n" T_RESET, filename);
@@ -51,13 +45,13 @@ static void editor_display_file(char * filename) {
 }
 
 static void editor_logo() {
-    printf(T_MAGENTA "████████        ███████     █       █   \n" T_RESET);
-    printf(T_MAGENTA "██     ██      ██     ██    ██     ██   \n" T_RESET);
-    printf(T_MAGENTA "██      ██    ██       ██    ██   ██    \n" T_RESET);
-    printf(T_MAGENTA "██       ██  ██         ██    █████     \n" T_RESET);
-    printf(T_MAGENTA "██       ██  █████████████   ██   ██    \n" T_RESET);
-    printf(T_MAGENTA "██      ██    ██            ██     ██   \n" T_RESET);
-    printf(T_MAGENTA "█████████      ██████████   █       █   \n" T_RESET);
+    printf(T_MAGENTA "██████████    ████████████   ██       ██   \n" T_RESET);
+    printf(T_MAGENTA "██       ██  ██          ██  ██       ██   \n" T_RESET);
+    printf(T_MAGENTA "██       ██  ██          ██   ██     ██    \n" T_RESET);
+    printf(T_MAGENTA "██       ██  ██          ██    ███████     \n" T_RESET);
+    printf(T_MAGENTA "██       ██   █████████████   ██     ██    \n" T_RESET);
+    printf(T_MAGENTA "██       ██   ██             ██       ██   \n" T_RESET);
+    printf(T_MAGENTA "██████████     ███████████   ██       ██   \n" T_RESET);
 }
 
 void editor()
@@ -80,7 +74,7 @@ void editor()
 
     file = fopen(filename, "r");
     if (file == NULL) {
-        fprintf(stderr, T_RED "[err]: [не удалось открыть файл: %s]\n" T_RESET, *filename);
+        fprintf(stderr, T_RED "[err]: [не удалось открыть файл: %s]\n" T_RESET, filename);
         return;
     }
 
