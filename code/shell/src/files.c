@@ -40,9 +40,9 @@ int add_dir(const char dirName[MAX_FOLDER_NAME_LENGTH])
     return 1;
 }
 
-int delete(const char *target, const char *is_directory) 
+int delete(const char *target, int is_directory) 
 {
-    if (is_directory) {
+    if (is_directory == true) {
         return rmdir(target) == 0;
     }
     else {
@@ -68,18 +68,13 @@ int display_file(const char *file_name)
     return 1;
 }
 
-void go_to_dir(const char *path)
+void go_to_dir(char * path)
 {
-    if (path == NULL) {
-        fprintf(stderr, T_RED "[err]: [пустой путь]\n" T_RESET);
-        return;
-    }
-
-    if (chdir(path) == 0) {
-        printf(T_GREEN "[Успешно перешли в директорию]: %s\n" T_RESET, path);
+    if (chdir(path)) {
+        printf(T_RED "[ERROR]: перехода по пути: %s невозможен\n" T_RESET, path);
     }
     else {
-        perror("Ошибка при переходе в директорию");
+        printf(T_GREEN "Переход по пути: '%s' произошёл успешно\n" T_RESET, path);
     }
 }
 
