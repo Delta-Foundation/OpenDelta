@@ -40,7 +40,7 @@ int add_dir(const char dirName[MAX_FOLDER_NAME_LENGTH])
     return 1;
 }
 
-int delete(const char *target, int is_directory) 
+int delete_dir_or_file(const char *target, int is_directory)
 {
     if (is_directory == true) {
         return rmdir(target) == 0;
