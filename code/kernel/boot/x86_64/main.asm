@@ -1,73 +1,44 @@
-%include "./boot/x86_64/functions.asm"
+%include "boot/x86_64/rmode/functions.asm"
 
 [bits 16]
-[org 0x7C00]
+[org 0x7c00]
 
-global _start
+global start
 
-jmp _start 
+jmp start 
 
-_start:
-    cli
-    cld 
-
+start:
     xor ax, ax 
     mov ds, ax 
     mov es, ax 
-    mov ss, ax 
-    mov sp, 0x7C00
-    
-    mov [boot_drive], dl 
+    mov bx, 0x7c00 
 
-    mov ax, 0x0003
-    int 0x10
-    
-    mov si, str_16_loading
-    call print_rmode
-
-    call bios_e820_memory_map
-    call enable_A20 
-    call read_kernel_from_disk
-    call read_user_prog_from_disk
-    call cpu_supports_64_bit_mode 
-    call enter_protected_mode
-
-    jmp endless_loop
-
-[bits 32]
-protected_mode:
     cli 
 
-    mov ax, 10 
-    mov ds, ax 
-    mov es, ax 
-    mov fs, ax 
-    mov gs, ax 
     mov ss, ax 
-    mov sp, 0x7E00
+    mov sp, ax 
+    sti 
 
-    call retrive_video_cursor_settings
-    
-    mov eax, str_32_bit_start
-    call print_pmode
+    mov [boot_drive], dl 
 
-    call setup_page_tables
-    call switch_long_mode
+    mov si, str_stage1
+    call print_rmode 
+
+    call bios_check_extensions_present
+
+    xor eax, eax 
+    xor ebx, ebx 
+    xor ecx, ecx 
+
+    mov eax, 0x7e00
+    mov bx, loader_file_num_of_blocks
+    call bios_extended_read_sectors_from_drive
+
+    mov dl, [boot_drive]
+
+    jmp 0:0x7e00
+
     jmp endless_loop
 
-[bits 64]
-long_mode:
-    mov ax, 0x10 
-    mov ds, ax 
-    mov es, ax 
-    mov fs, ax 
-    mov gs, ax 
-    mov ss, ax 
-    mov rsp, kernel_new_start_virt
-
-    mov rax, str_64_bit_start 
-    call print_lmode
-
-    jmp kernel_new_start_virt + kernel_new_elf_text_header_offset
-
-times (loader_file_num_of_blocks * 512) - ($ - $$) db 0
+times 510 - ($ - $$) db 0 
+signature dw 0xAA55
