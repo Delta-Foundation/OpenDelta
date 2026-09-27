@@ -1,5 +1,5 @@
 %include "./boot/x86_64/print.asm"
-%include "./boot/x86_64/data.asm"
+%include "./boot/x86_64/global-data.asm"
 
 [bits 16]
 
