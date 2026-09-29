@@ -64,7 +64,7 @@ long_mode:
     mov fs, ax 
     mov gs, ax 
     mov ss, ax 
-    mov rsp, kernel_new_start_virt
+    mov rsp, 0x10000
 
     mov rax, str_64_bit_start 
     call print_lmode
