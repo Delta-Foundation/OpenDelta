@@ -1,5 +1,6 @@
 %include "./boot/x86_64/rmode/data.asm"
-%include "./boot/x86_64/rmode/print.asm"
+; %include "./boot/x86_64/rmode/print.asm"
+
 
 [bits 16]
 
