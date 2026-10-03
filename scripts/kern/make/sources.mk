@@ -1,4 +1,5 @@
 BOOT_SRC = boot/x86_64/main.asm
+STAGE2_SRC = boot/x86_64/second-stage.asm
 ENTRY_SRC = kernel_entry.asm
 
 KERNEL_SRC = kernel.c
@@ -38,5 +39,3 @@ ELF_SRC = tools/fat/elf.c
 MBR_SRC = tools/fat/mbr.c
 DISK_SRC = tools/fat/disk.c
 TOOLS_SRC = tools/fat/asm/tools.asm
-
-
