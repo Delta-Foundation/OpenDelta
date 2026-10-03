@@ -1,0 +1,42 @@
+BOOT_SRC = boot/x86_64/main.asm
+ENTRY_SRC = kernel_entry.asm
+
+KERNEL_SRC = kernel.c
+GDT_SRC = arch/gdt/gdt.c
+GDT_ASM_SRC = arch/gdt/gdt.asm
+IDT_ASM_SRC = cpu/asm/idt.asm
+INTS_ASM_SRC = cpu/asm/ints.asm
+IDT_SRC = cpu/idt.c
+ISR_SRC = cpu/isr.c 
+INTS_C_SRC = ints/int.c
+PIC_SRC = drvs/pic.c
+HAL_SRC = hal/hal.c 
+PORTS_SRC = ports/ports.c
+FPU_SRC = fpu/fpu.c
+SCREEN_SRC = drvs/screen.c
+SPEAKER_SRC = drvs/speaker.c
+MOUSE_SRC = drvs/mouse.c
+KEYBOARD_SRC = drvs/keyboard.c 
+MEM_SRC = mem/memory.c
+SHM_SRC = mem/shared_memory.c
+SYS_SRC = syscall/syscall.c
+TASK_SRC = syscall/task.c
+PROC_SRC = syscall/proc.c
+FS_SRC = fs/fs.c
+LIST_SRC = fs/list.c
+PIPE_SRC = fs/pipe.c
+STDBASE_SRC = lib/source/stdbase.c
+STDLIB_SRC = lib/source/stdlib.c
+CTYPE_SRC = lib/source/ctype.c
+TYPES_SRC = lib/source/types.c
+STRING_SRC = lib/source/string.c
+TTY_SRC = tty/tty.c
+MIN_DLTSH_SRC = tty/min_dltsh.c
+TOOLS_SRC = tools/fat/asm/tools.asm
+FAT_SRC = tools/fat/fat.c
+ELF_SRC = tools/fat/elf.c
+MBR_SRC = tools/fat/mbr.c
+DISK_SRC = tools/fat/disk.c
+TOOLS_SRC = tools/fat/asm/tools.asm
+
+
