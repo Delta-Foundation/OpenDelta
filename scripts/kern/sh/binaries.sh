@@ -36,3 +36,11 @@ OBJS=(
     obj/mbr.o
     obj/disk.o
 )
+
+BINS=(
+    img/boot.bin
+    img/stage2.bin
+    img/kernel.elf
+    img/kernel.bin
+    img/open-delta.img
+)
