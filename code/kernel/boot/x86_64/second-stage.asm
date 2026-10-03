@@ -1,8 +1,11 @@
 %include "./boot/x86_64/global-functions.asm"
+%include "./boot/x86_64/global-data.asm"
 %include "./boot/x86_64/pmode/functions.asm"
+%include "./boot/x86_64/rmode/functions.asm"
+%include "./boot/x86_64/rmode/data.asm"
 
 [bits 16]
-[org 0x7e00]
+[org 0:0x7e00]
 
 global _start
 
@@ -33,7 +36,7 @@ _start:
     call cpu_supports_64_bit_mode 
     call switch_protected_mode
 
-    jmp stage2_endless_loop
+    jmp global_endless_loop
 
 [bits 32]
 protected_mode:
@@ -54,7 +57,7 @@ protected_mode:
 
     call setup_page_tables
     call switch_long_mode
-    jmp stage2_endless_loop
+    jmp global_endless_loop
 
 [bits 64]
 long_mode:
