@@ -12,7 +12,7 @@ function clean {
     rm -f kernel.map
 
     echo "clean .bin and .img binaries"
-    rm -f img/kernel.bin img/kernel.elf img/boot.bin img/open-delta.img
+    rm -f "${BINS[@]}"
 }
 
 clean
