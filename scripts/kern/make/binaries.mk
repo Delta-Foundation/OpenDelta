@@ -1,5 +1,6 @@
 # Variables for freestanding binary files 
-BOOT = img/boot.bin
+BOOT_MAIN = img/boot.bin
+BOOT_STAGE2 = img/stage2.bin
 KERNEL_ELF = img/kernel.elf
 KERNEL_BIN = img/kernel.bin
 
