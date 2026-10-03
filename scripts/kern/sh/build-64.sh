@@ -29,7 +29,8 @@ function base-actions {
 
 function build-kern-64 {
     echo "#---building-asm-code---#"
-    nasm boot/x86_64/boot.asm    -f bin -o img/boot.bin
+    nasm boot/x86_64/main.asm    -f bin -o img/boot.bin
+    nasm boot/x86_64/stage2.asm  -f bin -o img/stage2.bin
     nasm kernel_entry.asm        -f elf -o obj/entry.o
     nasm arch/gdt/gdt.asm        -f elf -o obj/gdtasm.o
     nasm cpu/asm/ints.asm        -f elf -o obj/intsasm.o
@@ -98,6 +99,7 @@ function build-kern-64 {
     echo "#---creating-os-image---#"
     dd if=/dev/zero of=img/open-delta.img bs=512 count=4096 status=none
     dd if=img/boot.bin of=img/open-delta.img bs=512 count=1 conv=notrunc
+    dd if=img/stage2.bin of=img/open-delta.img bs=512 count=1 conv=notrunc
     dd if=img/kernel.bin of=img/open-delta.img conv=notrunc seek=1 bs=512
 }
 
