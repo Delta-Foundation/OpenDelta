@@ -4,6 +4,9 @@
 ### | 32-bit is not used! |
 ### |=====================|
 
+source ~/OpenDelta/scripts/kern/sh/binarise.sh
+
+# перменная CFLAGS для каждого варианта сборки 32/64 будет разной.
 CFLAGS=(
     --target=i386
     -std=c17
@@ -23,45 +26,6 @@ CFLAGS=(
     -O0
     -g
     -Wall
-)
-
-OBJS=(
-    obj/kernel.o
-    obj/gdtasm.o
-    obj/gdt.o
-    obj/idtasm.o
-    obj/intsasm.o
-    obj/idt.o
-    obj/isr.o
-    obj/ints.o
-    obj/pic.o
-    obj/hal.o
-    obj/ports.o
-    obj/fpu.o
-    obj/screen.o
-    obj/speaker.o
-    obj/mouse.o
-    obj/time.o
-    obj/kbd.o
-    obj/mem.o
-    obj/shm.o
-    obj/sys.o
-    obj/task.o
-    obj/proc.o
-    obj/fs.o
-    obj/list.o
-    obj/pipe.o
-    obj/stdbase.o
-    obj/stdlib.o
-    obj/ctype.o
-    obj/types.o
-    obj/string.o
-    obj/tty.o
-    obj/min_dltsh.o
-    obj/fat.o
-    obj/elf.o
-    obj/mbr.o
-    obj/disk.o
 )
 
 function base_actions {
