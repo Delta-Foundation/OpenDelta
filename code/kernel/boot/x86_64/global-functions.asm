@@ -84,7 +84,7 @@ enable_A20:
         mov     si,     str_a20_failed
         call    print_rmode
 
-        jmp     stage2_endless_loop
+        jmp     global_endless_loop
 
     .done:
         pop     ax
@@ -159,3 +159,9 @@ switch_protected_mode:
     mov     cr0,    eax
 
     jmp     0x08:protected_mode
+
+global_endless_loop:
+    cli 
+    .end:
+        hlt
+        jmp .end
