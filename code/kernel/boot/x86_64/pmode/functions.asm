@@ -1,5 +1,8 @@
+%ifndef DBL64_PMODE_FUNCTIONS_ASM
+%define DBL64_PMODE_FUNCTIONS_ASM
+
 %include "boot/x86_64/pmode/data.asm"
-; %include "boot/x86_64/pmode/print.asm"
+%include "boot/x86_64/print.asm"
 
 [bits 16]
 
@@ -410,3 +413,5 @@ pmode_endless_loop:
     .end:
         hlt
         jmp .end
+
+%endif
