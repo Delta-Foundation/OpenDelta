@@ -1,3 +1,6 @@
+%ifndef DBL64_MACROS_ASM
+%define DBL64_MACROS_ASM
+
 %macro pusha64 0
     push rax
     push rcx 
@@ -72,3 +75,5 @@
     pop rbx 
     pop rax 
 %endmacro 
+
+%endif
