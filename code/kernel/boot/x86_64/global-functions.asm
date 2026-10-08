@@ -1,3 +1,6 @@
+%ifndef DBL64_GLOBAL_FUNCTIONS
+%define DBL64_GLOBAL_FUNCTIONS
+
 %include "./boot/x86_64/print.asm"
 %include "./boot/x86_64/global-data.asm"
 
@@ -165,3 +168,5 @@ global_endless_loop:
     .end:
         hlt
         jmp .end
+
+%endif
