@@ -1,3 +1,6 @@
+%ifndef DBL64_PRINT_ASM
+%define DBL64_PRINT_ASM
+
 ; --- Print in 16-bit Real Mode --- ;
 [bits 16]
 print_rmode:
@@ -44,3 +47,5 @@ print_lmode:
     pop rsi
     pop rdi
     ret
+
+%endif
