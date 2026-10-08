@@ -1,11 +1,11 @@
-%include "boot/x86_64/rmode/functions.asm"
-
 [bits 16]
 [org 0x7c00]
 
 global start
 
 jmp start 
+
+%include "boot/x86_64/rmode/functions.asm"
 
 start:
     xor ax, ax 
