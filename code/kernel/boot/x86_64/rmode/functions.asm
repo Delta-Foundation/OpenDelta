@@ -1,9 +1,10 @@
-%include "./boot/x86_64/rmode/data.asm"
-; %include "./boot/x86_64/rmode/print.asm"
+%ifndef DBL64_RMODE_FUNCTIONS_ASM
+%define DBL64_RMODE_FUNCTIONS_ASM
 
+%include "./boot/x86_64/rmode/data.asm"
+%include "./boot/x86_64/print.asm"
 
 [bits 16]
-
 bios_check_extensions_present:
     pusha 
 
@@ -62,3 +63,5 @@ endless_loop:
     .end:
         hlt
         jmp .end
+
+%endif
