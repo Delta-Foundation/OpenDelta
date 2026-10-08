@@ -1,3 +1,6 @@
+%ifndef DBL64_GLOBAL_DATA_ASM_ASM
+%define DBL64_GLOBAL_DATA_ASM_ASM
+
 ; === data of 16-bit real mode, 32-bit protected mode and 64-bit long mode. Stage 2 === ;
 str_16_bit_start:    db "[DBL 16]: Real mode   [OK]", 13, 10, 0
 str_16_long_mode_ok: db "[DBL 16]: has Long mode [OK]", 13, 10, 0
@@ -20,29 +23,29 @@ str_e820_loading_error:   db "[DBL ERROR]: BIOS E820 failed to read next memory 
 str_64_bit_not_supported: db "[DBL ERROR]: 64-bit not supported", 13, 10, 0
 
 ; === Memory data and constatns === ;
-loader_file_num_of_blocks    equ 5 
-kernel_file_num_of_blocks    equ 152 
-user_prog_file_num_of_blocks equ 127
+loader_file_num_of_blocks:    equ 5 
+kernel_file_num_of_blocks:    equ 152 
+user_prog_file_num_of_blocks: equ 127
 
-e820_mem_start      equ (0x7E00 + loader_file_num_of_blocks * 512)
-e820_mem_end        equ (e820_mem_start + 4 * 512) 
+e820_mem_start:      equ (0x7E00 + loader_file_num_of_blocks * 512)
+e820_mem_end:        equ (e820_mem_start + 4 * 512) 
 
-loader_kernel_start     equ e820_mem_end
-loader_kernel_end       equ (loader_kernel_start + kernel_file_num_of_blocks * 512)
+loader_kernel_start:     equ e820_mem_end
+loader_kernel_end:       equ (loader_kernel_start + kernel_file_num_of_blocks * 512)
 
-loader_user_prog_start  equ loader_kernel_end
-loader_user_prog_end    equ (loader_kernel_end - user_prog_file_num_of_blocks * 512)
+loader_user_prog_start:  equ loader_kernel_end
+loader_user_prog_end:    equ (loader_kernel_end - user_prog_file_num_of_blocks * 512)
 
-paging_start        equ 0x20000
-paging_table_size   equ 0x1000
-mem_pml4    equ paging_start
-mem_pdpe    equ (mem_pml4 + paging_table_size)
-mem_pde     equ (mem_pdpe + paging_table_size)
-paging_end  equ (mem_pde + (64 * paging_table_size))
+paging_start:        equ 0x20000
+paging_table_size:   equ 0x1000
+mem_pml4:    equ paging_start
+mem_pdpe:    equ (mem_pml4 + paging_table_size)
+mem_pde:     equ (mem_pdpe + paging_table_size)
+paging_end:  equ (mem_pde + (64 * paging_table_size))
 
-kernel_new_start_virt             equ 0xffff800000200000
-kernel_new_start                  equ 0x00200000
-kernel_new_elf_text_header_offset equ 0x00001000
+kernel_new_start_virt:             equ 0xffff800000200000
+kernel_new_start:                  equ 0x00200000
+kernel_new_elf_text_header_offset: equ 0x00001000
 
 current_row:    dd 0x00 
 current_column: dd 0x00 
@@ -73,7 +76,7 @@ gdt32_table:
     db      11001111b 
     db      0x00 
 
-gdt32_table_size equ ($ - gdt32_table)
+gdt32_table_size: equ ($ - gdt32_table)
 
 gdt32_table_pointer:
     dw gdt32_table_size - 1 
@@ -105,8 +108,10 @@ gdt64_table:
     db      0x00
 
 
-gdt64_table_size equ ($ - gdt64_table)
+gdt64_table_size: equ ($ - gdt64_table)
 
 gdt64_table_pointer:
     dw  gdt64_table_size - 1    ; Limit = offset of last byte in table
     dd  gdt64_table
+
+%endif
