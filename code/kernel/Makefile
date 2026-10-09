@@ -149,15 +149,6 @@ run: img/open-delta.img
 # | Removing binary files |
 # =========================
 clean:
-	rm -f $(ENTRY) $(KERNEL_OBJ) $(SCREEN) $(PORTS) \
-		  $(STDBASE) $(TYPES) $(MEM) $(STRING) $(IDT) \
-		  $(IDT_ASM) $(INTS_ASM) $(ISR) $(TTY) $(CTYPE) \
-		  $(GDT_ASM) $(GDT) $(SHM) $(FS) $(LIST) $(PIPE) \
-		  $(FPU) $(TASK) $(SYS) $(PROC) $(PIC) $(TOOLS) \
-		  $(FAT) $(DISK) $(MBR) $(STDLIB) $(ELF) $(HAL) \
-		  $(MIN_DLTSH) $(INTS_C) $(MOUSE) $(SPEAKER) \
-		  $(KEYBOARD) $(STAGE2)
-	rm -f $(BOOT) $(KERNEL_BIN) $(KERNEL_ELF) $(IMG)
-	rm -f kernel.map
+	~/OpenDelta/scripts/kern/sh/clean.sh
 
 .PHONY: $(BOOT) $(KERNEL_BIN) $(img) run clean
