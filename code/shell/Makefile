@@ -10,6 +10,7 @@ C_SOURCES = src/term.c \
 build: src/term.c src/commands.c src/files.c src/dltsh.c src/simple_comms.c
 	clang $(C_SOURCES) -o ./bin/dltsh
 	clang++ src/help_table.cpp -o ./bin/table -lncursesw
+	clang++ src/manual.cpp -o bin/manual -lncursesw 
 	rustc src/dexide.rs -o ./bin/dexide
 	rustc src/calc.rs   -o ./bin/calc
 	rustc src/clocks.rs -o ./bin/clocks
