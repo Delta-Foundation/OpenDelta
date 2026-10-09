@@ -1,9 +1,10 @@
 OBJS=(
+    obj/entry.o
     obj/kernel.o
-    obj/gdtasm.o 
+    obj/gdt_asm.o 
     obj/gdt.o 
-    obj/idtasm.o 
-    obj/intsasm.o
+    obj/idt_asm.o 
+    obj/ints_asm.o
     obj/idt.o 
     obj/isr.o
     obj/ints.o 
@@ -35,6 +36,7 @@ OBJS=(
     obj/elf.o
     obj/mbr.o
     obj/disk.o
+    obj/tools_asm.o
 )
 
 BINS=(
