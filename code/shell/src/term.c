@@ -172,6 +172,10 @@ int main(int argc, char * argv[])
             system("~/OpenDelta/code/shell/bin/table");
         }
 
+        else if (strcmp(command, "manual") == 0) {
+            system("~/OpenDelta/code/shell/bin/manual");
+        }
+
         else if (strcmp(command, "clear") == 0) {
             clear_screen();
         }
