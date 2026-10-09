@@ -1,116 +1,99 @@
-/*
-  переписываю dexide из dltsh с си на растик.
-*/
-use std::fs::File;
-use std::io::{self, Write, BufRead, BufReader};
+#[path = "cmdlib/dexide_lib.rs"]
+mod dexide_lib;
+
+use dexide_lib::{
+    T_GREEN, T_CYAN,
+    T_RED, T_YELLOW,
+    T_BLUE, T_RESET
+};
+
+use std::fs::{
+    OpenOptions
+};
+
+use std::io::{
+    self, 
+    Write, 
+    BufRead, 
+    BufReader
+};
 
 const MAX_LINES: usize = 512;
 
-const T_CYAN: &str = "\x1b[36m";
-const T_RESET: &str = "\x1b[0m";
-const T_YELLOW: &str = "\x1b[33m";
-const T_RED: &str = "\x1b[31m";
-const T_GREEN: &str = "\x1b[32m";
-const T_BLUE: &str = "\x1b[34m";
-const T_MAGENTA: &str = "\x1b[35m";
-
-pub fn editor_logo() {
-    println!("{}████████        ███████     █       █   ██  ████████        ███████    {}", T_MAGENTA, T_RESET);
-    println!("{}██     ██      ██     ██    ██     ██       ██     ██      ██     ██   {}", T_MAGENTA, T_RESET);
-    println!("{}██      ██    ██       ██    ██   ██    ██  ██      ██    ██       ██  {}", T_MAGENTA, T_RESET);
-    println!("{}██       ██  ██         ██    █████     ██  ██       ██  ██         ██ {}", T_MAGENTA, T_RESET);
-    println!("{}██       ██  █████████████   ██   ██    ██  ██       ██  █████████████ {}", T_MAGENTA, T_RESET);
-    println!("{}██      ██    ██            ██     ██   ██  ██      ██    ██           {}", T_MAGENTA, T_RESET);
-    println!("{}█████████      ██████████   █       █   ██  █████████      ██████████  {}", T_MAGENTA, T_RESET);
-}
-
-fn display_file(file_name: &str) -> io::Result<()> {
-    let file = File::open(file_name)?;
-    let reader = BufReader::new(file);
-
-    for line in reader.lines() {
-        println!("{}", line?);
-    }
-
-    Ok(())
-}
-
 pub fn main() -> io::Result<()> {
     println!("welcome to Dexide!");
-    editor_logo();
+    dexide_lib::editor_logo();
 
-    let mut lines: Vec<String> = Vec::new(); //: [[char; MAX_LINE_LENGTH]; MAX_LINES];
     let mut file_name = String::new();
-    let mut mode_input: String = String::new();
-    let mut line_count: usize = 0;
-
     println!("input file name to edit: ");
     io::stdout().flush()?;
-    io::stdin()
-        .read_line(&mut file_name)
-        .expect("[err]: [failed to read file name]");
-    file_name = file_name.trim().to_string();
+    io::stdin().read_line(&mut file_name)?;
 
-    let file = File::open(&file_name)?;
-    let reader = BufReader::new(file);
+    let file_name = file_name.trim();
 
-    for line in reader.lines() {
-        if line_count >= MAX_LINES {
-            break;
-        }
-        lines.push(line?);
-        line_count += 1;
+    if file_name.is_empty() {
+        eprintln!("{T_RED}[ERROR]: [File name is not be empty!]{T_RESET}");
+        return Ok(());
     }
 
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(file_name)?;
+
+    let reader = BufReader::new(file);
+    let mut lines: Vec<String> = reader.lines().collect::<io::Result<Vec<_>>>()?;
+
     loop {
-        println!("[enter 'w' for input, 'r' for read, 'q' for exit]: ");
+        println!("[w — input the text, r — display the text, s — save, q — save and quit]");
         io::stdout().flush()?;
 
-        mode_input.clear();
-        io::stdin()
-            .read_line(&mut mode_input)
-            .expect("[err]: [failed to read mode]");
-        
-        let mode = mode_input.trim().chars().next().unwrap_or(' ');
-
-        if mode == 'q' {
+        let mut mode_input = String::new();
+        if io::stdin().read_line(&mut mode_input)? == 0 {
+            dexide_lib::save_file(file_name, &lines)?;
             break;
         }
 
-        if mode == 'w' {
-            println!("{}[start input (enter 'E' for exit input)]: \n{}", T_CYAN, T_RESET);
-        
-            while line_count < MAX_LINES {
-                print!("{}: ", line_count + 1);
-                io::stdout().flush()?;
+        match mode_input.trim().chars().next().unwrap_or(' ') {
+            'w' => {
+                println!("{T_CYAN}[MODE]: [Inputing text; input 'E' as a separate line item, to finish]{T_RESET}");
 
-                let mut input_line = String::new();
-                match io::stdin().read_line(&mut input_line) {
-                    Ok(_) => {
-                        input_line = input_line.trim().to_string();
+                loop {
+                    print!("{}: ", lines.len() + 1);
+                    io::stdout().flush()?;
 
-                        if input_line.is_empty() || input_line == "E" {
-                            break;
-                        }
-
-                        lines.push(input_line);
-                        line_count += 1;
-
-                        if line_count >= MAX_LINES {
-                            println!("{}[warn]: [the maximum number of lines has been reached. Complete the entry]{}", T_YELLOW, T_RESET);
-                            break;
-                        }
-                    }
-                    Err(_) => {
-                        eprintln!("{}[err]: [failed to read line.]{}", T_RED, T_RESET);
+                    let mut input_line = String::new();
+                    if io::stdin().read_line(&mut input_line)? == 0 {
                         break;
                     }
-                }
-            }
-        }
 
-        if mode == 'r' {
-            display_file(&file_name)?;
+                    while input_line.ends_with('\n') || input_line.ends_with('\r') {
+                        input_line.pop();
+                    }
+
+                    if input_line == "E" {
+                        break;
+                    }
+
+                    lines.push(input_line);
+
+                    dexide_lib::save_file(file_name, &lines)?;
+                }
+
+                dexide_lib::save_file(file_name, &lines)?;
+            }
+            'r' => dexide_lib::display_lines(&lines),
+            's' => {
+                dexide_lib::save_file(file_name, &lines)?;
+                println!("{T_GREEN}[OK]: [File Saved!]{T_RESET}");
+            }
+            'q' => {
+                dexide_lib::save_file(file_name, &lines)?;
+                println!("{T_GREEN}[OK]: [File Saved!]{T_RESET}");
+                break;
+            }
+            _ => println!("{T_RED}[ERROR]: [unknown command]{T_RESET}"),
         }
     }
 
