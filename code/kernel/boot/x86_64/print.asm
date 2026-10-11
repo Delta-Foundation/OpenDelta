@@ -16,6 +16,45 @@ print_rmode:
     popa 
     ret 
 
+print_hex_word:
+    pusha
+    mov bx, ax
+
+    mov al, bh
+    call print_hex_nibble
+
+    mov al, bl
+    call print_hex_nibble
+
+    popa
+    ret
+
+print_hex_byte:
+    pusha
+    mov ah, 0x0E
+    mov bl, al
+
+    shr al, 4
+    call print_hex_nibble
+
+    mov al, bl
+    and al, 0x0F
+    call print_hex_nibble
+
+    popa
+    ret
+
+print_hex_nibble:
+    cmp al, 9
+    jbe .digit
+    add al, 'A' - 10
+    jmp .print
+.digit:
+    add al, '0'
+.print:
+    int 0x10
+    ret
+
 ; --- Print in 32-bit Protected Mode --- ;
 [bits 32]
 print_pmode:
