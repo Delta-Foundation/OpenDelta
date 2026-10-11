@@ -37,11 +37,26 @@ int main(int argc, char * argv[])
     set_types();
 
     char input[256];
+    char cwd[1024];
+    const char * home = getenv("HOME");
 
     write_logo();
     welcome();
 
     while (true) {
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            if (home != NULL &&
+                strncmp(cwd, home, strlen(home)) == 0 &&
+                (cwd[strlen(home)] == '/' || cwd[strlen(home)] == '\0'
+            )) {
+                printf(T_BLUE "~%s " T_RESET, cwd + strlen(home));
+            }
+        }
+        else {
+            printf(T_BLUE "%s " T_RESET, cwd);
+        }
+
+        printf(T_RED "$ " T_RESET);
         printf("> ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
