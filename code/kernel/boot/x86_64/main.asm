@@ -31,7 +31,8 @@ start:
     xor ecx, ecx 
 
     mov eax, 0x7e00
-    mov bx, loader_file_num_of_blocks
+    mov bx, [loader_file_num_of_blocks]
+    mov ecx, 1
     call bios_extended_read_sectors_from_drive
 
     mov dl, [boot_drive]
