@@ -56,7 +56,7 @@ int display_file(const char *file_name)
     FILE * file = fopen(file_name, "r");
     
     if (file == NULL) {
-        printf(T_RED "[ошибка открытия файла для чтения: %s]\n" T_RESET, file_name);
+        printf(T_RED "[ERROR]: [ошибка открытия файла для чтения: %s]\n" T_RESET, file_name);
         return 0;
     }
 
@@ -86,7 +86,7 @@ void show_this_dir()
         printf(T_CYAN "[текущая папка: '%s']\n" T_RESET, var.cwd);
     }
     else {
-        printf(T_RED "[err]: [удалось определить путь к папке]\n" T_RESET);
+        printf(T_RED "[ERROR]: [ошибка определения пути к папке]\n" T_RESET);
     }
 }
 
