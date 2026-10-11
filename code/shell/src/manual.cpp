@@ -24,7 +24,8 @@ void drawPage(WINDOW * win, int page)
         mvwprintw(win, 2, 1, "dltsh is a minimalist command-line shell written in C."); 
         mvwprintw(win, 3, 1, "It doesn't use GNU utilities; most basic commands are implemented from scratch.");    
         mvwprintw(win, 4, 1, "The entire dltsh project is built using Clang/LLVM. Clang for C/C++ and LLVM as the backend for the Rust compiler");
-        mvwprintw(win, 5, 1, "");
+        mvwprintw(win, 5, 1, "For dltkernel, there is a mini version called dltsh;"); 
+        mvwprintw(win, 6, 1, "      it has very limited set of commands and is, in a sense, based on version v0.0.3, which is already about a year old.");
     }
     else if (page == 1) {
         mvwprintw(win, 1, 1, "Dltsh Manual - Page 2. Commands.");
