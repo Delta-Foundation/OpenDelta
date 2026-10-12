@@ -37,9 +37,11 @@ bios_extended_read_sectors_from_drive:
     mov     si,              bios_dap_read_packet
     mov     byte [si],       0x10
     mov     byte [si + 1],   0
+ 
     mov     word [si + 2],   bx
     mov     word [si + 4],   ax
     mov     word [si + 6],   0x0000
+    
     mov     dword [si + 8],  ecx
     mov     dword [si + 12], 0
 
