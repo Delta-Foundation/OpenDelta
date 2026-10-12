@@ -19,7 +19,7 @@ _start:
     mov ds, ax 
     mov es, ax 
     mov ss, ax 
-    mov sp, 0x7e00
+    mov sp, loader_stage2_stack_top
     
     mov [boot_drive], dl 
 
@@ -48,7 +48,7 @@ protected_mode:
     mov fs, ax 
     mov gs, ax 
     mov ss, ax 
-    mov sp, 0x7E00
+    mov sp, loader_stage2_stack_top
 
     call retrive_video_cursor_settings
     
@@ -67,12 +67,12 @@ long_mode:
     mov fs, ax 
     mov gs, ax 
     mov ss, ax 
-    mov rsp, 0x10000
+    mov rsp, 0x000010000
 
     mov rax, str_64_bit_start 
     call print_lmode
 
     ; jmp kernel_new_start_virt + kernel_new_elf_text_header_offset
-    jmp 0x10000
+    jmp 0x000010000
 
 times (loader_file_num_of_blocks * 512) - ($ - $$) db 0
