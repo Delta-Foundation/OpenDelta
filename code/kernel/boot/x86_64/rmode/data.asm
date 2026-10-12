@@ -7,6 +7,8 @@ bios_disk_status: db 0
 align 4, db 0
 bios_dap_read_packet:       times 16 db 0
 loader_file_num_of_blocks:  equ 5
+loader_stage1_stack_top:    equ 0x00007c00
+loader_stage2_stack_top:    equ 0x00007e00
 str_stage1:       db "[DBL]: STAGE 1", 13, 10, 0
 str_16_loading:   db "[DBL 16]: Loading second stage of boot...", 13, 10, 0
 ;str_16_loaded:    db "[DBL 16]: Stage 2 loaded at 0x7E00", 13, 10, 0
