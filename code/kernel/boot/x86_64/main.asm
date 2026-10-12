@@ -8,12 +8,11 @@ jmp start
 %include "boot/x86_64/rmode/functions.asm"
 
 start:
+    cli
     xor ax, ax 
     mov ds, ax 
     mov es, ax 
-    mov bx, 0x7c00 
-
-    cli 
+    mov bx, loader_stage1_stack_top
 
     mov ss, ax 
     mov sp, ax 
@@ -30,14 +29,14 @@ start:
     xor ebx, ebx 
     xor ecx, ecx 
 
-    mov eax, 0x7e00
+    mov eax, loader_stage2_stack_top
     mov bx, [loader_file_num_of_blocks]
     mov ecx, 1
     call bios_extended_read_sectors_from_drive
 
     mov dl, [boot_drive]
 
-    jmp 0:0x7e00
+    jmp 0:loader_stage2_stack_top
 
     jmp endless_loop
 
