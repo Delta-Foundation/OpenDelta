@@ -27,10 +27,13 @@ loader_file_num_of_blocks:    equ 5
 kernel_file_num_of_blocks:    equ 152 
 user_prog_file_num_of_blocks: equ 127
 
-e820_mem_start:      equ (0x7E00 + loader_file_num_of_blocks * 512)
+loader_stage1_stack_top:    equ 0x00007c00
+loader_stage2_stack_top:    equ 0x00007e00
+
+e820_mem_start:      equ (loader_stage2_stack_top + loader_file_num_of_blocks * 512)
 e820_mem_end:        equ (e820_mem_start + 4 * 512) 
 
-loader_kernel_start:     equ e820_mem_end
+loader_kernel_start:     equ 0x00001000
 loader_kernel_end:       equ (loader_kernel_start + kernel_file_num_of_blocks * 512)
 
 loader_user_prog_start:  equ loader_kernel_end
