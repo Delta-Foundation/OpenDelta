@@ -1,6 +1,6 @@
 %include "tools/fat/asm/macros.asm"
 
-RM_STACK_TOP equ 0x7C00
+RM_STACK_TOP equ 0x00007C00
 
 OP_DISK_GET_DRIVE_PARAMS equ 0
 OP_DISK_RESET            equ 1
