@@ -26,6 +26,10 @@ void drawPage(WINDOW * win, int page)
         mvwprintw(win, 4, 1, "The entire dltsh project is built using Clang/LLVM. Clang for C/C++ and LLVM as the backend for the Rust compiler");
         mvwprintw(win, 5, 1, "For dltkernel, there is a mini version called dltsh;"); 
         mvwprintw(win, 6, 1, "      it has very limited set of commands and is, in a sense, based on version v0.0.3, which is already about a year old.");
+        mvwprintw(win, 8, 1, "More or less up-to-date versions: ");
+        mvwprintw(win, 9, 1, "1: v0.0.12-c download from https://gitea.com/deltaqxq/OpenDelta.git;");
+        mvwprintw(win, 10, 1, "2: v0.0.13-c download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
+        mvwprintw(win, 11, 1, "3 (latest): v0.0.14-d download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
     }
     else if (page == 1) {
         mvwprintw(win, 1, 1, "Dltsh Manual - Page 2. Commands.");
