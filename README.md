@@ -6,20 +6,25 @@
 ------------------------------------------------------------------
 
 # Версии утилит и программ в OpenDelta.
-* OpenDelta: v0.1-a (Hren)
+* OpenDelta: v0.1-a
 * dltkernel: v0.0.9-a 
-* dltsh: v0.0.14-d (Jija)
+* dltsh: v0.0.14-d 
 
 ------------------------------------------------------------------
 
 # Запуск и сборка из исходников.
 
-## Запуск готового бинаря релиза.
+## Запуск готового бинаря из релиза.
 ### Ставим git и виртулаку QMEU:
 
 ```
 # arch
 sudo pacman -S wget git qemu-system-x86 qemu-system-x86-firmware qemu-img qemu-base qemu-desktop
+```
+
+``` 
+# FreeBSD (doas вместо sudo). clang компилятор и llvm инструменты установлены в системе по умолчанию.
+doas pkg install wget qemu nasm git gmake
 ```
 
 ``` 
@@ -41,13 +46,17 @@ qemu-system-x86_64 -drive format=raw,file=open-delta-unix.img,media=disk,if=ide 
 
 ## Сборка из исходников. 
 ### Если вы попробовали предыдущий пункт, то вам надо поставить лишь nasm, clang, llvm и lld.
-### Единственное пока не пробуйте собирать ветку `master-x86-64`. Там я пока ещё два файла правлю ассемблернных.
-### Поэтому будем собирать ветку `master-i386`. 
-### Ставим зависимости (и обязательно для начало повторяем установку зависимостей из первого пункта):
+### Можно скачать ветку `master-x86-64`, а можно и `master-i386`. Последняя пока не обновляется.
+### Скачаем лучше `master-i386`.
 
 ``` 
 # arch 
 sudo pacman -S clang lld llvm nasm
+```
+
+``` 
+# FreeBSD (doas вместо sudo). clang компилятор и llvm инструменты установлены в системе по умолчанию. gmake для сборки вместо BSD Make.
+doas pkg install nasm gmake
 ```
 
 ``` 
@@ -60,11 +69,14 @@ sudo xbps-install -S clang nasm llvm ld.lld
 sudo apt install nasm clang llvm lld
 ```
 
-### Качаем репозиторий (ветка `master-i386`):
+### Качаем репозиторий (ветка `master-i386`, но можно также `master-x86-64`):
 `git clone -b master-i386 https://github.com/Delta-Foundation/OpenDelta.git`
 
 ### Переходим в папку я ядром, создаём две необходимые папки и запускаем сборку ядра:
 `cd ~/OpenDelta/code/kernel && mkdir img/ && mkdir obj/ && make`
+
+### На FreeBSD придётся ставить также gmake как было сказано выше.
+`cd ~/OpenDelta/code/kernel && mkdir img/ && mkdir obj/ && gmake`
 
 --------------------------------------------------------------------------
 
@@ -74,6 +86,11 @@ sudo apt install nasm clang llvm lld
 ``` 
 # arch 
 sudo pacman -S clang ncurses rustc cargo
+```
+
+``` 
+# FreeBSD
+doas pkg install ncurses ncurses-devel rust rustup-init
 ```
 
 ``` 
@@ -89,14 +106,18 @@ sudo apt install clang ncurses-base rustc cargo
 ### Если репоизторий уже скачан то остаётся перейти в папку `shell`:
 `cd ~/OpenDelta/code/shell && mkdir bin/ && make & make run`
 
+```
+# FreeBSD
+cd ~/OpenDelta/code/shell && mkdir bin/ && gmake & gmake run
+```
+
 ### Длинная команда сверху переходит в нужную папку, создаёт папку для бинарей и запускает сборку.
 
 ------------------------------
 
 # Авторы
-* ### Главный разработчик и можно сказать создатель OpenDelta: это я - deltadev-rsc (deltaqxq)
-* ### Sharkobaton: Второй разраб на котором лежит редакция опендельты с линукс ядром.
-* ### KOER31: Третий (не лишний) разработчик который будет делать DE ну или же графическую оболочку, а также много всяких прикольных утилит.
+* ### Главный разработчик и можно сказать создатель OpenDelta: это я - viadev0081.
+### А больше и всё. никого нет.
 
 -------------------------------
 
