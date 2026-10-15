@@ -18,19 +18,26 @@ void drawPage(WINDOW * win, int page)
 
     werase(win);
     box(win, 0, 0);
-    
+
     if (page == 0) {
-        mvwprintw(win, 1, 1, "Dltsh Manual - Page 1. Information about dltsh.");
-        mvwprintw(win, 2, 1, "dltsh is a minimalist command-line shell written in C."); 
-        mvwprintw(win, 3, 1, "It doesn't use GNU utilities; most basic commands are implemented from scratch.");    
-        mvwprintw(win, 4, 1, "The entire dltsh project is built using Clang/LLVM. Clang for C/C++ and LLVM as the backend for the Rust compiler");
-        mvwprintw(win, 5, 1, "For dltkernel, there is a mini version called dltsh;"); 
-        mvwprintw(win, 6, 1, "      it has very limited set of commands and is, in a sense, based on version v0.0.3, which is already about a year old.");
-        mvwprintw(win, 8, 1, "More or less up-to-date versions: ");
-        mvwprintw(win, 9, 1, "1: v0.0.12-c download from https://gitea.com/deltaqxq/OpenDelta.git;");
-        mvwprintw(win, 10, 1, "2: v0.0.13-c download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
-        mvwprintw(win, 11, 1, "3 (latest): v0.0.14-d download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
-    }
+        mvwprintw(win, 1, 1,  "Dltsh Manual - Page 1. Information about dltsh.");
+        mvwprintw(win, 2, 1,  "dltsh is a minimalist command-line shell written in C.");
+        mvwprintw(win, 3, 1,  "It doesn't use GNU utilities; most basic commands are implemented from scratch.");
+        mvwprintw(win, 4, 1,  "The entire dltsh project is built using Clang/LLVM. Clang for C/C++ and LLVM as the backend for the Rust compiler");
+        mvwprintw(win, 5, 1,  "For dltkernel, there is a mini version called dltsh;");
+        mvwprintw(win, 6, 1,  "      it has very limited set of commands and is, in a sense, based on version v0.0.3, which is already about a year old.");
+        mvwprintw(win, 8, 1,  "More or less up-to-date versions: ");
+        mvwprintw(win, 9, 1,  "     1: v0.0.12-c download from https://gitea.com/deltaqxq/OpenDelta.git;");
+        mvwprintw(win, 10, 1, "     2: v0.0.13-c download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
+        mvwprintw(win, 11, 1, "     3 (latest): v0.0.14-d download from https://github.com/Delta-Foundation/OpenDelta.git. FROM RELEASES!!");
+        mvwprintw(win, 13, 1, "Simply put, dltsh is the real deal when it comes to ANTIGNU software.");
+        mvwprintw(win, 15, 1, "       ___  ___                        _--------/ _-------/");
+        mvwprintw(win, 16, 1, "      /  /  \\  \\                       -_ LLVM / -_ Musl /");
+        mvwprintw(win, 17, 1, "     /  /    \\  \\     ANTIGNU ACTION     -----/    -----/");
+        mvwprintw(win, 18, 1, "    /  /  /\\  \\  \\                           /         /");
+        mvwprintw(win, 19, 1, "   /  /  /  \\  \\  \\                         /         /");
+        mvwprintw(win, 20, 1, "  /__/  /____\\  \\_/                        /         /");
+    } 
     else if (page == 1) {
         mvwprintw(win, 1, 1, "Dltsh Manual - Page 2. Commands.");
         mvwprintw(win, 2, 1,
