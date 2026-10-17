@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C/C++ CI for build dltsh
 
 on:
   push:
@@ -15,10 +15,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: install-dependencies
       run: sudo apt install nasm clang llvm lld qemu-system-x86 libncurses-dev rustc cargo -y
-
-    - name: build-kernel
-      run: make -C code/kernel
-      working-directory: ./
 
     - name: build-shell
       run: make -C code/shell
