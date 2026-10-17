@@ -17,5 +17,11 @@ jobs:
       run: sudo apt install nasm clang llvm lld qemu-system-x86 libncurses-dev rustc cargo -y
 
     - name: build-shell
-      run: [ -d ./code/shell/bin ] && make -C code/shell || mkdir -p ./code/shell/bin/ && make -C code/shell
-      working-directory: ./
+      run: |
+        if [ -d "bin" ]; then
+            make
+        else
+            mkdir -p bin/
+            make
+        fi
+      working-directory: ./code/shell
