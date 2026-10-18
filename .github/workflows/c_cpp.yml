@@ -19,7 +19,9 @@ jobs:
         sudo apt install nasm clang llvm lld qemu-system-x86 libncurses-dev rustc cargo -y
 
     - name: build-kernel
-      run: make
+      run: |
+        mkdir -p img obj && make
+
       working-directory: ./code/kernel
 
     - name: build-shell
@@ -30,4 +32,5 @@ jobs:
             mkdir -p bin/
             make
         fi
+
       working-directory: ./code/shell
