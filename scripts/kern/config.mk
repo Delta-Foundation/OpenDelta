@@ -1,5 +1,5 @@
-include ~/OpenDelta/scripts/kern/make/binaries.mk
-include ~/OpenDelta/scripts/kern/make/binaries.mk
+include ../../scripts/kern/make/binaries.mk
+include ../../scripts/kern/make/sources.mk
 
 # asm translator
 AS=nasm
