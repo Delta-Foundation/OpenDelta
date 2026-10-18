@@ -1,9 +1,10 @@
-include ~/OpenDelta/scripts/kern/make/binaries.mk
-include ~/OpenDelta/scripts/kern/make/sources.mk
-include ~/OpenDelta/scripts/kern/config.mk
+include ../../scripts/kern/make/binaries.mk
+include ../../scripts/kern/make/sources.mk
+include ../../scripts/kern/config.mk
 
 all: 
-	$(MAKE) $(BOOT)
+	$(MAKE) $(BOOT_MAIN)
+	$(MAKE) $(BOOT_STAGE2)
 	$(MAKE) $(KERNEL_ELF)
 	$(MAKE) $(IMG)
 
