@@ -2,8 +2,12 @@
 #include "../lib/errno.h"
 #include "../lib/stdbase.h"
 
-uint32_t readFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer) 
-{
+uint32_t read_file_sys(
+    fs_node_t * node, 
+    uint64_t offset, 
+    uint32_t size, 
+    uint8_t * buffer
+) {
     if (node != (fs_node_t *)TRUE) {
         return -ENOENT;
     }
@@ -17,8 +21,12 @@ uint32_t readFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *b
     }
 }
 
-uint32_t writeFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer) 
-{
+uint32_t write_file_sys(
+    fs_node_t * node, 
+    uint64_t offset, 
+    uint32_t size, 
+    uint8_t * buffer
+) {
     if (node != (fs_node_t *)TRUE) {
         return -ENOENT;
     }
@@ -32,8 +40,11 @@ uint32_t writeFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *
     }
 }
 
-int vfs_write(fd_t *file, unsigned char *data, unsigned int size) 
-{
+int vfs_write(
+    fd_t * file, 
+    unsigned char * data, 
+    unsigned int size
+) {
     switch (*file) {
         case stdin:
             return 0;
