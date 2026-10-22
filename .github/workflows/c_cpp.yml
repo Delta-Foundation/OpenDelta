@@ -1,4 +1,4 @@
-name: C/C++ CI for build dltsh and dltkernel
+name: C/C++ CI for build dltsh
 
 on:
   push:
@@ -17,12 +17,6 @@ jobs:
       run: |
         sudo apt update
         sudo apt install nasm clang llvm lld qemu-system-x86 libncurses-dev rustc cargo -y
-
-    - name: build-kernel
-      run: |
-        mkdir -p img obj && make
-
-      working-directory: ./code/kernel
 
     - name: build-shell
       run: |
