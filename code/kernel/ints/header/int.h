@@ -1,7 +1,7 @@
 #ifndef INT_H
 #define INT_H
 
-#include "../../lib/types.h"
+#include "../../libc/include/types.h"
 
 boolean are_ints_enabled(void);
 
