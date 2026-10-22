@@ -1,6 +1,6 @@
-#include "../lib/idt.h"
-#include "../lib/isr.h"
-#include "../lib/pic.h"
+#include "../kernel-lib/idt.h"
+#include "../kernel-lib/isr.h"
+#include "../kernel-lib/pic.h"
 #include "../arch/gdt/gdt.h"
 
 void hal_init(void) {
