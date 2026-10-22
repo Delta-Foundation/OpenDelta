@@ -1,8 +1,8 @@
-#include "../lib/ports.h"
-#include "../lib/screen.h"
-#include "../lib/stdbase.h"  
+#include "../kernel-lib/ports.h"
+#include "../kernel-lib/screen.h"
+#include "../libc/include/stdbase.h"  
 
-unsigned char portByteIn(unsigned short port)
+unsigned char port_byte_in(unsigned short port)
 {
 	unsigned char result;
 	
@@ -10,26 +10,27 @@ unsigned char portByteIn(unsigned short port)
 	return result;
 }
 
-void portByteOut(unsigned int port, unsigned char data)
+void port_byte_out(unsigned int port, unsigned char data)
 {
 	__asm__("out %%al, %%dx" : : "a" (data), "d" (port));
 }
 
-unsigned short portWordIn(uint16_t port)
+unsigned short port_word_in(uint16_t port)
 {
 	uint16_t result;
 	__asm__ ("in %%dx, %%ax" : "=a" (result) : "d" (port));
 	return result;
 }
 
-void portWordOut(uint16_t port, uint16_t data)
+void port_word_out(uint16_t port, uint16_t data)
 {
 	__asm__ volatile("out %%ax, %%dx" : : "a" (data), "d" (port));
 }
 
-void APMInterfaceInit(void)
+void APM_interface_init(void)
 {
-	__asm__("mov $0x53, %ah\n\t" 		// Check if APM is supported
+	__asm__ (
+		"mov $0x53, %ah\n\t" 		// Check if APM is supported
 		"mov $0x00, %ah\n\t"       
 		"xor %bx, %bx\n\t"          
 		"int $0x15\n\t"
@@ -58,7 +59,8 @@ void APMInterfaceInit(void)
 		"mov $0x0003, %cx\n\t"  
 		"int $0x15\n\t"
 		"jc  APM_Error\n\t"
-		"jmp No_Error");
+		"jmp No_Error"
+	);
 
 	__asm__("APM_Error:");
 	prints("APM Error", 0x07);
@@ -69,3 +71,4 @@ void APMInterfaceInit(void)
 	__asm__("No_Error:");	
 	return;
 }
+
