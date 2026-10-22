@@ -1,11 +1,11 @@
-#include "../lib/isr.h"
-#include "../lib/idt.h"
-#include "../lib/stdbase.h"
-#include "../lib/pic.h"
+#include "../kernel-lib/isr.h"
+#include "../kernel-lib/idt.h"
+#include "../kernel-lib/pic.h"
+#include "../libc/include/stdbase.h"
 
 isr_t interrupt_handlers[IDT_SIZE] = { 0 };
 isr_t irq_handlers[16];
-static const pic_driver_t* g_driver = NULL;
+static const pic_driver_t * g_driver = NULL;
 
 void install_isr_and_irq(void)
 {
@@ -62,7 +62,7 @@ void install_isr_and_irq(void)
     set_idt_gate(47, (uint64_t)irq15, 0x08, 0x8E);
 }
 
-char *exception_messages[] =
+char * exception_messages[] =
 {
 	    "Division By Zero",
     	"Debug",
