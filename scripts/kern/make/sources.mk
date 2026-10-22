@@ -26,11 +26,14 @@ PROC_SRC = syscall/proc.c
 FS_SRC = fs/fs.c
 LIST_SRC = fs/list.c
 PIPE_SRC = fs/pipe.c
-STDBASE_SRC = lib/source/stdbase.c
-STDLIB_SRC = lib/source/stdlib.c
-CTYPE_SRC = lib/source/ctype.c
-TYPES_SRC = lib/source/types.c
-STRING_SRC = lib/source/string.c
+
+# dltlibc
+STDBASE_SRC = libc/src/stdbase/alloc.c libc/src/stdbase/base.c libc/src/stdbase/files.c libc/src/stdbase/input-output.c
+STDLIB_SRC = libc/src/stdlib/stdlib.c
+CTYPE_SRC = libc/src/ctype/ctype.c 
+TYPES_SRC = libc/src/types/types.c 
+STRING_SRC = libc/src/string/string.c
+
 TTY_SRC = tty/tty.c
 MIN_DLTSH_SRC = tty/min_dltsh.c
 TOOLS_SRC = tools/fat/asm/tools.asm
