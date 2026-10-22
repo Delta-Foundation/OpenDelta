@@ -31,6 +31,19 @@ int process_create(void (* entry)(), void * stack) {
     return process->pid;
 }
 
+void set_process_environment(
+    sys_process_t * process,
+    page_dir_t * dir
+) {
+    if (process == NULL || dir == NULL) {
+        prints("[ERROR]: set_process_environment: invalid arguments\n", RED);
+        return;
+    }
+
+    process->theard.page_dir = dir;
+    current_dir = dir;
+}
+
 void switch_context(
     proc_context_t * old, 
     proc_context_t * new
@@ -86,3 +99,4 @@ sys_process_t * spawn_KIdle(void) {
     memset(idle, 0x00, sizeof(sys_process_t));
     return idle;
 }
+
