@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/local/bin/bash
 
 cd ~/OpenDelta/code/kernel/
 
@@ -7,6 +7,7 @@ source ~/OpenDelta/scripts/kern/sh/binaries.sh
 function clean {
     echo "clean .obj binaries"
     rm -f "${OBJS[@]}"
+    find libc -name "*.o" -delete
 
     echo "clean kernel.map"
     rm -f kernel.map
