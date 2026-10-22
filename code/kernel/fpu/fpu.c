@@ -1,12 +1,12 @@
 #include "fpu.h"
-#include "../lib/isr.h"
-#include "../lib/system.h"
+#include "../kernel-lib/isr.h"
+#include "../kernel-lib/system.h"
 #include "../mem/header/memory.h"
 
 #define NO_LAZY_FPU
 
-sys_process_t *fpu_thread = NULL;
-sys_process_t *current_proc = NULL;
+static sys_process_t * fpu_thread = NULL;
+static sys_process_t * current_process = NULL;
 
 void set_fpu_cw(const uint16_t cw) {
     __asm__ volatile ("fldcw %0" :: "m"(cw));
@@ -52,7 +52,7 @@ void init_fpu(void) {
 void invalid_op(void) 
 {
     enable_fpu();
-    if (fpu_thread == current_proc) {
+    if (fpu_thread == current_process) {
         return;
     }
 
@@ -60,7 +60,7 @@ void invalid_op(void)
         save_fpu(fpu_thread);
     }
 
-    fpu_thread = (sys_process_t *)current_proc;
+    fpu_thread = (sys_process_t *)current_process;
     if (!fpu_thread->theard.fpu_enabled) {
         init_fpu();
         fpu_thread->theard.fpu_enabled = 1;
@@ -72,7 +72,7 @@ void invalid_op(void)
 
 void switch_fpu(void) {
     #ifdef NO_LAZY_FPU
-        save_fpu((sys_process_t *)current_proc);
+        save_fpu((sys_process_t *)current_process);
     #else
         disable_fpu();
     #endif
@@ -80,7 +80,7 @@ void switch_fpu(void) {
 
 void unswitch_fpu(void) {
     #ifdef NO_LAZY_FPU
-        restore_fpu((sys_process_t *)current_proc);
+        restore_fpu((sys_process_t *)current_process);
     #endif
 }
 
@@ -88,7 +88,7 @@ void fpu_install(void) {
     #ifdef NO_LAZY_FPU
         enable_fpu();
         init_fpu();
-        save_fpu((void *)current_proc);
+        save_fpu((void *)current_process);
     #else 
         enable_fpu();
         disable_fpu();
