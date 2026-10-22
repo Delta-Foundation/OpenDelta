@@ -42,6 +42,7 @@ ELF = obj/elf.o
 MBR = obj/mbr.o 
 DISK = obj/disk.o
 TOOLS = obj/tools_asm.o
+CINIT = obj/cinit.o 
 
 # .obj for .elf kernel binary 
 OBJS = $(ENTRY) \
@@ -80,4 +81,5 @@ OBJS = $(ENTRY) \
 	   $(ELF) \
 	   $(MBR) \
 	   $(DISK) \
-	   $(TOOLS)
+	   $(TOOLS) \
+	   $(CINIT)
