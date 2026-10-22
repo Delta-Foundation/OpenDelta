@@ -12,9 +12,9 @@ OBJCOPY = llvm-objcopy
 
 # Compiler flags for build on i386
 FLAGS = --target=x86_64-unknown-elf -m64 -std=c17 \
-		-ffreestanding -nostdlib \
-		-fno-builtin -fno-stack-protector -nodefaultlibs \
-        -O2 -g -Wall
+	-ffreestanding -nostdlib \
+	-fno-builtin -fno-stack-protector -nodefaultlibs \
+        -O2 -g -Wall -I~/OpenDelta/code/kernel/libc/include
 
 # Linker flags 
 LD_FLAGS = -z noexecstack -T link64.ld -Map kernel.map
@@ -28,4 +28,3 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -d int,cpu_reset \
 			 -no-reboot -no-shutdown \
              -display gtk,full-screen=off,gl=off,show-cursor=on
-
