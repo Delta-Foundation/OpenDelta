@@ -1,5 +1,5 @@
-#include "../lib/pic.h"
-#include "../lib/stdbase.h"
+#include "../kernel-lib/pic.h"
+#include "../libc/include/stdbase.h"
 
 void iowait(void) {
     outb(UNUSED_PORT, 0);
