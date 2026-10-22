@@ -3,33 +3,31 @@
 #include "../mem/header/memory.h"
 #include "../lib/screen.h"
 
-int getOffset(int col, int row);
-int getOffsetRow(int offset);
-int getOffsetCol(int offset);
-int getCursorOffset(void);
-void setCursorOffset(int offset);
-
-int printChar(char c, int col, int row, Colors color)
-{
-    unsigned char *vidmem = (unsigned char *)0xb8000;
+int print_char(
+    char c,
+    int col, 
+    int row, 
+    Colors color
+) {
+    unsigned char * vidmem = (unsigned char *)0xb8000;
 
     if (col >= COLUMNS_IN_LINE || row >= LINES) {
         vidmem[2 * (COLUMNS_IN_LINE) * (LINES) - 2] = 'E';
         vidmem[2 * (COLUMNS_IN_LINE) * (LINES) - 1] = color;
-        return getOffset(col, row);
+        return get_offset(col, row);
     }
    
     int offset;
     if (col >= 0 && row >= 0) {
-        offset = getOffset(col, row);
+        offset = get_offset(col, row);
     }
     else {
-        offset = getCursorOffset();
+        offset = get_cursor_offset();
     }
 
     if (c == '\n') {
-        row = getOffsetRow(offset);
-        offset = getOffset(0, row + 1);
+        row = get_offset_row(offset);
+        offset = get_offset(0, row + 1);
     }
     else if (c == 0x08) {
         vidmem[offset] = ' ';
@@ -44,13 +42,15 @@ int printChar(char c, int col, int row, Colors color)
     if (offset >= LINES * COLUMNS_IN_LINE * 2) {
         int i;
         for (i = 1; i < LINES; i++) {
-           memoryCopy((unsigned char*)(getOffset(0, i) + vidptr),
-                (unsigned char*)(getOffset(0, i - 1) + vidptr),
-                COLUMNS_IN_LINE * 2);
+           memory_copy(
+                (unsigned char*)(get_offset(0, i) + vidptr),
+                (unsigned char*)(get_offset(0, i - 1) + vidptr),
+                COLUMNS_IN_LINE * 2
+            );
             
         }
 
-        char *lastLine = (char *) (getOffset(0, LINES - 1) + (unsigned char*) vidptr);
+        char *lastLine = (char *) (get_offset(0, LINES - 1) + (unsigned char*) vidptr);
         for (i = 0; i < COLUMNS_IN_LINE * 2; i++) {
             lastLine[i] = 0;
         }
@@ -58,46 +58,50 @@ int printChar(char c, int col, int row, Colors color)
         offset -= 2 * COLUMNS_IN_LINE;
     }
 
-    setCursorOffset(offset);
+    set_cursor_offset(offset);
     return offset;
 }
 
-void kprint_at(const char *fmt, int col, int row, uint32_t color) 
-{
+static void kprint_at(
+    const char * fmt, 
+    int col, 
+    int row, 
+    uint32_t color
+) {
     int offset;
     if (col >= 0 && row >= 0) {
-        offset = getOffset(col, row);
+        offset = get_offset(col, row);
     }
     else {
-        offset = getCursorOffset();
-        row = getOffsetRow(offset);
-        col = getOffsetCol(offset);
+        offset = get_cursor_offset();
+        row = get_offset_row(offset);
+        col = get_offset_col(offset);
     }
 
     int i = 0;
     while (fmt[i] != 0) {
-        offset = printChar(fmt[i++], col, row, color);
-        row = getOffsetRow(offset);
-        col = getOffsetCol(offset);
+        offset = print_char(fmt[i++], col, row, color);
+        row = get_offset_row(offset);
+        col = get_offset_col(offset);
     }
 }
 
-void kprint(const char *fmt, uint32_t color, ...) {
+void kprint(const char * fmt, uint32_t color, ...) {
     kprint_at(fmt, -1, -1, color);
-} 
+}
 
 void kprintln(void) {
     kprint_at("\n", -1, -1, 0xFF);
 }
 
 void kprintb(void) {
-    int offset = getCursorOffset() - 2;
-    int row = getOffsetRow(offset);
-    int col = getOffsetCol(offset);
-    printChar(0x08, col, row, 0x0F);
+    int offset = get_cursor_offset() - 2;
+    int row = get_offset_row(offset);
+    int col = get_offset_col(offset);
+    print_char(0x08, col, row, 0x0F);
 }
 
-void clearScreen(void)
+void clear_screen(void)
 {
     unsigned int i = 0;
     while (i < SCREENSIZE) {
@@ -105,35 +109,35 @@ void clearScreen(void)
         vidptr[i++] = 0x07;
     }
 
-    setCursorOffset(getOffset(0, 0));
+    set_cursor_offset(get_offset(0, 0));
 }
 
-int getOffset(int col, int row) {
+int get_offset(int col, int row) {
     return 2 * (row * COLUMNS_IN_LINE + col);
 }
 
-int getOffsetRow(int offset) {
+int get_offset_row(int offset) {
     return offset / (2 * COLUMNS_IN_LINE);
 }
 
-int getOffsetCol(int offset) {
-    return (offset - (getOffsetRow(offset) * 2 * COLUMNS_IN_LINE)) / 2;
+int get_offset_col(int offset) {
+    return (offset - (get_offset_row(offset) * 2 * COLUMNS_IN_LINE)) / 2;
 }
 
-int getCursorOffset(void) {
-    portByteOut(REG_SCREEN_CTRL, 14);
-    int offset = portByteIn(REG_SCREEN_DATA) << 8;
-    portByteOut(REG_SCREEN_CTRL, 15);
-    offset += portByteIn(REG_SCREEN_DATA);
+int get_cursor_offset(void) {
+    port_byte_out(REG_SCREEN_CTRL, 14);
+    int offset = port_byte_in(REG_SCREEN_DATA) << 8;
+    port_byte_out(REG_SCREEN_CTRL, 15);
+    offset += port_byte_in(REG_SCREEN_DATA);
     return offset * 2;
 }
 
-void setCursorOffset(int offset) {
+void set_cursor_offset(int offset) {
     offset /= 2;
-    portByteOut(REG_SCREEN_CTRL, 14);
-    portByteOut(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
-    portByteOut(REG_SCREEN_CTRL, 15);
-    portByteOut(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
+    port_byte_out(REG_SCREEN_CTRL, 14);
+    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
+    port_byte_out(REG_SCREEN_CTRL, 15);
+    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
 }
 
 void delay(void) {
