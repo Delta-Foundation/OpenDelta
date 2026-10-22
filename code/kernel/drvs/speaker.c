@@ -1,5 +1,5 @@
-#include "../lib/stdbase.h"
-#include "../lib/system.h"
+#include "../libc/include/stdbase.h"
+#include "../kernel-lib/system.h"
 
 void play_sound(unsigned int nfreq)
 {
