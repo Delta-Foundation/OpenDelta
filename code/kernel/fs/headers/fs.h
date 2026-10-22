@@ -2,9 +2,9 @@
 #define DLTFS_H
 
 /*---includes---*/
-#include "../../lib/types.h"
-#include "../../lib/string.h"
-#include "../../lib/stdbase.h"
+#include "../../libc/include/types.h"
+#include "../../libc/include/string.h"
+#include "../../libc/include/stdbase.h"
 
 #pragma once
 
