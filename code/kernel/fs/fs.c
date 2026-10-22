@@ -1,6 +1,6 @@
 #include "./headers/fs.h"
-#include "../lib/errno.h"
-#include "../lib/stdbase.h"
+#include "../libc/include/errno.h"
+#include "../libc/include/stdbase.h"
 
 uint32_t read_file_sys(
     fs_node_t * node, 
