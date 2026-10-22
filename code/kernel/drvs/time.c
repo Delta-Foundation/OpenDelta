@@ -1,6 +1,6 @@
-#include "../lib/time.h"
-#include "../lib/types.h"
-#include "../lib/ports.h"
+#include "../kernel-lib/time.h"
+#include "../kernel-lib/ports.h"
+#include "../libc/include/types.h"
 
 #define from_bcd(val) ((val / 16) * 10 + (val & 0xf))
 
