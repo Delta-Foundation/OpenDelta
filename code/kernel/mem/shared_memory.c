@@ -1,18 +1,18 @@
-#include "../lib/screen.h"
-#include "../lib/system.h"
-#include "../lib/stdbase.h" 
+#include "../kernel-lib/screen.h"
+#include "../kernel-lib/system.h"
+#include "../libc/include/stdbase.h" 
 
-tree_t *treeCreate(void) {
-    tree_t *out = kmalloc(sizeof(tree_t), 0, (unsigned int *)&out);
+tree_t * tree_create(void) {
+    tree_t * out = kmalloc(sizeof(tree_t), 0, (unsigned int *)&out);
     out->nodes = 0;
     out->root = NULL;
     return out;
 }
 
-tree_node_t *treeNodeCreate(void *value) {
-    tree_node_t *out = kmalloc(sizeof(tree_node_t), 0, (unsigned int *)&out);
+tree_node_t * tree_node_create(void * value) {
+    tree_node_t * out = kmalloc(sizeof(tree_node_t), 0, (unsigned int *)&out);
     out->value = value;
-    out->children = listCreate();
+    out->children = list_create();
     out->parent = NULL;
     out->word = NULL;
     out->count = 0;
@@ -21,16 +21,17 @@ tree_node_t *treeNodeCreate(void *value) {
     return out;
 }
 
-void treeSetRoot(tree_t *tree, void *value) {
-    tree_node_t *root = treeNodeCreate(value);
+void tree_set_root(tree_t * tree, void * value) {
+    tree_node_t * root = tree_node_create(value);
     tree->root = root;
     tree->nodes = 1;
 }
 
-void shmInstall(void) {
-    tree_t *shmTree = NULL;
+void shm_install(void) {
+    tree_t * shm_tree = NULL;
     
     prints("[info]: installing shared memory layer...\n", WHITE);
-    shmTree = treeCreate();
-    treeSetRoot(shmTree, NULL);
+    shm_tree = tree_create();
+    tree_set_root(shm_tree, NULL);
 }
+
