@@ -1,5 +1,5 @@
 #include "./header/int.h"
-#include "../lib/types.h"
+#include "../libc/include/types.h"
 
 boolean are_ints_enabled(void) {
     unsigned long flags;
