@@ -9,28 +9,28 @@
 #include "../lib/mouse.h"
 #include "../lib/screen.h"
 
-uint8_t mouse_cycle = 0;
-int8_t mouse_byte[3];
-int8_t mouse_x = 0;
-int8_t mouse_y = 0;
+static uint8_t mouse_cycle = 0;
+static int8_t mouse_byte[3];
+static int8_t mouse_x = 0;
+static int8_t mouse_y = 0;
 
-fs_node_t *mouse_pipe;
+static fs_node_t * mouse_pipe;
 
-void mouse_handler(isr_t *a_r) 
+void mouse_handler(isr_t * a_r) 
 {
     switch (mouse_cycle) {
         case 0:
-            mouse_byte[0] = portByteIn(MOUSE_PORT);
+            mouse_byte[0] = port_byte_in(MOUSE_PORT);
             mouse_cycle++;
         break;
         
         case 1:
-            mouse_byte[1] = portByteIn(MOUSE_PORT);
+            mouse_byte[1] = port_byte_in(MOUSE_PORT);
             mouse_cycle++;
         break; 
 
         case 2:
-           mouse_byte[2] = portByteIn(MOUSE_PORT);
+           mouse_byte[2] = port_byte_in(MOUSE_PORT);
 
             if (mouse_byte[0] & 0x80 || mouse_byte[0] & 0x40) {
                 break;
@@ -60,11 +60,11 @@ void mouse_handler(isr_t *a_r)
 
 			mouse_device_packet_t bitbucket;
 
-            while (pipeSize(mouse_pipe) > (DISCARD_POINT * sizeof(packet))) {
-                readFileSys(mouse_pipe, 0, sizeof(packet), (uint8_t *)&packet);
+            while (pipe_size(mouse_pipe) > (DISCARD_POINT * sizeof(packet))) {
+                read_file_sys(mouse_pipe, 0, sizeof(packet), (uint8_t *)&packet);
             }
         
-            writeFileSys(mouse_pipe, 0, sizeof(packet), (uint8_t *)&packet);
+            write_file_sys(mouse_pipe, 0, sizeof(packet), (uint8_t *)&packet);
         break;
     } 
 }
@@ -75,7 +75,7 @@ void mouse_wait(uint8_t a_type)
 
     if (a_type == 0) {
         while (_time_out--) {
-            if ((portByteIn(MOUSE_STATUS) & 1) == 1) {
+            if ((port_byte_in(MOUSE_STATUS) & 1) == 1) {
                 return;
             }
         }
@@ -84,7 +84,7 @@ void mouse_wait(uint8_t a_type)
     }
     else {
         while (_time_out--) {
-            if ((portByteIn(MOUSE_STATUS) & 2) == 0) {
+            if ((port_byte_in(MOUSE_STATUS) & 2) == 0) {
                 return; 
             }
         }
@@ -95,30 +95,30 @@ void mouse_wait(uint8_t a_type)
 
 void mouse_write(uint8_t a_write) {
     mouse_wait(1);
-    portByteOut(MOUSE_STATUS, MOUSE_WRITE);
+    port_byte_in(MOUSE_STATUS, MOUSE_WRITE);
     mouse_wait(1);
-    portByteOut(MOUSE_PORT, a_write);
+    port_byte_in(MOUSE_PORT, a_write);
 }
 
 uint8_t mouse_read(void) {
     mouse_wait(0);
-    return portByteIn(MOUSE_PORT);
+    return port_byte_in(MOUSE_PORT);
 }
 
 void mouse_install(void) {
     uint8_t _status;
 
-    mouse_pipe = makePipe(sizeof(mouse_device_packet_t) * PACKETS_IN_PIPE);
+    mouse_pipe = make_pipe(sizeof(mouse_device_packet_t) * PACKETS_IN_PIPE);
 
     mouse_wait(1);
-    portByteOut(MOUSE_STATUS, 0xA8);
+    port_byte_out(MOUSE_STATUS, 0xA8);
 
     mouse_wait(1);
-    portByteOut(MOUSE_STATUS, MOUSE_F_BIT);
+    port_byte_out(MOUSE_STATUS, MOUSE_F_BIT);
     mouse_wait(0);
-    _status = (portByteIn(MOUSE_PORT) | 2);
+    _status = (port_byte_in(MOUSE_PORT) | 2);
     mouse_wait(1);
-    portByteOut(MOUSE_PORT, _status);
+    port_byte_out(MOUSE_PORT, _status);
 
     mouse_write(0xF6);
     mouse_read();
