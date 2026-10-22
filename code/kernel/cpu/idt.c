@@ -1,4 +1,4 @@
-#include "../lib/idt.h"
+#include "../kernel-lib/idt.h"
 
 static idt_gate_t idt[IDT_ENTRIES];
 static idt_reg_t idt_reg;
