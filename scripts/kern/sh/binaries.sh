@@ -37,6 +37,7 @@ OBJS=(
     obj/mbr.o
     obj/disk.o
     obj/tools_asm.o
+    obj/cinit.o
 )
 
 BINS=(
