@@ -1,8 +1,10 @@
-#include "../lib/keyboard.h"
-#include "../lib/ctype.h"
-#include "../lib/types.h"
-#include "../lib/pic.h"
-#include "../lib/stdbase.h"
+#include "../kernel-lib/keyboard.h"
+#include "../kernel-lib/pic.h"
+
+#include "../libc/include/ctype.h"
+#include "../libc/include/types.h"
+#include "../libc/include/stdbase.h"
+
 
 static boolean shift_down = FALSE;
 static boolean caps_lock = FALSE;
