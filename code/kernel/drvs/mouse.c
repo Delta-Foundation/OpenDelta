@@ -2,12 +2,12 @@
 *   Mouse driver for dltkernel
 */
 
-#include "../lib/isr.h"
+#include "../kernel-lib/isr.h"
+#include "../kernel-lib/ports.h"
+#include "../kernel-lib/mouse.h"
+#include "../kernel-lib/screen.h"
 #include "../fs/headers/fs.h"
 #include "../fs/headers/pipe.h"
-#include "../lib/ports.h"
-#include "../lib/mouse.h"
-#include "../lib/screen.h"
 
 static uint8_t mouse_cycle = 0;
 static int8_t mouse_byte[3];
