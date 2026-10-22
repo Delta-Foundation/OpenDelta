@@ -1,20 +1,25 @@
-#include "../lib/syscall.h"
-#include "../lib/system.h"
-#include "../lib/stdbase.h"
-#include "../lib/types.h"
+#include "../kernel-lib/syscall.h"
+#include "../kernel-lib/system.h"
+#include "../libc/include/stdbase.h"
+#include "../libc/include/types.h"
 
-static sys_process_t *current_process = {0};
+static sys_process_t * current_process = {0};
 
-int __attribute((noreturn)) *sysExit(int retval) {
-    taskExit((retval & 0xFF) << 8);
+__attribute__((noreturn))
+int * sys_exit(int retval) {
+    task_exit((retval & 0xFF) << 8);
     for (;;) { ; }
 }
 
-int sysGeteuid(void) {
+int sys_get_euid(void) {
     return current_process->user;
 }
 
-int sysOpen(const char *file, int flags, int mode) {
+int sys_open(
+    const char * file,
+    int flags,
+    int mode
+) {
     int fd = 0;
     
     if (flags & O_CREAT) {
@@ -34,7 +39,10 @@ int sysOpen(const char *file, int flags, int mode) {
     return fd;
 }
 
-int sysCreate(const char *file, mode_t mode) {
+int sys_create(
+    const char * file,
+    mode_t mode
+) {
     int fd;
     __asm__ volatile (
         "int $0x80\n"
@@ -48,19 +56,31 @@ int sysCreate(const char *file, mode_t mode) {
     return fd;
 }
 
-int sysRead(int fd, char *ptr, int len) {
+int sys_read(
+    int fd,
+    char * ptr,
+    int len
+) {
     return fd;
 }
 
-int sysWrite(int fd, char *ptr, int len) {
+int sys_write(
+    int fd, 
+    char * ptr,
+    int len
+) {
     return fd;
 }
 
-int sysClose(int fd) {
+int sys_close(int fd) {
     return 0;
 }
 
-off_t lseek(int fd, off_t offset, int whence) {
+off_t lseek(
+    int fd, 
+    off_t offset, 
+    int whence
+) {
     off_t res;
     __asm__ volatile (
         "int $0x80\n"
@@ -85,22 +105,22 @@ void wait(int ms) {
 }
 
 static int (*syscalls[]) = {
-    [SYS_EXT] = (int *)sysExit,
-    [SYS_GETEUID] = (int *)sysGeteuid,
-    [SYS_OPEN] = (int *)sysOpen,
-    [SYS_READ] = (int *)sysRead,
-    [SYS_WRITE] = (int *)sysWrite,
-    [SYS_CLOSE] = (int *)sysClose,
-    [SYS_CREATE] = (int *)sysCreate
+    [SYS_EXIT] = (int *)sys_exit,
+    [SYS_GET_EUID] = (int *)sys_get_euid,
+    [SYS_OPEN] = (int *)sys_open,
+    [SYS_READ] = (int *)sys_read,
+    [SYS_WRITE] = (int *)sys_write,
+    [SYS_CLOSE] = (int *)sys_close,
+    [SYS_CREATE] = (int *)sys_create
 };
 
 uint32_t num_syscalls = sizeof(syscalls) / sizeof(*syscalls);
 
-void syscallInstall(void)
+void syscall_install(void)
 {
-    char syscallAscii[2] = "";
-    int_to_ascii(num_syscalls, syscallAscii);
+    char syscall_ascii[2] = "";
+    int_to_ascii(num_syscalls, syscall_ascii);
     prints("\n[info]: [initializing syscall table with ]", WHITE);
-    prints(syscallAscii, 0x08);
+    prints(syscall_ascii, 0x08);
     prints(" functions\n", WHITE);
 }
