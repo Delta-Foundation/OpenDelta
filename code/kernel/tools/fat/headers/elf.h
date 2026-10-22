@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../../lib/types.h"
+#include "../../../libc/include/types.h"
 #include "./mbr.h"
 
 #define ELF_MAGIC ("\x7F" "ELF")
