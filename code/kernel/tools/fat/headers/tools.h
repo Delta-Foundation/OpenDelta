@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../../lib/types.h"
+#include "../../../libc/include/types.h"
 
 typedef struct {
     uint64_t base;
@@ -20,20 +20,28 @@ enum E820_MEM_BLOCK_TYPE {
     E820_BAD_MEM = 5,
 }; 
 
-void disk_get_drive_params(uint8_t drive,
-        uint8_t* drive_type_out,
-        uint16_t* cylindres_out,
-        uint16_t* sectors_out,
-        uint16_t* heads_out);
+void disk_get_drive_params(
+    uint8_t drive,
+    uint8_t  * drive_type_out,
+    uint16_t * cylindres_out,
+    uint16_t * sectors_out,
+    uint16_t * heads_out
+);
 
 boolean disk_reset(uint8_t drive);
-boolean disk_read(uint8_t drive,
-        uint16_t cylinder,
-        uint16_t sector,
-        uint16_t head,
-        uint8_t count,
-        void* lower_data_out);
 
-int get_next_block(e820_mem_block* block, uint32_t* continuation_id);
+boolean disk_read(
+    uint8_t drive,
+    uint16_t cylinder,
+    uint16_t sector,
+    uint16_t head,
+    uint8_t count,
+    void * lower_data_out
+);
+
+int get_next_block(
+    e820_mem_block * block, 
+    uint32_t * continuation_id
+);
 
 #endif 
