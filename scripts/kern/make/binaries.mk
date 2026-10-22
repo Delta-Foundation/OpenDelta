@@ -1,3 +1,5 @@
+include ~/OpenDelta/scripts/kern/make/sources.mk
+
 # Variables for freestanding binary files 
 BOOT_MAIN = img/boot.bin
 BOOT_STAGE2 = img/stage2.bin
@@ -30,11 +32,14 @@ PROC = obj/proc.o
 FS = obj/fs.o 
 LIST = obj/list.o 
 PIPE = obj/pipe.o 
-STDBASE = obj/stdbase.o  
-STDLIB = obj/stdlib.o 
-CTYPE = obj/ctype.o 
-TYPES = obj/types.o 
-STRING = obj/string.o
+
+# LIBC
+STDBASE = $(STDBASE_SRC:.c=.o)
+STDLIB = $(STDLIB_SRC:.c=.o)
+CTYPE = $(CTYPE_SRC:.c=.o)
+TYPES = $(TYPES_SRC:.c=.o)
+STRING = $(STRING_SRC:.c=.o)
+
 TTY = obj/tty.o 
 MIN_DLTSH = obj/min_dltsh.o 
 FAT = obj/fat.o 
