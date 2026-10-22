@@ -1,9 +1,10 @@
-#include "../lib/string.h"
-#include "../lib/system.h"
+#include "../libc/include/string.h"
+#include "../libc/include/stdbase.h"
+
+#include "../kernel-lib/system.h"
 #include "./header/memory.h"
-#include "../lib/bootparams.h"
+#include "../kernel-lib/bootparams.h"
 #include "../tools/fat/headers/tools.h"
-#include "../lib/stdbase.h"
 
 void append(char s[], char n)
 {
@@ -18,7 +19,7 @@ void backspace(char s[])
 	s[len-1] = '\0';
 }
 
-void flush(char *var)
+void flush(char * var)
 {
 	int i = 0;
 	while(var[i] != '\0')  {
@@ -27,8 +28,11 @@ void flush(char *var)
 	}
 }
 
-int memcmp(const void* ptr1, const void* ptr2, uint16_t num)
-{
+int memcmp( 
+    const void * ptr1,
+    const void * ptr2, 
+    uint16_t num
+) {
     const uint8_t* u8ptr1 = (const uint8_t *)ptr1;
     const uint8_t* u8ptr2 = (const uint8_t *)ptr2;
 
@@ -41,8 +45,11 @@ int memcmp(const void* ptr1, const void* ptr2, uint16_t num)
     return 0;
 }
 
-void *memcpy(void *dest, const void *src, size_t n)
-{
+void * memcpy(
+    void * dest,
+    const void * src,
+    size_t n
+) {
 	char *d = dest;
 	const char *s = src;
 
@@ -52,8 +59,11 @@ void *memcpy(void *dest, const void *src, size_t n)
 	return dest;
 }
 
-void *memset(void *str, int c, size_t n)
-{
+void * memset(
+    void * str,
+    int c,
+    size_t n
+) {
 	char *s = str;
 
 	for(size_t i = 0; i < n; i++) {
@@ -63,7 +73,7 @@ void *memset(void *str, int c, size_t n)
 	return str;
 }
 
-void memdetect(mem_info_t* mem_info)
+void memdetect(mem_info_t * mem_info)
 {
     e820_mem_block block;
     uint32_t continuation = 0;
@@ -81,7 +91,12 @@ void memdetect(mem_info_t* mem_info)
         mem_regions[mem_region_count].ACPI = block.ACPI;
         ++mem_region_count;
 
-        printf("[INFO E820]: [base=0x%llx length=0x%llx type=0x%x\n", block.base, block.len, block.type);
+        printf(
+            "[INFO E820]: [base=0x%llx length=0x%llx type=0x%x\n", 
+            block.base, 
+            block.len, 
+            block.type
+        );
 
         ret = get_next_block(&block, &continuation);
     }
@@ -90,34 +105,40 @@ void memdetect(mem_info_t* mem_info)
     mem_info->regions = mem_regions;
 }
 
-void memoryCopy(unsigned char *source, unsigned char *dest, int nbytes)
-{
+void memory_copy(
+    unsigned char * source, 
+    unsigned char * dest,
+    int nbytes
+) {
 	int i;
 	for (i = 0; i < nbytes; i++)  {
 		*(dest + i) = *(source + i);
 	}
 }
 
-void memorySet(uint8_t *dest, uint8_t val, uint32_t len)
-{
-	uint8_t *temp = (uint8_t *)dest;
+void memory_set(
+    uint8_t * dest, 
+    uint8_t val, 
+    uint32_t len
+) {
+	uint8_t * temp = (uint8_t *)dest;
 	for( ; len != 0; len--) {
 		*temp++ = val;
 	}
 }
 
-void* segoffset_to_linear(void* addr) {
+void* segoffset_to_linear(void * addr) {
     uint64_t offset = (uint64_t)(addr) & 0xFFFF;
     uint64_t seg = (uint64_t)(addr) >> 16;
     return (void *)(seg * 16 + offset);
 }
 
-void paggingInstall(uint32_t memsize)
+void pagging_install(uint32_t memsize)
 {
 	uintptr_t phys;
     uint32_t nframes;
-    uint32_t *frames;
-    page_dir_t *kernelDir;
+    uint32_t * frames;
+    page_dir_t * kernel_dir;
 
     memsize -= 0xe001e190;
 	nframes = memsize / 4;
@@ -125,8 +146,8 @@ void paggingInstall(uint32_t memsize)
 	
 	memset(frames, 0, INDEX_FROM_BIT(nframes * 8));
 
-    kernelDir = (page_dir_t *)kmalloc(0, sizeof(page_dir_t), (uint32_t *)&phys);
-    memset(kernelDir, 0, sizeof(page_dir_t));
+    kernel_dir = (page_dir_t *)kmalloc(0, sizeof(page_dir_t), (uint32_t *)&phys);
+    memset(kernel_dir, 0, sizeof(page_dir_t));
 
     __asm__ __volatile__ (
         "movq %%cr0, %%rdx \n\t"
@@ -139,16 +160,16 @@ void paggingInstall(uint32_t memsize)
     );
 }
 
-void heapInstall(void) {
-    void *end;
-    uintptr_t placementPointer = (uintptr_t)&end;
-    uintptr_t heapEnd;
-    heapEnd = (placementPointer + 0x1000) & ~0xFFFF;
+void heap_install(void) {
+    void * end;
+    uintptr_t placement_pointer = (uintptr_t)&end;
+    uintptr_t heap_end;
+    heap_end = (placement_pointer + 0x00001000) & ~0xFFFF;
 }
 
-void switchPageDir(page_dir_t *dir)
+void switch_page_dir(page_dir_t * dir)
 {
-    page_dir_t *currentDir = dir;
+    page_dir_t * current_dir = dir;
     __asm__ __volatile__ (
         "movq %0, %%cr3 \n\t" 
         "movq %%cr0, %%rax \n\t"
