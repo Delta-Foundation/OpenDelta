@@ -1,11 +1,11 @@
 #ifndef _TOOLS_FAT_H
 #define _TOOLS_FAT_H
 
-#include "../../../lib/stdbase.h"
-#include "../../../lib/stdlib.h"
-#include "../../../lib/string.h" 
-#include "../../../lib/types.h"
-#include "../../../lib/ctype.h"
+#include "../../../libc/include/stdbase.h"
+#include "../../../libc/include/stdlib.h"
+#include "../../../libc/include/string.h" 
+#include "../../../libc/include/types.h"
+#include "../../../libc/include/ctype.h"
 #include "./mbr.h"
 
 #pragma once
