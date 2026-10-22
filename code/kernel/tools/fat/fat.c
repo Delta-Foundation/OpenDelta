@@ -1,7 +1,7 @@
 #include "./headers/fat.h"
 #include "./headers/mbr.h"
 #include "../../mem/header/memory.h"
-#include "../../lib/stdlib.h"
+#include "../../libc/include/stdlib.h"
 
 boot_sect_t boot_sect;
 uint8_t* fat = NULL;
