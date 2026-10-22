@@ -39,3 +39,4 @@ ELF_SRC = tools/fat/elf.c
 MBR_SRC = tools/fat/mbr.c
 DISK_SRC = tools/fat/disk.c
 TOOLS_SRC = tools/fat/asm/tools.asm
+CINIT_SRC = ../cinit/main.c
