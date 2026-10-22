@@ -40,24 +40,24 @@
 struct fs_node;
 
 /*---types---*/
-typedef uint32_t (*read_type_t) (struct fs_node *, uint64_t, uint32_t, uint8_t *);
-typedef uint32_t (*write_type_t) (struct fs_node *, uint64_t, uint32_t, uint8_t *);
-typedef void (*open_type_t) (struct fs_node *, unsigned int flags);
-typedef void (*close_type_t) (struct fs_node *);
-typedef struct DirentFs *(*readdir_type_t) (struct fs_node *, uint32_t);
-typedef struct fs_node *(*finddir_type_t) (struct fs_node *, char *name);
-typedef int (*create_type_t) (struct fs_node *, char *name, uint16_t permission);
-typedef int (*unlink_type_t) (struct fs_node *, char *name);
-typedef int (*mkdir_type_t) (struct fs_node *, char *name, uint16_t permission);
-typedef int (*ioctl_type_t) (struct fs_node *, int request, void * argp);
-typedef int (*get_size_type_t) (struct fs_node *);
-typedef int (*chmod_type_t) (struct fs_node *, int mode);
-typedef int (*symlink_type_t) (struct fs_node *, char * name, char * value);
-typedef int (*readlink_type_t) (struct fs_node *, char * buf, size_t size);
-typedef int (*selectcheck_type_t) (struct fs_node *);
-typedef int (*selectwait_type_t) (struct fs_node *, void * process);
-typedef int (*chown_type_t) (struct fs_node *, int, int);
-typedef void (*truncate_type_t) (struct fs_node *);
+typedef uint32_t (* read_type_t)       (struct fs_node *, uint64_t, uint32_t, uint8_t *);
+typedef uint32_t (* write_type_t)      (struct fs_node *, uint64_t, uint32_t, uint8_t *);
+typedef void     (* open_type_t)       (struct fs_node *, unsigned int flags);
+typedef void     (* close_type_t)      (struct fs_node *);
+typedef struct dirent_fs * (* readdir_type_t) (struct fs_node *, uint32_t);
+typedef struct fs_node * (* finddir_type_t)   (struct fs_node *, char *name);
+typedef int  (* create_type_t)      (struct fs_node *, char * name, uint16_t permission);
+typedef int  (* unlink_type_t)      (struct fs_node *, char * name);
+typedef int  (* mkdir_type_t)       (struct fs_node *, char * name, uint16_t permission);
+typedef int  (* ioctl_type_t)       (struct fs_node *, int request, void * argp);
+typedef int  (* get_size_type_t)    (struct fs_node *);
+typedef int  (* chmod_type_t)       (struct fs_node *, int mode);
+typedef int  (* symlink_type_t)     (struct fs_node *, char * name, char * value);
+typedef int  (* readlink_type_t)    (struct fs_node *, char * buf, size_t size);
+typedef int  (* selectcheck_type_t) (struct fs_node *);
+typedef int  (* selectwait_type_t)  (struct fs_node *, void * process);
+typedef int  (* chown_type_t)       (struct fs_node *, int, int);
+typedef void (* truncate_type_t)    (struct fs_node *);
 typedef int fd_t;
 
 typedef struct fs_node {
@@ -110,15 +110,31 @@ typedef struct {
     uint8_t is_dir;
 } fs_entry_t;
 
-struct DirentFs {
+struct dirent_fs {
 	uint32_t ino;
 	char name[256];
 };
 
 extern fs_node_t *fs_root;
 
-uint32_t readFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer);
-uint32_t writeFileSys(fs_node_t *node, uint64_t offset, uint32_t size, uint8_t *buffer);
-int vfs_write(fd_t *file, unsigned char *data, unsigned int size);
+uint32_t read_file_sys(
+	fs_node_t * node, 
+	uint64_t offset, 
+	uint32_t size, 
+	uint8_t * buffer
+);
+
+uint32_t write_file_sys(
+	fs_node_t * node, 
+	uint64_t offset, 
+	uint32_t size, 
+	uint8_t * buffer
+);
+
+int vfs_write(
+	fd_t * file, 
+	unsigned char * data,
+	unsigned int size
+);
 
 #endif
