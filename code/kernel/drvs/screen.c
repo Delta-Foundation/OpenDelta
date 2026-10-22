@@ -1,7 +1,7 @@
-#include "../lib/ports.h"
-#include "../lib/stdbase.h"
+#include "../kernel-lib/ports.h"
+#include "../kernel-lib/screen.h"
+#include "../libc/include/stdbase.h"
 #include "../mem/header/memory.h"
-#include "../lib/screen.h"
 
 int print_char(
     char c,
