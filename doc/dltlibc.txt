@@ -1,0 +1,27 @@
+dltlibc - c library realization for dltkernel.
+
+------------------------------------------------------------------
+       ____     ____             
+     |    |        |  | |       _____ 
+_____|    | __|__  | __ |_____  |     
+|    |    |   |    |  | |    |  |     
+|____|    |   |__  |  | |____|  |____ 
+
+------------------------------------------------------------------
+
+code structure.
+
+include/ - directory for .h files.
+src/ - directory for sources.
+src/ctype, debug, stdbase, stdlib, string, types - realizations.
+
+-----------------------------------------------------------------
+
+peculiarities.
+
+It depends on the dltkernel. 
+For a correct build, you need functions, types, structures, and the like from dltkernel.
+If you have an implementation of the necessary functions and a linker script for x86-64, 
+    you could experiment a bit—but that’s about as far as it goes.
+
+-----------------------------------------------------------------
