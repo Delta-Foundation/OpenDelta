@@ -1,20 +1,23 @@
-#include "./lib/stdbase.h"
-#include "./lib/system.h"
-#include "./lib/types.h"
-#include "./lib/multiboot.h"
+#include "./libc/include/stdbase.h"
+#include "./libc/include/types.h"
+
+#include "./kernel-lib/system.h"
+#include "./kernel-lib/multiboot.h"
+#include "./kernel-lib/mouse.h"
+#include "./kernel-lib/speaker.h"
+#include "./kernel-lib/keyboard.h"
+#include "./kernel-lib/vga.h"
+
 #include "./mem/header/memory.h"
-#include "./lib/tty.h"
+
 #include "./fpu/fpu.h"
-#include "./lib/mouse.h"
-#include "./lib/speaker.h"
-#include "./lib/keyboard.h"
-/* #include "./tools/fat/headers/disk.h"
-#include "./tools/fat/headers/mbr.h"
-#include "./tools/fat/headers/fat.h"
-#include "./tools/fat/headers/elf.h" */
+
 #include "./tty/header/min_dltsh.h"
+#include "./tty/header/tty.h"
+
 #include "./hal/hal.h"
-#include "./lib/vga.h"
+
+#include "../cinit/lib/cinit_main.h"
 
 #define DEF_MEM_LOWER 320
 #define DEF_MEM_UPPER (32 * 1024)
@@ -56,8 +59,8 @@ static inline void dump_gdtr(void) {
 }
 
 __attribute__((noinline))
-static void early_kprint(const char *str, uint8_t color) {
-    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+static void early_kprint(const char * str, uint8_t color) {
+    volatile uint16_t * vga = (volatile uint16_t *)0xB8000;
     int col = 0;
 
     for (int i = 0; str[i] != '\0'; i++) {
@@ -117,7 +120,7 @@ void kmain(void)
 {
     __asm__ volatile ("cli");
 
-    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    volatile uint16_t * vga = (volatile uint16_t*)0xB8000;
 
     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
         vga[i] = 0x0F20; // 0x0F = чёрный фон, 0x20 = пробел
@@ -126,22 +129,22 @@ void kmain(void)
     debug_row = 0;
 
     early_kprint("Welcome to the OpenDelta!\n", CYAN);
-    early_kprint("OS: OpenDelta v0.2-a\n", CYAN);
-    early_kprint("Kernel: dltkernel v0.0.10-b\n", CYAN);
+    early_kprint("OS: OpenDelta v0.2-a (Via)\n", CYAN);
+    early_kprint("Kernel: dltkernel v0.1.0-a\n", CYAN);
    
     early_kprint("[INFO]: Initializing HAL(GDT, IDT, ISR, IRQ)...   ", WHITE);
     hal_init();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Setting up memory management and shared memory...     ", WHITE);
-    paggingInstall(DEF_MEM_LOWER + DEF_MEM_UPPER);
-    heapInstall();
-    shmInstall();
+    pagging_install(DEF_MEM_LOWER + DEF_MEM_UPPER);
+    heap_install();
+    shm_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Installing syscalls...    ", WHITE);
-    syscallInstall();
-    taskingInstall();
+    syscall_install();
+    tasking_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Initializing FPU...   ", WHITE);
@@ -159,11 +162,9 @@ void kmain(void)
     __asm__ volatile ( "sti" );
     early_kprint("[OK]\n", GREEN);
 
-    early_kprint("[INFO]: Starting terminal and shell...    ", WHITE);
-    beep_boop();
-
-    terminalInit();
-    min_dltsh();
+    early_kprint("[INFO]: Starting cinit... ", WHITE);
+    cinit_main();
+    early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: System halted!\n", CYAN);
 
