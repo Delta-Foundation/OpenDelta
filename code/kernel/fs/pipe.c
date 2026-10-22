@@ -4,8 +4,7 @@
 #include "../mem/header/memory.h"
 #include "../lib/stdbase.h" 
 
-static inline size_t pipeUnread(pipe_device_t *pipe)
-{
+inline size_t pipe_unread(pipe_device_t * pipe) {
     if (pipe->read_ptr == pipe->write_ptr) {
         return 0;
     }
@@ -18,42 +17,40 @@ static inline size_t pipeUnread(pipe_device_t *pipe)
     }
 }
 
-static int pipeCheck(fs_node_t *node)
-{
+int pipe_check(fs_node_t * node) {
     pipe_device_t *pipe = (pipe_device_t*)node->device;
 
-    if (pipeUnread(pipe) > 0) {
+    if (pipe_unread(pipe) > 0) {
         return 0;
     }
 
     return 1;
 }
 
-static int pipeWait(fs_node_t *node, void *process) 
-{
-    pipe_device_t *pipe = (pipe_device_t*)node->device;
+int pipe_wait(fs_node_t * node, void * process) {
+    pipe_device_t * pipe = (pipe_device_t *)node->device;
 
     if (pipe->alert_waits != (list_t *)TRUE) {
-        pipe->alert_waits = listCreate(); 
+        pipe->alert_waits = list_create(); 
     }
 
-    if (listFind(pipe->alert_waits, process) != (node_t *)TRUE) {
-        listInsert(pipe->alert_waits, process);
+    if (list_find(pipe->alert_waits, process) != (node_t *)TRUE) {
+        list_insert(pipe->alert_waits, process);
     }
-    listInsert(((process_t*)process)->node_waits, pipe);
+    list_insert(((process_t *)process)->node_waits, pipe);
     
     return 0;
 }
 
-int pipeSize(fs_node_t *node) {
-    pipe_device_t *pipe = (pipe_device_t*)node->device;
-    return pipeUnread(pipe);
+int pipe_size(fs_node_t * node) {
+    pipe_device_t * pipe = (pipe_device_t *)node->device;
+    return pipe_unread(pipe);
 }
 
-fs_node_t *makePipe(size_t size)
+fs_node_t * make_pipe(size_t size)
 {
-    fs_node_t *fnode = malloc(sizeof(fs_node_t));
-    pipe_device_t *pipe = malloc(sizeof(pipe_device_t));
+    fs_node_t * fnode = malloc(sizeof(fs_node_t));
+    pipe_device_t * pipe = malloc(sizeof(pipe_device_t));
     memset(fnode, 0, sizeof(fs_node_t));
     memset(pipe, 0, sizeof(pipe_device_t));
 
@@ -67,10 +64,10 @@ fs_node_t *makePipe(size_t size)
     fnode->readdir = NULL;
     fnode->finddir = NULL;
     fnode->ioctl = NULL;
-    fnode->get_size = pipeSize;
+    fnode->get_size = pipe_size;
 
-    fnode->selectcheck = pipeCheck;
-    fnode->selectwait = pipeWait;
+    fnode->selectcheck = pipe_check;
+    fnode->selectwait = pipe_wait;
 
     fnode->mtime = fnode->atime;
     fnode->ctime = fnode->atime;
@@ -83,8 +80,8 @@ fs_node_t *makePipe(size_t size)
     pipe->size = size;
     pipe->dead = 0;
 
-    pipe->wait_queue_writers = listCreate();
-    pipe->wait_queue_readers = listCreate();
+    pipe->wait_queue_writers = list_create();
+    pipe->wait_queue_readers = list_create();
 
     return fnode;
 }
