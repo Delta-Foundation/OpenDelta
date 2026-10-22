@@ -4,17 +4,18 @@
 
 #define from_bcd(val) ((val / 16) * 10 + (val & 0xf))
 
-void cmos_dump(uint16_t *vals)
-{
+void cmos_dump(uint16_t * vals) {
     uint16_t index;
     for (index = 0; index < 128; index++) {
-        portByteOut(0x70, index);
-        vals[index] = portByteIn(0x71);
+        port_byte_out(0x70, index);
+        vals[index] = port_byte_in(0x71);
     }
 }
 
-void get_date(uint16_t *month, uint16_t *day)
-{
+void get_date(
+    uint16_t * month, 
+    uint16_t * day
+) {
     uint16_t values[128];
     cmos_dump(values);
 
@@ -22,8 +23,11 @@ void get_date(uint16_t *month, uint16_t *day)
     *day = from_bcd(values[7]);
 }
 
-void get_time(uint16_t *hours, uint16_t *mins, uint16_t *secs)
-{
+void get_time(
+    uint16_t * hours, 
+    uint16_t * mins, 
+    uint16_t * secs
+) {
     uint16_t values[128];
     cmos_dump(values);
 
@@ -32,7 +36,7 @@ void get_time(uint16_t *hours, uint16_t *mins, uint16_t *secs)
     *secs = from_bcd(values[0]);
 }
 
-uint32_t SecsOfYear(int years) 
+uint32_t secs_of_year(int years) 
 {
     uint32_t days = 0;
     years += 2000;
@@ -56,7 +60,7 @@ uint32_t SecsOfYear(int years)
     return days * 86400;
 }
 
-uint32_t SecsOfMonth(int months, int year)
+uint32_t secs_of_month(int months, int year)
 {
     year += 2000;
 
@@ -94,13 +98,13 @@ uint32_t SecsOfMonth(int months, int year)
     return days * 86400;
 }
 
-int GetTimeOfDay(struct Timeval *t, void *z) 
+int get_time_of_day(struct timeval * t, void * z) 
 {
     uint16_t values[128];
     cmos_dump(values);
 
-    uint32_t time = SecsOfYear(from_bcd(values[9] ) - 1) +
-        SecsOfMonth(from_bcd(values[8]) - 1, from_bcd(values[9])) +
+    uint32_t time = secs_of_year(from_bcd(values[9] ) - 1) +
+        secs_of_month(from_bcd(values[8]) - 1, from_bcd(values[9])) +
         (from_bcd(values[7]) - 1) * 86400 + 
         (from_bcd(values[4])) * 3600 +
         (from_bcd(values[2])) * 60 +
@@ -112,9 +116,8 @@ int GetTimeOfDay(struct Timeval *t, void *z)
     return 0;
 }
 
-uint32_t epoch_now(void)
-{
-    struct Timeval t;
-    GetTimeOfDay(&t, NULL);
+uint32_t epoch_now(void) {
+    struct timeval t;
+    get_time_of_day(&t, NULL);
     return t.tv_sec;
 }
