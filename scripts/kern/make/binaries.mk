@@ -39,6 +39,7 @@ STDLIB = $(STDLIB_SRC:.c=.o)
 CTYPE = $(CTYPE_SRC:.c=.o)
 TYPES = $(TYPES_SRC:.c=.o)
 STRING = $(STRING_SRC:.c=.o)
+DEBUG = $(DEBUG_SRC:.c=.o)
 
 TTY = obj/tty.o 
 MIN_DLTSH = obj/min_dltsh.o 
