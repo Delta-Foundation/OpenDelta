@@ -16,6 +16,7 @@ print_rmode:
     popa 
     ret 
 
+%ifndef BOOT_STAGE1
 print_hex_word:
     pusha
     mov bx, ax
@@ -28,6 +29,7 @@ print_hex_word:
 
     popa
     ret
+%endif
 
 print_hex_byte:
     pusha
@@ -55,20 +57,54 @@ print_hex_nibble:
     int 0x10
     ret
 
+%ifndef BOOT_STAGE1
 ; --- Print in 32-bit Protected Mode --- ;
 [bits 32]
 print_pmode:
-    push edi 
-    push esi 
+    pushad
+    mov edi, 0xB8000
+
+.recalc_pmode:
+    mov eax, [current_row]
+    imul eax, [screen_width]
+    add eax, [current_column]
+    shl eax, 1
+    add edi, eax
+
 .loop_pmode:
     lodsb 
     test al, al 
     jz .done_pmode 
+
+    cmp al, 13
+    je .cr_pmode
+    cmp al, 10
+    je .lf_pmode
+
+    mov ah, 0x0F
     stosw 
+
+    inc dword [current_column]
+    cmp dword [current_column], 80
+    jb .loop_pmode
+
+    mov dword [current_column], 0
+    inc dword [current_row]
     jmp .loop_pmode
+
+.cr_pmode:
+    mov dword [current_column], 0
+    mov edi, 0xB8000
+    jmp .recalc_pmode
+
+.lf_pmode:
+    inc dword [current_row]
+    mov dword [current_column], 0
+    mov edi, 0xB8000
+    jmp .recalc_pmode
+
 .done_pmode:
-    pop esi 
-    pop edi 
+    popad
     ret
 
 ; --- Print in 64-bit Long Mode --- ;
@@ -76,15 +112,42 @@ print_pmode:
 print_lmode:
     push rdi
     push rsi
+    push rax
+    push rbx
+
+    mov rdi, 0xB8000
+    mov ah, 0x0F
+
 .loop_lmode:
     lodsb
     test al, al
     jz .done_lmode
+
+    cmp al, 13
+    je .loop_lmode
+    cmp al, 10
+    je .lf_lmode
+
     stosw
-    jmp .loop_lmode 
+    jmp .loop_lmode
+
+.lf_lmode:
+    mov rax, rdi
+    sub rax, 0xB8000
+    xor edx, edx
+    mov ebx, 160
+    div rbx
+    inc rax
+    imul rax, 160
+    lea rdi, [rax + 0xB8000]
+    jmp .loop_lmode
+
 .done_lmode:
+    pop rbx
+    pop rax
     pop rsi
     pop rdi
     ret
+%endif
 
 %endif
