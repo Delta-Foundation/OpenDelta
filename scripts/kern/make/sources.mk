@@ -28,11 +28,15 @@ LIST_SRC = fs/list.c
 PIPE_SRC = fs/pipe.c
 
 # dltlibc
-STDBASE_SRC = libc/src/stdbase/alloc.c libc/src/stdbase/base.c libc/src/stdbase/files.c libc/src/stdbase/input-output.c
+STDBASE_SRC = libc/src/stdbase/alloc.c \
+			  libc/src/stdbase/base.c \
+			  libc/src/stdbase/files.c \
+			  libc/src/stdbase/input-output.c
 STDLIB_SRC = libc/src/stdlib/stdlib.c
 CTYPE_SRC = libc/src/ctype/ctype.c 
 TYPES_SRC = libc/src/types/types.c 
 STRING_SRC = libc/src/string/string.c
+DEBUG_SRC = libc/src/debug/debug.c 
 
 TTY_SRC = tty/tty.c
 MIN_DLTSH_SRC = tty/min_dltsh.c
