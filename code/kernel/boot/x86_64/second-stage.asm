@@ -1,3 +1,11 @@
+[bits 16]
+[org 0x1000]
+
+global _start
+
+_start:
+    jmp stage2_main
+
 %include "./boot/x86_64/global-functions.asm"
 %include "./boot/x86_64/global-data.asm"
 %include "./boot/x86_64/pmode/functions.asm"
@@ -5,13 +13,7 @@
 %include "./boot/x86_64/rmode/data.asm"
 
 [bits 16]
-[org 0:0x7e00]
-
-global _start
-
-jmp _start 
-
-_start:
+stage2_main:
     cli
     cld 
 
@@ -32,7 +34,6 @@ _start:
     call bios_e820_memory_map
     call enable_A20 
     call read_kernel_from_disk
-    call read_user_prog_from_disk
     call cpu_supports_64_bit_mode 
     call switch_protected_mode
 
@@ -42,13 +43,13 @@ _start:
 protected_mode:
     cli 
 
-    mov ax, 10 
+    mov ax, 0x10 
     mov ds, ax 
     mov es, ax 
     mov fs, ax 
     mov gs, ax 
     mov ss, ax 
-    mov sp, loader_stage2_stack_top
+    mov esp, loader_stage2_stack_top
 
     call retrive_video_cursor_settings
     
@@ -67,12 +68,12 @@ long_mode:
     mov fs, ax 
     mov gs, ax 
     mov ss, ax 
-    mov rsp, 0x000010000
+    mov rsp, 0x00090000
 
     mov rax, str_64_bit_start 
+    mov rdi, 0xB8000
     call print_lmode
 
-    ; jmp kernel_new_start_virt + kernel_new_elf_text_header_offset
-    jmp 0x000010000
+    jmp 0x00010000
 
 times (loader_file_num_of_blocks * 512) - ($ - $$) db 0
