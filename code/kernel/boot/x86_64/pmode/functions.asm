@@ -10,64 +10,33 @@
 ; Read kernel and user program from disk ;
 ; ====================================== ;
 read_kernel_from_disk:
-    pusha 
+    pusha
 
-    xor     edx,    edx 
-
-    mov     eax,    loader_kernel_start
-    mov     edx,    152
-    mov     ecx,    6 
+    mov     eax,    6                       ; kernel starts right after stage 2
+    mov     esi,    kernel_file_num_of_blocks
+    mov     ecx,    loader_kernel_start >> 4
+    xor     edi,    edi
 
     .read_run:
-  	    cmp     edx,    127
-  	    jle     .read_remainder
+        cmp     esi,    127
+        jbe     .read_remainder
 
-    .read_block:
-  	    mov     ebx,    127 
-  	    call    bios_extended_read_sectors_from_drive
+        mov     ebx,    127
+        call    bios_extended_read_sectors_from_drive
 
-  	    add     ecx,    127 
-  	    sub     edx,    127 
-  	    add     eax,    (127 * 512)
-  	    jmp     .read_run
+        add     eax,    127
+        add     ecx,    0x0FE0              ; 127 * 512 / 16
+        sub     esi,    127
+        jmp     .read_run
 
     .read_remainder:
-  	    mov     ebx,    edx
-  	    call    bios_extended_read_sectors_from_drive
+        mov     ebx,    esi
+        call    bios_extended_read_sectors_from_drive
 
     popa
     ret
 
 read_user_prog_from_disk:
-    pusha
-
-    xor     edx, edx
-
-    mov     eax,    loader_user_prog_start 
-    mov     edx,    user_prog_file_num_of_blocks
-    mov     ecx,    158
-
-    .read_run:
-  	    cmp     edx,    127 
-  	    jle     .read_remainder
-
-    .read_block:
-  	    mov     ebx,    127 
-  	    call    bios_extended_read_sectors_from_drive
-
-  	    add     ecx,    127 
-  	    sub     edx,    127 
-  	    add     eax,    (127 * 512)
-  	    jmp     .read_run
-
-    .read_remainder:
-  	    mov     ebx,    edx
-  	    call    bios_extended_read_sectors_from_drive
-
-    mov     si,     str_loading_kernel
-    call    print_rmode 
-
-    popa
     ret
 
 ; |==========|
@@ -94,48 +63,41 @@ memzero:
 bios_e820_memory_map:
     pusha
 
+    mov   dword [e820_entry_count], 0
+
     mov   edi,    e820_mem_start
     mov   ecx,    (e820_mem_end - e820_mem_start)
     call  memzero
 
-    .first_memory_entry:
-        mov   eax,  0xe820
-        xor   ebx,  ebx
-        mov   edx,  0x534d4150
-        mov   edi,  e820_mem_start 
-        add   edi,  8
-        mov   ecx,  20
-        int   0x15
-
-        jc    .not_supported
+    mov   esi,    e820_mem_start + 8
+    xor   ebx,    ebx
 
     .loop:
-        inc dword [e820_mem_start]
-
-        test  ebx,  ebx
-        jz  .done
-
         mov   eax,  0xe820
         mov   edx,  0x534d4150
-        mov   ecx,  20
-        add   di,   cx
+        mov   ecx,  24
+        mov   edi,  esi
         int   0x15
 
-        jc  .error
-
+        jc    .failed
         cmp   eax,  0x534d4150
-        jne   .error
+        jne   .failed
 
+        inc   dword [e820_entry_count]
+        add   esi,  24
+
+        cmp   esi,  e820_mem_end - 24
+        jae   .done
+
+        test  ebx,  ebx
+        jz    .done
         jmp   .loop
 
-    .not_supported:
+    .failed:
+        cmp   dword [e820_entry_count], 0
+        jne   .done
+
         mov   si,   str_e820_not_supported
-        call  print_rmode
-
-        jmp   pmode_endless_loop
-
-    .error:
-        mov   si,   str_e820_loading_error
         call  print_rmode
 
         jmp   pmode_endless_loop
@@ -232,6 +194,7 @@ cpu_supports_64_bit_mode:
 ; | Killed registers:                                         |
 ; |     None                                                  |
 ; |===========================================================|
+[bits 32]
 move_kernel:
     pusha 
 
@@ -291,17 +254,9 @@ set_cursor:
 ; |     None                                                                      |
 ; |===============================================================================|
 retrive_video_cursor_settings:
-    push    eax 
-    
-    xor     eax,    eax 
-    mov     al,     [0x45]
-    mov     [current_row],  eax 
-    mov     al,     [0x450 + 1]
-    mov     [current_row],  eax 
-    mov     ax,     word [0x44a]
-    mov     [screen_width], eax 
-
-    pop     eax 
+    mov     dword [current_row],    0
+    mov     dword [current_column], 0
+    mov     dword [screen_width],   80
     ret 
 
 ; |=============================================================================|
@@ -328,7 +283,7 @@ setup_page_tables:
         xor     ecx,     ecx
 
         mov     edi, mem_pml4
-        mov     ecx, (paging_end - paging_end) >> 2
+        mov     ecx, (paging_end - paging_start) >> 2
 
         rep     stosd
 
@@ -341,18 +296,10 @@ setup_page_tables:
 
         mov dword [mem_pml4 + 256 * 0x08], (mem_pdpe) | .std_bits
 
-        mov     edi,    mem_pdpe
-        mov     ecx,    64
-        mov     eax,    mem_pde | .std_bits
-
-        .make_pdpe_page:
-            mov     [edi],  eax
-            add     edi,    0x8
-            add     eax,    0x1000
-            loop    .make_pdpe_page
+        mov dword [mem_pdpe], (mem_pde) | .std_bits
 
         mov     edi,    mem_pde
-        mov     ecx,    512 * 64
+        mov     ecx,    512
         mov     eax,    .std_bits | .pde_ps
 
         .make_pde_page:
@@ -390,8 +337,10 @@ switch_long_mode:
     call    print_pmode 
 
     mov     eax,    cr4 
-    or      eax,    (1 << 5)
-    or      eax,    (1 << 7)
+    or      eax,    (1 << 5)      ; PAE
+    or      eax,    (1 << 7)      ; PGE
+    or      eax,    (1 << 9)      ; OSFXSR - enable SSE
+    or      eax,    (1 << 10)     ; OSXMMEXCPT
     mov     cr4,    eax 
 
     mov     eax,    paging_start
