@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/bash
 
 cd ~/OpenDelta/code/kernel/
 
