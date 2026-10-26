@@ -24,27 +24,28 @@ str_64_bit_not_supported: db "[DBL ERROR]: 64-bit not supported", 13, 10, 0
 
 ; === Memory data and constatns === ;
 loader_file_num_of_blocks:    equ 5 
-kernel_file_num_of_blocks:    equ 152 
+kernel_file_num_of_blocks:    equ 160 
 user_prog_file_num_of_blocks: equ 127
 
 loader_stage1_stack_top:    equ 0x00007c00
-loader_stage2_stack_top:    equ 0x00007e00
+loader_stage2_stack_top:    equ 0x00007c00
 
-e820_mem_start:      equ (loader_stage2_stack_top + loader_file_num_of_blocks * 512)
+e820_mem_start:      equ 0x00001c00
 e820_mem_end:        equ (e820_mem_start + 4 * 512) 
+e820_entry_count:    equ e820_mem_start
 
-loader_kernel_start:     equ 0x00001000
+loader_kernel_start:     equ 0x00008000
 loader_kernel_end:       equ (loader_kernel_start + kernel_file_num_of_blocks * 512)
 
 loader_user_prog_start:  equ loader_kernel_end
-loader_user_prog_end:    equ (loader_kernel_end - user_prog_file_num_of_blocks * 512)
+loader_user_prog_end:    equ (loader_kernel_end + user_prog_file_num_of_blocks * 512)
 
-paging_start:        equ 0x20000
+paging_start:        equ 0x3000
 paging_table_size:   equ 0x1000
 mem_pml4:    equ paging_start
 mem_pdpe:    equ (mem_pml4 + paging_table_size)
 mem_pde:     equ (mem_pdpe + paging_table_size)
-paging_end:  equ (mem_pde + (64 * paging_table_size))
+paging_end:  equ (mem_pde + paging_table_size)
 
 kernel_new_start_virt:             equ 0xffff800000200000
 kernel_new_start:                  equ 0x00200000
@@ -59,6 +60,7 @@ gdt32_table:
     ; --- Null descriptor --- ;
     dw      0x0000
     dw      0x0000 
+    db      0x00 
     db      0x00 
     db      0x00 
     db      0x00 
@@ -98,7 +100,7 @@ gdt64_table:
     dw      0x0000
     dw      0x0000
     db      0x00
-    db      10011000b
+    db      10011010b
     db      00100000b
     db      0x00
 
