@@ -17,10 +17,10 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 # =====================
 # | Building ASM code |
 # =====================
-$(BOOT_MAIN): $(BOOT_SRC)
+$(BOOT_MAIN): $(BOOT_DEPS)
 	$(AS) -f bin $< -o $@
 
-$(BOOT_STAGE2): $(STAGE2_SRC)
+$(BOOT_STAGE2): $(STAGE2_DEPS)
 	$(AS) -f bin $< -o $@
 
 $(ENTRY): $(ENTRY_SRC)
@@ -107,6 +107,9 @@ $(PIPE): $(PIPE_SRC)
 obj/%.o: libc/src/%.c
 	$(CC) $(FLAGS) -c $< -o $@
 
+libc/src/%.o: libc/src/%.c
+	$(CC) $(FLAGS) -c $< -o $@
+
 $(TTY): $(TTY_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
@@ -135,7 +138,7 @@ $(IMG): $(BOOT_MAIN) $(BOOT_STAGE2) $(KERNEL_BIN)
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT_MAIN) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(BOOT_STAGE2) of=$@ conv=notrunc bs=512 count=5 seek=1 status=none
-	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=152 seek=6
+	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=160 seek=6
 
 # Running
 run: img/open-delta.img
