@@ -30,6 +30,7 @@ OBJS=(
     obj/ctype.o
     obj/types.o
     obj/string.o
+    obj/debug.o
     obj/tty.o 
     obj/min_dltsh.o 
     obj/fat.o
