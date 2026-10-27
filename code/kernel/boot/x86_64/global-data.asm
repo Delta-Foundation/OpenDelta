@@ -24,7 +24,8 @@ str_64_bit_not_supported: db "[DBL ERROR]: 64-bit not supported", 13, 10, 0
 
 ; === Memory data and constatns === ;
 loader_file_num_of_blocks:    equ 5 
-kernel_file_num_of_blocks:    equ 160 
+
+kernel_file_num_of_blocks:    equ 256
 user_prog_file_num_of_blocks: equ 127
 
 loader_stage1_stack_top:    equ 0x00007c00
