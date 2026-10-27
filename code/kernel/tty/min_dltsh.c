@@ -1,6 +1,7 @@
 #include "../libc/include/stdbase.h"
 #include "../libc/include/string.h"
 #include "../libc/include/types.h"
+#include "../libc/include/ctype.h"
 #include "../kernel-lib/screen.h"
 #include "../kernel-lib/keyboard.h"
 #include "../kernel-lib/ports.h"
@@ -19,10 +20,8 @@ typedef struct {
 
 static void welcome_msg(void) {
     prints("._________________________________________.\n", CYAN);
-//    prints("|                                         |\n", CYAN);
     prints("|                                         |\n", CYAN);
     prints("|  Welcome To the DLTSH(minimal version)  |\n", CYAN);
-//    prints("|                                         |\n", CYAN);
     prints("|_________________________________________|\n", CYAN);
 }
 
@@ -57,6 +56,115 @@ static void command_echo(int argc, char ** argv) {
     prints("\n", WHITE);
 }
 
+static void command_upper(int argc, char ** argv) {
+    for (int i = 1; i < argc; i++) {
+        if (i > 1) {
+            prints(" ", WHITE);
+        }
+
+        for (int j = 0; argv[i][j] != '\0'; j++) {
+            char ch[2];
+
+            ch[0] = (char)toupper((unsigned char)argv[i][j]);
+            ch[1] = '\0';
+            prints(ch, WHITE);
+        }
+    }
+
+    prints("\n", WHITE);
+}
+
+static void command_lower(int argc, char ** argv) {
+    for (int i = 1; i < argc; i++) {
+        if (i > 1) {
+            prints(" ", WHITE);
+        }
+
+        for (int j = 0; argv[i][j] != '\0'; j++) {
+            char ch[2];
+
+            ch[0] = (int)lower(argv[i][j]);
+            ch[1] != '\0';
+            prints(ch, WHITE);
+        }
+    }
+
+    prints("\n", WHITE);
+}
+
+static void command_reverse(int argc, char ** argv) {
+    for (int i = argc - 1; i >= 1; i--) {
+        int len = 0;
+
+        while (argv[i][len] != '\0') {
+            len++;
+        }
+
+        for (int j = len - 1; j >= 0; j--) {
+            char ch[2] = {
+                argv[i][j],
+                '\0'
+            };
+
+            prints(ch, WHITE);
+        }
+
+        if (i > 1) {
+            prints(" ", WHITE);
+        }
+    }
+
+    prints("\n", WHITE);
+}
+
+static void command_calc(void) {
+    prints("[CALCULATOR]\n", BLUE);
+
+    double first_num;
+    double second_num;
+    char operation;
+
+    int input_result = scanf(" %lf\n %c\n %lf", &first_num, &operation, &second_num);
+    if (input_result != 3) {
+        prints("[ERROR]: Wrong input", RED);
+        while (console_getchar() != '\n');
+    }
+
+    double result;
+
+    switch (operation) {
+        case '+':
+            result = first_num + second_num;
+        break;
+
+        case '-':
+            result = first_num - second_num;
+        break;
+
+        case '*':
+            result = first_num * second_num;
+        break;
+
+        case '/':
+            if (second_num == 0) {
+                prints("[ERROR]: [Division by zero!]\n", RED);
+                while (console_getchar() != '\n');
+            }
+
+            result = first_num / second_num;
+        break;
+
+        default:
+            prints("[ERROR]: [Wrong symbol of operation]\n", RED);
+            while (console_getchar() != '\n');
+        break;
+    }
+
+    prints("[result]: ", GREEN);
+    printf("%.2lf \n", result);
+    prints("[CALCULATOR TERMINATED]\n", BLUE);
+}
+
 static void print_help(void) {
     prints("dltsh built-in commands:\n", WHITE);
     prints("  help      show this help\n", LGRAY);
@@ -67,6 +175,10 @@ static void print_help(void) {
     prints("  reboot    restart the machine\n", LGRAY);
     prints("  poweroff  power the machine off\n", LGRAY);
     prints("  exit      leave the shell\n", LGRAY);
+    prints("  calc      calculator\n", LGRAY);
+    prints("  upper     converting text from lower to upper case\n", LGRAY);
+    prints("  lower     converting text from upper to lower case\n", LGRAY);
+    prints("  reverse   works like echo, but the text is displayed upside down\n", LGRAY);
 }
 
 static void print_about(void) {
@@ -75,7 +187,11 @@ static void print_about(void) {
     prints("build:  " __DATE__ " " __TIME__ "\n", LGRAY);
 }
 
-static int split_args(char * line, char ** argv, int max) {
+static int split_args(
+    char * line,
+    char ** argv,
+    int max
+) {
     int argc = 0;
     char * p = line;
 
@@ -107,7 +223,6 @@ static int split_args(char * line, char ** argv, int max) {
 }
 
 void min_dltsh(void) {
-//    clear_screen();
     welcome_msg();
     prints("[INFO]: [mode - ROOT]\n", WHITE);
     prints("Type 'help' to see available commands.\n", LGRAY);
@@ -141,8 +256,20 @@ void min_dltsh(void) {
         else if (strcmp(argv[0], "about") == 0 || strcmp(argv[0], "version") == 0) {
             print_about();
         }
+        else if (strcmp(argv[0], "calc") == 0) {
+            command_calc();
+        }
         else if (strcmp(argv[0], "echo") == 0) {
             command_echo(argc, argv);
+        }
+        else if (strcmp(argv[0], "reverse") == 0) {
+            command_reverse(argc, argv);
+        }
+        else if (strcmp(argv[0], "upper") == 0) {
+            command_upper(argc, argv);
+        }
+        else if (strcmp(argv[0], "lower") == 0) {
+            command_lower(argc, argv);
         }
         else if (strcmp(argv[0], "clear") == 0) {
             clear_screen();
