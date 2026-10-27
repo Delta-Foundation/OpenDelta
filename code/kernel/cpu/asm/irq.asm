@@ -1,178 +1,78 @@
 [bits 64]
 
 ; =============================================================================
-; || IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47 ||
+; | IRQ (Interrupt Requests) - Hardware interrupts 0-15 mapped to IDT 32-47   |
 ; =============================================================================
 
 global irq_common_stub
 
+extern irq_handler
+
+%macro IRQ 2
+global irq%1
+irq%1:
+    push qword 0            ; dummy error code
+    push qword %2           ; interrupt number
+    jmp irq_common_stub
+%endmacro
+
+IRQ 0,  32
+IRQ 1,  33
+IRQ 2,  34
+IRQ 3,  35
+IRQ 4,  36
+IRQ 5,  37
+IRQ 6,  38
+IRQ 7,  39
+IRQ 8,  40
+IRQ 9,  41
+IRQ 10, 42
+IRQ 11, 43
+IRQ 12, 44
+IRQ 13, 45
+IRQ 14, 46
+IRQ 15, 47
+
 irq_common_stub:
-	push rdi 
-    push rsi 
-    push rbp
-    push rsp 
-    push rbx 
-    push rdx 
-    push rcx 
     cld
 
-    xor rax, rax
-	mov	ax, ds
-	push rax
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
 
-    mov	ax, 0x10
-	mov	ds, ax
-	mov	es, ax
-	mov fs, ax
-	mov	gs, ax
+    mov r12, rsp            ; keep the frame pointer (r12 is callee-saved)
+    mov rdi, rsp
+    and rsp, -16            ; SysV requires 16-byte stack alignment
+    call irq_handler
+    mov rsp, r12
 
-    push rsp
-    extern irq_handler
-	call irq_handler	; different than the ISR code
-	add rsp, 4
-
-	pop	rax
-	mov	ds, ax
-	mov	es, ax
-	mov	fs, ax
-	mov	gs, ax
-
-	pop rcx
-    pop rdx 
-    pop rbx 
-    pop rsp 
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
     pop rbp
-    pop rsi 
     pop rdi
-	add	rsp, 8
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
 
-	iret
-
-global irq0
-global irq1
-global irq2
-global irq3
-global irq4
-global irq5
-global irq6
-global irq7
-global irq8
-global irq9
-global irq10
-global irq11
-global irq12
-global irq13
-global irq14
-global irq15
-
-; IRQ 0 - Timer (PIT)
-irq0:
-    cli
-    push byte 0            ; dummy error code
-    push byte 32           ; interrupt number
-    jmp irq_common_stub
-
-; IRQ 1 - Keyboard
-irq1:
-    cli
-    push byte 1
-    push byte 33
-    jmp irq_common_stub
-
-; IRQ 2 - Cascade
-irq2:
-    cli
-    push byte 2
-    push byte 34
-    jmp irq_common_stub
-
-; IRQ 3 - COM2
-irq3:
-    cli
-    push byte 3
-    push byte 35
-    jmp irq_common_stub
-
-; IRQ 4 - COM1
-irq4:
-    cli
-    push byte 4
-    push byte 36
-    jmp irq_common_stub
-
-; IRQ 5 - LPT2
-irq5:
-    cli
-    push byte 5
-    push byte 37
-    jmp irq_common_stub
-
-; IRQ 6 - Floppy
-irq6:
-    cli
-    push byte 6
-    push byte 38
-    jmp irq_common_stub
-
-; IRQ 7 - LPT1 / Spurious
-irq7:
-    cli
-    push byte 7
-    push byte 39
-    jmp irq_common_stub
-
-; IRQ 8 - CMOS RTC
-irq8:
-    cli
-    push byte 8
-    push byte 40
-    jmp irq_common_stub
-
-; IRQ 9 - Free / ACPI
-irq9:
-    cli
-    push byte 9
-    push byte 41
-    jmp irq_common_stub
-
-; IRQ 10 - Free
-irq10:
-    cli
-    push byte 10
-    push byte 42
-    jmp irq_common_stub
-
-; IRQ 11 - Free
-irq11:
-    cli
-    push byte 11
-    push byte 43
-    jmp irq_common_stub
-
-; IRQ 12 - PS/2 Mouse
-irq12:
-    cli
-    push byte 12
-    push byte 44
-    jmp irq_common_stub
-
-; IRQ 13 - FPU
-irq13:
-    cli
-    push byte 13
-    push byte 45
-    jmp irq_common_stub
-
-; IRQ 14 - Primary ATA
-irq14:
-    cli
-    push byte 14
-    push byte 46
-    jmp irq_common_stub
-
-; IRQ 15 - Secondary ATA
-irq15:
-    cli
-    push byte 15
-    push byte 47
-    jmp irq_common_stub
+    add rsp, 16             ; interrupt number + error code
+    iretq
