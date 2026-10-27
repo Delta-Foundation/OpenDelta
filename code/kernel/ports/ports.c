@@ -27,48 +27,53 @@ void port_word_out(uint16_t port, uint16_t data)
 	__asm__ volatile("out %%ax, %%dx" : : "a" (data), "d" (port));
 }
 
-void APM_interface_init(void)
+void system_reboot(void)
 {
-	__asm__ (
-		"mov $0x53, %ah\n\t" 		// Check if APM is supported
-		"mov $0x00, %ah\n\t"       
-		"xor %bx, %bx\n\t"          
-		"int $0x15\n\t"
-		"jc  APM_Error\n\t"
-		"mov $0x53, %ah\n\t"     	// Disconnect to any existing interface          
-		"mov $0x04, %al\n\t"             
-		"xor %bx, %bx\n\t"               
-		"int $0x15\n\t"
-		"jc  Disconnect_Error\n\t"
-		"cmp $0x03, %ah\n\t"
-		"jne APM_Error\n\t"
-		"mov $0x53, %ah\n\t"          	// Connect to real mode interface
-		"mov $0x01, %al\n\t"
-		"xor %bx, %bx\n\t"               
-		"int $0x15\n\t"
-		"jc  APM_Error\n\t"
-		"mov $0x53, %ah\n\t"         	// Enable power management for all devices    
-		"mov $0x08, %al\n\t"              
-		"mov $0x0001, %bx\n\t"         
-		"mov $0x0001, %cx\n\t"         
-		"int $0x15\n\t" 
-		"jc  APM_Error\n\t"
-		"mov $0x53, %ah\n\t"      	// Set power state to off
-		"mov $0x07, %al\n\t"          
-		"mov $0x0001, %bx\n\t"        
-		"mov $0x0003, %cx\n\t"  
-		"int $0x15\n\t"
-		"jc  APM_Error\n\t"
-		"jmp No_Error"
-	);
+	__asm__ volatile ("cli");
 
-	__asm__("APM_Error:");
-	prints("APM Error", 0x07);
+	/* Pulse the keyboard controller reset line. */
+	for (int i = 0; i < 100000 && (port_byte_in(0x64) & 0x02); i++) {
+		;
+	}
+	port_byte_out(0x64, 0xFE);
 
-	__asm__("Disconnect_Error:");
-	prints("Disconnect Error", 0x07);
+	/* Give the reset pulse time to take effect before trying anything else. */
+	for (volatile int i = 0; i < 1000000; i++) {
+		;
+	}
 
-	__asm__("No_Error:");	
-	return;
+	/* ACPI reset control register (QEMU/Bochs/VirtualBox). */
+	port_byte_out(0xCF9, 0x06);
+	port_byte_out(0xCF9, 0x0E);
+
+	/* Last resort: triple fault. */
+	struct {
+		uint16_t limit;
+		uint64_t base;
+	} __attribute__((packed)) null_idt = { 0, 0 };
+
+	__asm__ volatile ("lidt %0; int $3" :: "m"(null_idt));
+
+	for (;;) {
+		__asm__ volatile ("hlt");
+	}
 }
 
+void system_poweroff(void)
+{
+	__asm__ volatile ("cli");
+
+	/* QEMU, Bochs and VirtualBox ACPI shutdown ports. */
+	port_word_out(0x604, 0x2000);
+	port_word_out(0xB004, 0x2000);
+	port_word_out(0x4004, 0x3400);
+
+	for (;;) {
+		__asm__ volatile ("hlt");
+	}
+}
+
+void APM_interface_init(void)
+{
+	system_poweroff();
+}
