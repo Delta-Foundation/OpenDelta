@@ -9,9 +9,9 @@ void isblank(char c) {
 }
 
 void isxdigit(char c) {
-    if ((c >= '0' && c <= '9') 
-            || (c >= 'a' && c <= 'f') 
-            || (c >= 'A' && c <= 'F')) 
+    if ((c >= '0' && c <= '9')
+            || (c >= 'a' && c <= 'f')
+            || (c >= 'A' && c <= 'F'))
     { ; }
 }
 
@@ -35,7 +35,11 @@ int isalpha(int c) {
 }
 
 char toupper(char c) {
-    return islower(c) ? (c - 'a' + 'A') : c;
+    if (c >= 'a' && c <= 'z') {
+        return c - ('a' - 'A');
+    }
+
+    return c;
 }
 
 int islower(int c) {
@@ -46,7 +50,7 @@ int lower(int c)
 {
     if (c >= 'A' && c <= 'Z') {
         return c + 'a' - 'A';
-    } 
+    }
     else {
         return c;
     }
