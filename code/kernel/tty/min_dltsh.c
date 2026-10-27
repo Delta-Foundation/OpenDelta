@@ -44,6 +44,7 @@ static void print_fetch(void) {
     prints(" /   /  /  \\  \\   \\        host:        %s\n", CYAN, user.host_name);
     prints("/   /  /    \\  \\   \\       cpu:         %s\n", CYAN, user.cpu);
     prints("\\__/  /______\\  \\__/       gpu:         %s\n", CYAN, user.gpu);
+    prints("                           init system: cinit\n", CYAN);
 }
 
 static void command_echo(int argc, char ** argv) {
@@ -117,6 +118,27 @@ static void command_reverse(int argc, char ** argv) {
     prints("\n", WHITE);
 }
 
+static void command_colors(void) {
+    prints("Base colors: \n", WHITE);
+    prints("    |######| \n", LGRAY);
+    prints("    |######| \n", RED);
+    prints("    |######| \n", GREEN);
+    prints("    |######| \n", YELLOW);
+    prints("    |######| \n", BLUE);
+    prints("    |######| \n", MAGENTA);
+    prints("    |######| \n", CYAN);
+    prints("    |######| \n", WHITE);
+
+    prints("\n Additional colors: \n", WHITE);
+    prints("    |######| \n", DGRAY);
+    prints("    |######| \n", LRED);
+    prints("    |######| \n", LGREEN);
+    prints("    |######| \n", YELLOW);
+    prints("    |######| \n", LBLUE);
+    prints("    |######| \n", LMAGENTA);
+    prints("    |######| \n", LCYAN);
+}
+
 static void command_calc(void) {
     prints("[CALCULATOR]\n", BLUE);
 
@@ -179,6 +201,7 @@ static void print_help(void) {
     prints("  upper     converting text from lower to upper case\n", LGRAY);
     prints("  lower     converting text from upper to lower case\n", LGRAY);
     prints("  reverse   works like echo, but the text is displayed upside down\n", LGRAY);
+    prints("  colors    output all vga colors in tty\n", LGRAY);
 }
 
 static void print_about(void) {
@@ -258,6 +281,9 @@ void min_dltsh(void) {
         }
         else if (strcmp(argv[0], "calc") == 0) {
             command_calc();
+        }
+        else if (strcmp(argv[0], "colors") == 0) {
+            command_colors();
         }
         else if (strcmp(argv[0], "echo") == 0) {
             command_echo(argc, argv);
