@@ -8,12 +8,18 @@
 /* Headers from kernel */
 #include "../../../fs/headers/fs.h"
 #include "../../../kernel-lib/system.h"
+#include "../../../kernel-lib/screen.h"
+#include "../../../kernel-lib/keyboard.h"
 
 ungetc_buf_t ungetc_buf = { EOF, 0, NULL };
 
 int _getc(FILE * stream) {
+    if (stream == NULL || (uintptr_t)stream == (uintptr_t)stdin) {
+        return console_getchar();
+    }
+
     if (--(stream)->cnt >= 0) {
-        return (unsigned char) *(stream)->ptr;
+        return (unsigned char) *(stream)->ptr++;
     }
     else {
         return _fillbuf(stream);
@@ -30,6 +36,22 @@ int ngetc(FILE * stream) {
 }
 
 int _putc(char c, FILE * stream) {
+    uintptr_t handle = (uintptr_t)stream;
+
+    if (handle == (uintptr_t)stdout || handle == (uintptr_t)stderr) {
+        console_put_char(c);
+        return (unsigned char)c;
+    }
+
+    if (handle == (uintptr_t)debug) {
+        outb(0xE9, (uint8_t)c);
+        return (unsigned char)c;
+    }
+
+    if (stream == NULL || handle == (uintptr_t)stdin) {
+        return EOF;
+    }
+
     if (--(stream)->cnt >= 0) {
         return *(stream)->ptr++ = (c);
     }
