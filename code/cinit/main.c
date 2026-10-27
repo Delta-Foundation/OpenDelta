@@ -9,7 +9,7 @@ int cinit_main() {
     terminal_init();
 
     prints("[CINIT INFO]: Starting TTY\n", CYAN);
-    prints("[INFO]: Start minimal dltsh\n", CYAN);
+    prints("[CINIT INFO]: Start minimal dltsh\n", CYAN);
 
     min_dltsh();
 
