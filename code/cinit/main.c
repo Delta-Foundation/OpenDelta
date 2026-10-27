@@ -1,21 +1,24 @@
-#include "../kernel/tty/header/min_dltsh.h"
-#include "../kernel/lib/stdbase.h"
-#include "../kernel/lib/system.h"
+#include "../kernel/libc/include/stdbase.h"
+#include "../kernel/kernel-lib/system.h"
+#include "../kernel/kernel-lib/screen.h"
 #include "../kernel/tty/header/tty.h"
+#include "../kernel/tty/header/min_dltsh.h"
 
 int cinit_main() {
-    prints("[CINIT START]", CYAN);
-
     shed_init();
-
-    prints("[CINIT INFO]: Starting TTY", CYAN);
     terminal_init();
 
-    prints("[INFO]: Start minimal dltsh", CYAN);
+    prints("[CINIT INFO]: Starting TTY\n", CYAN);
+    prints("[INFO]: Start minimal dltsh\n", CYAN);
+
     min_dltsh();
 
-    while (TRUE) {
-        shedule();
+    prints("\n[INFO]: shell exited, system halted\n", CYAN);
+
+    __asm__ volatile ("cli");
+
+    for (;;) {
+        __asm__ volatile ("hlt");
     }
 
     return 0;
