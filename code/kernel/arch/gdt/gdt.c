@@ -14,7 +14,8 @@ void gdt_init(void) {
         .base_low = 0x0000,
         .base_middle = 0x00,
         .access = 0x9A,
-        .flags_limit_high = 0xCF,
+        /* G=1, D/B=0, L=1 (64-bit code segment), limit high nibble = 0xF */
+        .flags_limit_high = 0xAF,
         .base_high = 0x00 
     };
 
