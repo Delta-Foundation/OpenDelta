@@ -16,19 +16,28 @@ extern "C" {
 #define INTERRUPT_GATE 			    0x8e
 #define KERNEL_CODE_SEGMENT_OFFSET 	0x10000
 
+
 /* colors */
 typedef enum {
-    WHITE = 0x0F,
-    BLACK = 0x0,
-    CYAN = 0x3,
+    //--- Additions vga colors ---//
     DGRAY = 0x8,   // Dark Gray
     LCYAN = 0xB,   // Light Cyan
     LGRAY = 0x7,  // Light Gray
+    LRED = 0xC,
+    LMAGENTA = 0xD,
+    LGREEN = 0xA,
+    LBLUE = 0x9,
+
+    //--- base vga colors ---//
+    WHITE = 0x0F,
+    BLACK = 0x0,
+    CYAN = 0x3,
     RED = 0x4,
     MAGENTA = 0x5,
     BROWN = 0x6,
     GREEN = 0x2,
-    BLUE = 0x1
+    BLUE = 0x1,
+    YELLOW = 0x0E,
 } Colors;
 
 /*---structures-for-system---*/
