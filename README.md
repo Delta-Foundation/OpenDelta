@@ -14,6 +14,7 @@
 
 # На что способна дельта сейчас (на первом скрине будет АГ).
 ![mian](./doc/assets/min-dltsh-main.png)
+![relu](./doc/assets/reverse-echo-lower-upper.png)
 ![aae](./doc/assets/about-and-exit.png)
 ![help](./doc/assets/help.png)
 ![colors](./doc/assets/colors.png)
