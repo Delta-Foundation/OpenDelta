@@ -1,7 +1,9 @@
 #include "../kernel-lib/isr.h"
 #include "../kernel-lib/idt.h"
 #include "../kernel-lib/pic.h"
+#include "../kernel-lib/screen.h"
 #include "../libc/include/stdbase.h"
+#include "../libc/include/string.h"
 
 isr_t interrupt_handlers[IDT_SIZE] = { 0 };
 isr_t irq_handlers[16];
@@ -101,26 +103,47 @@ char * exception_messages[] =
     	"Reserved"
 };
 
-void isr_handler(regs_t *r)
+void isr_handler(regs_t * r)
 {
+    if (r == NULL) {
+        return;
+    }
+
 	if (r->int_no < 32) {
         if (interrupt_handlers[r->int_no]) {
             interrupt_handlers[r->int_no](r);
         }
         else {
+            char num[24];
+
+            prints("\n[EXCEPTION]: ", RED);
+            prints(exception_messages[r->int_no], RED);
+            prints(" (", RED);
+            int_to_ascii((int)r->int_no, num);
+            prints(num, RED);
+            prints(") rip=", RED);
+            num[0] = '\0';
+            hex_to_ascii((int)r->rip, num);
+            prints(num, RED);
+            prints("\n", RED);
+
             __asm__ volatile ( "cli" );
             for (;;) {
                 __asm__ volatile ( "hlt" );
             }
         }
     }
-    else if (interrupt_handlers[r->int_no]) {
+    else if (r->int_no < IDT_SIZE && interrupt_handlers[r->int_no]) {
         interrupt_handlers[r->int_no](r);
     }
 }
 
 /*---irq---*/
-void irq_handler(regs_t *r) {
+void irq_handler(regs_t * r) {
+    if (r == NULL) {
+        return;
+    }
+
     if (r->int_no >= 40) {
         outb(0xA0, 0x20);
     }
