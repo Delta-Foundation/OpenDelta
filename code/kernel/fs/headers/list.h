@@ -19,9 +19,8 @@ typedef struct {
 #define foreach(item, list)	for(node_t *(item) = (node_t*)(list); (item); (item) = (item)->next)
 
 void list_append(list_t * list, node_t * item);
-node_t * listInsert(list_t * list, void * item);
+node_t * list_insert(list_t * list, void * item);
 list_t * list_create(void);
 node_t * list_find(list_t * list, void * value);
 
 #endif
-
