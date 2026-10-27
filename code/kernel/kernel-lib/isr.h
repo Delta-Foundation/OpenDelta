@@ -75,10 +75,10 @@ extern void __attribute__((cdecl)) irq15(void);
 #define MODULE "PIC"
 
 typedef struct {
-	uint32_t ds;
-	uint32_t edi, esi, ebp, useless, ebx, edx, ecx, eax;
-	uint32_t int_no, err_code;
-	uint32_t eip, cs, eflags, esp, ss;
+	uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
+	uint64_t rbp, rdi, rsi, rdx, rcx, rbx, rax;
+	uint64_t int_no, err_code;
+	uint64_t rip, cs, rflags, rsp, ss;
 } __attribute__((packed)) regs_t;
 
 typedef void (*isr_t)(regs_t*);
@@ -87,8 +87,8 @@ uint8_t enable_ints(void);
 uint8_t disable_ints(void);
 void panic(void);
 void install_isr_and_irq(void);
-void isr_handler(regs_t *r);
-void irq_handler(regs_t *r);
+void isr_handler(regs_t * r);
+void irq_handler(regs_t * r);
 void irq_regs_handler(int irq, isr_t handler);
 
 void register_interrupt_handler(uint8_t n, isr_t handler);
