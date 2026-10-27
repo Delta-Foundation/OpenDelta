@@ -12,12 +12,19 @@ void idt_disable_gate(int interrupt) {
     FLAG_UNSET(idt[interrupt].flags, IDT_FLAG_PRESENT);
 }
 
-void set_idt_gate(int n, uint32_t base, uint16_t sel, uint8_t flags) {
-    idt[n].low_offset = low_16(base);
-    idt[n].sel = sel;
-    idt[n].always0 = 0;
-    idt[n].flags = flags;
-    idt[n].high_offset = high_16(base);
+void set_idt_gate(
+    int n, 
+    uint64_t base, 
+    uint16_t sel, 
+    uint8_t flags
+) {
+    idt[n].low_offset  = (uint16_t)(base & 0xFFFF);
+    idt[n].sel         = sel;
+    idt[n].ist         = 0;
+    idt[n].flags       = flags;
+    idt[n].mid_offset  = (uint16_t)((base >> 16) & 0xFFFF);
+    idt[n].high_offset = (uint32_t)((base >> 32) & 0xFFFFFFFF);
+    idt[n].reserved    = 0;
 }
 
 /*
