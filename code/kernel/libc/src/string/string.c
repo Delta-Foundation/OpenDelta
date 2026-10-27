@@ -59,19 +59,14 @@ int strncmp(
     const char * ct,
     unsigned int n
 ) {
-    for (n = 0; cs[n] == ct[n]; n++) {
-        if (cs[n] == ct[n]) {
-            return 0;
-        }
-        
-        if (cs[n] <= ct[n]) {
-            return n--;
+    for (unsigned int i = 0; i < n; i++) {
+        if (cs[i] != ct[i]) {
+            return (unsigned char)cs[i] - (unsigned char)ct[i];
         }
 
-        if (cs[n] > ct[n]) {
-            return n++;
+        if (cs[i] == '\0') {
+            return 0;
         }
-    
     }
 
     return 0;
@@ -131,20 +126,28 @@ char * strncpy(
 
 void int_to_ascii(int n, char str[])
 {
-	int i, sign;
-	if((sign = n) < 0) {
+	int i = 0;
+	int sign = n;
+
+	if (n < 0) {
 		n = -n;
 	}
-	
-	i = 0;
-	do {
-		str[i++] = n % 10 + '0';
-	} while((n /= 10) > 0);
 
-	if(sign < 0) {
+	do {
+		str[i++] = (char)(n % 10 + '0');
+	} while ((n /= 10) > 0);
+
+	if (sign < 0) {
 		str[i++] = '-';
 	}
+
 	str[i] = '\0';
+
+	for (int left = 0, right = i - 1; left < right; left++, right--) {
+		char tmp = str[left];
+		str[left] = str[right];
+		str[right] = tmp;
+	}
 }
 
 void hex_to_ascii(int n, char str[])
@@ -161,7 +164,7 @@ void hex_to_ascii(int n, char str[])
 			continue;
 		}
 		zeros = 1;
-		if(tmp > 0xA)  {
+		if(tmp >= 0xA)  {
 			append(str, tmp - 0xA + 'a');
 		}
 		else {
