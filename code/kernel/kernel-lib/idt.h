@@ -32,9 +32,11 @@ typedef enum {
 typedef struct {
     uint16_t low_offset;
     uint16_t sel;
-    uint8_t always0;
+    uint8_t ist;
     uint8_t flags;
-    uint16_t high_offset;
+    uint16_t mid_offset;
+    uint32_t high_offset;
+    uint32_t reserved;
 } __attribute__((packed)) idt_gate_t;
 
 typedef struct {
@@ -52,7 +54,7 @@ void idt_disable_gate(int interrupt);
 
 void set_idt_gate(
     int n, 
-    uint32_t base, 
+    uint64_t base, 
     uint16_t sel, 
     uint8_t flags
 );
