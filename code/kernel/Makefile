@@ -32,7 +32,7 @@ $(GDT_ASM): $(GDT_ASM_SRC)
 $(IDT_ASM): $(IDT_ASM_SRC)
 	$(AS) $< -f elf64 -o $@
 
-$(INTS_ASM): $(INTS_ASM_SRC)
+$(INTS_ASM): $(INTS_ASM_SRC) cpu/asm/isr.asm cpu/asm/irq.asm
 	$(AS) $< -f elf64 -o $@
 
 $(TOOLS): $(TOOLS_SRC)
@@ -135,10 +135,15 @@ $(CINIT): $(CINIT_SRC)
 # | Creating OS image |
 # =====================
 $(IMG): $(BOOT_MAIN) $(BOOT_STAGE2) $(KERNEL_BIN)
+	@size=$$(stat -c %s $(KERNEL_BIN)); max=$$(( $(KERNEL_SECTORS) * 512 )); \
+	if [ $$size -gt $$max ]; then \
+		echo "error: $(KERNEL_BIN) is $$size bytes, bootloader limit is $$max bytes" >&2; \
+		exit 1; \
+	fi
 	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
 	dd if=$(BOOT_MAIN) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(BOOT_STAGE2) of=$@ conv=notrunc bs=512 count=5 seek=1 status=none
-	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=160 seek=6
+	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=$(KERNEL_SECTORS) seek=6
 
 # Running
 run: img/open-delta.img
