@@ -6,6 +6,7 @@
 #include "./kernel-lib/mouse.h"
 #include "./kernel-lib/speaker.h"
 #include "./kernel-lib/keyboard.h"
+#include "./kernel-lib/screen.h"
 #include "./kernel-lib/vga.h"
 
 #include "./mem/header/memory.h"
@@ -26,7 +27,6 @@ extern char readp(uint16_t port);
 extern void writep(uint16_t port, uint8_t data);
 
 static uint8_t boot_drive = 0x80;
-static volatile int debug_row = 0;
 
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
@@ -60,58 +60,7 @@ static inline void dump_gdtr(void) {
 
 __attribute__((noinline))
 static void early_kprint(const char * str, uint8_t color) {
-    volatile uint16_t * vga = (volatile uint16_t *)0xB8000;
-    int col = 0;
-
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (str[i] == '\n') {
-            debug_row++;
-            col = 0;
-            continue;
-        }
-        if (str[i] == '\r') {
-            col = 0;
-            continue;
-        }
-        
-        if (debug_row >= VGA_HEIGHT) {
-            for (int r = 1; r < VGA_HEIGHT; r++) {
-                for (int c = 0; c < VGA_WIDTH; c++) {
-                    vga[(r - 1) * VGA_WIDTH + c] = vga[r * VGA_WIDTH + c];
-                }
-            }
-
-            for (int c = 0; c < VGA_WIDTH; c++) {
-                vga[(VGA_HEIGHT - 1) * VGA_WIDTH + c] = 0x0F20;
-            }
-
-            debug_row = VGA_HEIGHT - 1;
-        }
-
-        if (col >= VGA_WIDTH) {
-            debug_row++;
-            col = 0;
-
-            if (debug_row >= VGA_HEIGHT) {
-                for (int r = 1; r < VGA_HEIGHT; r++) {
-                    for (int c = 0; c < VGA_WIDTH; c++) {
-                        vga[(r - 1) * VGA_WIDTH + c] = vga[r * VGA_WIDTH + c];
-                    }
-                }
-
-                for (int c = 0; c < VGA_WIDTH; c++) {
-                    vga[(VGA_HEIGHT - 1) * VGA_WIDTH + c] = 0x0F20;
-                }
-
-                debug_row = VGA_HEIGHT - 1;
-            }
-        }
-
-        vga[debug_row * VGA_WIDTH + col] = (uint16_t)(uint8_t)str[i] | ((uint16_t)color << 8);
-        col++;
-    }
-
-    debug_row++;
+    console_write_colored(str, color);
 }
 
 __attribute__((noreturn))
@@ -120,13 +69,7 @@ void kmain(void)
 {
     __asm__ volatile ("cli");
 
-    volatile uint16_t * vga = (volatile uint16_t*)0xB8000;
-
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
-        vga[i] = 0x0F20; // 0x0F = чёрный фон, 0x20 = пробел
-    }
-
-    debug_row = 0;
+    console_init();
 
     early_kprint("Welcome to the OpenDelta!\n", CYAN);
     early_kprint("OS: OpenDelta v0.2-a (Via)\n", CYAN);
@@ -137,14 +80,14 @@ void kmain(void)
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Setting up memory management and shared memory...     ", WHITE);
-    pagging_install(DEF_MEM_LOWER + DEF_MEM_UPPER);
+    // pagging_install(DEF_MEM_LOWER + DEF_MEM_UPPER);
     heap_install();
     shm_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Installing syscalls...    ", WHITE);
     syscall_install();
-    tasking_install();
+    //tasking_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Initializing FPU...   ", WHITE);
@@ -152,8 +95,8 @@ void kmain(void)
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Installing device drivers...    ", WHITE);
-    mouse_install();
-    keyboard_handler();
+    //mouse_install();
+    keyboard_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Enabling interrupts...    ", WHITE);
