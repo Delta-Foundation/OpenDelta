@@ -9,4 +9,7 @@ unsigned short port_word_in(uint16_t port);
 void port_word_out(uint16_t port, uint16_t data);
 void APM_interface_init(void);
 
+void system_reboot(void);
+void system_poweroff(void);
+
 #endif 
