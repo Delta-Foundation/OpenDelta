@@ -1,15 +1,7 @@
 #include "../../include/ctype.h"
 
 int isspace(char c) {
-    if (c == ' ' 
-            || c == '\t' 
-            || c == '\n' 
-            || c == '\f' 
-            || c == '\v' 
-            || c == '\r') 
-    { ; }
-
-    return 0;
+    return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\v' || c == '\r';
 }
 
 void isblank(char c) {
