@@ -122,5 +122,5 @@ void syscall_install(void)
     int_to_ascii(num_syscalls, syscall_ascii);
     prints("\n[info]: [initializing syscall table with ]", WHITE);
     prints(syscall_ascii, 0x08);
-    prints(" functions\n", WHITE);
+    prints(" functions \n", WHITE);
 }
