@@ -1,115 +1,24 @@
 #include "../kernel-lib/ports.h"
 #include "../kernel-lib/screen.h"
 #include "../libc/include/stdbase.h"
-#include "../mem/header/memory.h"
 
-int print_char(
-    char c,
-    int col, 
-    int row, 
-    Colors color
-) {
-    unsigned char * vidmem = (unsigned char *)0xb8000;
+/*
+ * Simple VGA text console.
+ *
+ * The old implementation always started printing at (0, 0) and used 30x85
+ * dimensions, so every new message overwrote the previous one.  This one
+ * keeps track of the real hardware cursor, wraps at column 80 and scrolls
+ * the screen when the last line is reached.
+ */
 
-    if (col >= COLUMNS_IN_LINE || row >= LINES) {
-        vidmem[2 * (COLUMNS_IN_LINE) * (LINES) - 2] = 'E';
-        vidmem[2 * (COLUMNS_IN_LINE) * (LINES) - 1] = color;
-        return get_offset(col, row);
-    }
-   
-    int offset;
-    if (col >= 0 && row >= 0) {
-        offset = get_offset(col, row);
-    }
-    else {
-        offset = get_cursor_offset();
-    }
+static volatile uint16_t * const vga = (volatile uint16_t *) VGA_MEMORY_ADDR;
 
-    if (c == '\n') {
-        row = get_offset_row(offset);
-        offset = get_offset(0, row + 1);
-    }
-    else if (c == 0x08) {
-        vidmem[offset] = ' ';
-        vidmem[offset + 1] = color;
-    }
-    else {
-        vidmem[offset] = c;
-        vidmem[offset + 1] = color;
-        offset += 2;
-    }
+static int console_row = 0;
+static int console_col = 0;
+static unsigned int console_color = VGA_DEFAULT_COLOR;
 
-    if (offset >= LINES * COLUMNS_IN_LINE * 2) {
-        int i;
-        for (i = 1; i < LINES; i++) {
-           memory_copy(
-                (unsigned char*)(get_offset(0, i) + vidptr),
-                (unsigned char*)(get_offset(0, i - 1) + vidptr),
-                COLUMNS_IN_LINE * 2
-            );
-            
-        }
-
-        char *lastLine = (char *) (get_offset(0, LINES - 1) + (unsigned char*) vidptr);
-        for (i = 0; i < COLUMNS_IN_LINE * 2; i++) {
-            lastLine[i] = 0;
-        }
-
-        offset -= 2 * COLUMNS_IN_LINE;
-    }
-
-    set_cursor_offset(offset);
-    return offset;
-}
-
-static void kprint_at(
-    const char * fmt, 
-    int col, 
-    int row, 
-    uint32_t color
-) {
-    int offset;
-    if (col >= 0 && row >= 0) {
-        offset = get_offset(col, row);
-    }
-    else {
-        offset = get_cursor_offset();
-        row = get_offset_row(offset);
-        col = get_offset_col(offset);
-    }
-
-    int i = 0;
-    while (fmt[i] != 0) {
-        offset = print_char(fmt[i++], col, row, color);
-        row = get_offset_row(offset);
-        col = get_offset_col(offset);
-    }
-}
-
-void kprint(const char * fmt, uint32_t color, ...) {
-    kprint_at(fmt, -1, -1, color);
-}
-
-void kprintln(void) {
-    kprint_at("\n", -1, -1, 0xFF);
-}
-
-void kprintb(void) {
-    int offset = get_cursor_offset() - 2;
-    int row = get_offset_row(offset);
-    int col = get_offset_col(offset);
-    print_char(0x08, col, row, 0x0F);
-}
-
-void clear_screen(void)
-{
-    unsigned int i = 0;
-    while (i < SCREENSIZE) {
-        vidptr[i++] = ' ';
-        vidptr[i++] = 0x07;
-    }
-
-    set_cursor_offset(get_offset(0, 0));
+static inline uint16_t vga_cell(char c, unsigned int color) {
+    return (uint16_t)(uint8_t)c | (uint16_t)((color & 0xFF) << 8);
 }
 
 int get_offset(int col, int row) {
@@ -137,9 +46,176 @@ void set_cursor_offset(int offset) {
     port_byte_out(REG_SCREEN_CTRL, 14);
     port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
     port_byte_out(REG_SCREEN_CTRL, 15);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
+    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset & 0xFF));
+}
+
+static void console_update_cursor(void) {
+    if (console_row < 0) {
+        console_row = 0;
+    }
+
+    if (console_row >= LINES) {
+        console_row = LINES - 1;
+    }
+
+    if (console_col < 0) {
+        console_col = 0;
+    }
+
+    if (console_col >= COLUMNS_IN_LINE) {
+        console_col = COLUMNS_IN_LINE - 1;
+    }
+
+    set_cursor_offset(get_offset(console_col, console_row));
+}
+
+static void console_scroll(void) {
+    for (int row = 1; row < LINES; row++) {
+        for (int col = 0; col < COLUMNS_IN_LINE; col++) {
+            vga[(row - 1) * COLUMNS_IN_LINE + col] =
+                vga[row * COLUMNS_IN_LINE + col];
+        }
+    }
+
+    for (int col = 0; col < COLUMNS_IN_LINE; col++) {
+        vga[(LINES - 1) * COLUMNS_IN_LINE + col] =
+            vga_cell(' ', console_color);
+    }
+
+    console_row = LINES - 1;
+}
+
+void console_set_color(unsigned int color) {
+    console_color = color & 0xFF;
+}
+
+unsigned int console_get_color(void) {
+    return console_color;
+}
+
+void console_clear(void) {
+    for (int i = 0; i < LINES * COLUMNS_IN_LINE; i++) {
+        vga[i] = vga_cell(' ', console_color);
+    }
+
+    console_row = 0;
+    console_col = 0;
+    console_update_cursor();
+}
+
+void console_init(void) {
+    console_color = VGA_DEFAULT_COLOR;
+    console_clear();
+}
+
+void console_put_char(char c) {
+    switch (c) {
+        case '\n':
+            console_col = 0;
+            console_row++;
+            break;
+
+        case '\r':
+            console_col = 0;
+            break;
+
+        case '\b':
+            if (console_col > 0) {
+                console_col--;
+            }
+            else if (console_row > 0) {
+                console_row--;
+                console_col = COLUMNS_IN_LINE - 1;
+            }
+            vga[console_row * COLUMNS_IN_LINE + console_col] =
+                vga_cell(' ', console_color);
+            break;
+
+        case '\t': {
+            int spaces = 4 - (console_col % 4);
+            for (int i = 0; i < spaces; i++) {
+                console_put_char(' ');
+            }
+            return;
+        }
+
+        default:
+            if ((unsigned char)c < 32) {
+                return;
+            }
+
+            vga[console_row * COLUMNS_IN_LINE + console_col] =
+                vga_cell(c, console_color);
+
+            console_col++;
+            if (console_col >= COLUMNS_IN_LINE) {
+                console_col = 0;
+                console_row++;
+            }
+            break;
+    }
+
+    if (console_row >= LINES) {
+        console_scroll();
+    }
+
+    console_update_cursor();
+}
+
+void console_backspace(void) {
+    console_put_char('\b');
+}
+
+void console_write(const char * str) {
+    if (str == NULL) {
+        return;
+    }
+
+    while (*str != '\0') {
+        console_put_char(*str++);
+    }
+}
+
+void console_write_colored(const char * str, unsigned int color) {
+    unsigned int old = console_get_color();
+    console_set_color(color);
+    console_write(str);
+    console_set_color(old);
+}
+
+/* Compatibility with the old screen API. */
+int print_char(char c, int col, int row, unsigned int color) {
+    if (col >= 0 && col < COLUMNS_IN_LINE && row >= 0 && row < LINES) {
+        console_col = col;
+        console_row = row;
+    }
+
+    unsigned int old = console_get_color();
+    console_set_color(color);
+    console_put_char(c);
+    console_set_color(old);
+
+    return get_offset(console_col, console_row);
+}
+
+void kprint(const char * fmt, uint32_t color, ...) {
+    console_write_colored(fmt, color);
+}
+
+void kprintln(void) {
+    console_put_char('\n');
+}
+
+void kprintb(void) {
+    console_backspace();
+}
+
+void clear_screen(void) {
+    console_clear();
 }
 
 void delay(void) {
-    for (unsigned int n = 0; n < 500000000; n++) { ; }
+    for (unsigned int n = 0; n < 50000000; n++) {
+        __asm__ volatile ("nop");
+    }
 }
