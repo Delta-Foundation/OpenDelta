@@ -29,11 +29,4 @@ QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -no-reboot -no-shutdown \
              -display gtk,full-screen=off,gl=off,show-cursor=on
 
-BOOT_DEPS = $(BOOT_SRC) boot/x86_64/print.asm \
-			boot/x86_64/rmode/functions.asm boot/x86_64/rmode/data.asm
-
-STAGE2_DEPS = $(STAGE2_SRC) \
-			boot/x86_64/global-functions.asm boot/x86_64/global-data.asm \
-			boot/x86_64/print.asm boot/x86_64/macros.asm \
-			boot/x86_64/pmode/functions.asm boot/x86_64/pmode/data.asm \
-			boot/x86_64/rmode/functions.asm boot/x86_64/rmode/data.asm
+KERNEL_SECTORS := 256
