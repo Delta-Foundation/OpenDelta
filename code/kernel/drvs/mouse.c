@@ -95,9 +95,9 @@ void mouse_wait(uint8_t a_type)
 
 void mouse_write(uint8_t a_write) {
     mouse_wait(1);
-    port_byte_in(MOUSE_STATUS, MOUSE_WRITE);
+    port_byte_out(MOUSE_STATUS, MOUSE_WRITE);
     mouse_wait(1);
-    port_byte_in(MOUSE_PORT, a_write);
+    port_byte_out(MOUSE_PORT, a_write);
 }
 
 uint8_t mouse_read(void) {
