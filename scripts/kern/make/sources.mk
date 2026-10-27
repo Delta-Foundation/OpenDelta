@@ -2,6 +2,15 @@ BOOT_SRC = boot/x86_64/main.asm
 STAGE2_SRC = boot/x86_64/second-stage.asm
 ENTRY_SRC = kernel_entry.asm
 
+BOOT_DEPS = $(BOOT_SRC) boot/x86_64/print.asm \
+			boot/x86_64/rmode/functions.asm boot/x86_64/rmode/data.asm
+
+STAGE2_DEPS = $(STAGE2_SRC) \
+			boot/x86_64/global-functions.asm boot/x86_64/global-data.asm \
+			boot/x86_64/print.asm boot/x86_64/macros.asm \
+			boot/x86_64/pmode/functions.asm boot/x86_64/pmode/data.asm \
+			boot/x86_64/rmode/functions.asm boot/x86_64/rmode/data.asm
+
 KERNEL_SRC = kernel.c
 GDT_SRC = arch/gdt/gdt.c
 GDT_ASM_SRC = arch/gdt/gdt.asm
