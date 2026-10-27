@@ -35,6 +35,8 @@ void set_process_environment(
     sys_process_t * process,
     page_dir_t * dir
 ) {
+    page_dir_t * current_dir;
+
     if (process == NULL || dir == NULL) {
         prints("[ERROR]: set_process_environment: invalid arguments\n", RED);
         return;
@@ -74,7 +76,11 @@ void switch_context(
 }
 
 void shedule(void) {
-    if (!current_process || current_process->state != PROC_RUNNING) {
+    if (!current_process) {
+        return;
+    }
+
+    if (current_process->state != PROC_RUNNING) {
         if (ready_queue) {
             sys_process_t * next = ready_queue;
             ready_queue = ready_queue->next;
@@ -95,8 +101,7 @@ sys_process_t * spawn_init(void) {
 }
 
 sys_process_t * spawn_KIdle(void) {
-    sys_process_t *idle = malloc(sizeof(sys_process_t));
+    sys_process_t * idle = malloc(sizeof(sys_process_t));
     memset(idle, 0x00, sizeof(sys_process_t));
     return idle;
 }
-
