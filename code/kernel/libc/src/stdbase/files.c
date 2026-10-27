@@ -8,6 +8,8 @@
 /* Headers from kernel */
 #include "../../../fs/headers/fs.h"
 #include "../../../kernel-lib/system.h"
+#include "../../../kernel-lib/screen.h"
+#include "../../../kernel-lib/keyboard.h"
 
 FILE _iob[OPEN_MAX];
 
@@ -34,7 +36,8 @@ FILE * fopen(char * name, char * mode)
         fd = sys_create(name, PERMS);
     }
     else if (*mode == 'a') {
-        if ((fd == sys_open(name, O_WRONLY, 0)) == -1) {
+        fd = sys_open(name, O_WRONLY, 0);
+        if (fd == -1) {
             fd = sys_create(name, PERMS);
         }
         lseek(fd, 0L, 2);
@@ -85,17 +88,21 @@ char * fgets(
 
 int fgetc(FILE * file) 
 {
-    if (!file || file->error) {
+    if (file == NULL || (uintptr_t)file == (uintptr_t)stdin) {
+        return console_getchar();
+    }
+
+    if (file->error) {
         return EOF;
     }   
     
     if (file->buf_pos >= file->buf_size) {
-        if (file->flag) {
+        if (!(file->flag & _READ)) {
             return EOF;
         }
 
         unsigned int bytes_read = sys_read(file->fd, (char *)file->buf, BUFSIZE);
-        if (bytes_read < 0) {
+        if ((int)bytes_read <= 0) {
             file->error = 1;
             return EOF;
         }
@@ -112,10 +119,10 @@ int fputs(
     const char * str,
     FILE * file
 ) {
-    int c = 0;
+    int c;
 
-    while ((c == *str++) != '\0') {
-        _putc(c, file);
+    while ((c = (unsigned char)*str++) != '\0') {
+        fputc((char)c, file);
     }
 
     return ferror(file) ? EOF : 0;
@@ -130,5 +137,23 @@ void fcopy(FILE * ifp, FILE * ofp) {
 }
 
 void fputc(char c, FILE * file) {
-    vfs_write((fd_t *)file, (unsigned char *)&c, sizeof(c));
+    uintptr_t handle = (uintptr_t)file;
+
+    if (handle == (uintptr_t)stdin) {
+        return;
+    }
+
+    if (handle == (uintptr_t)stdout || handle == (uintptr_t)stderr) {
+        console_put_char(c);
+        return;
+    }
+
+    if (handle == (uintptr_t)debug) {
+        outb(0xE9, (uint8_t)c);
+        return;
+    }
+
+    if (file != NULL) {
+        sys_write(file->fd, &c, 1);
+    }
 }
