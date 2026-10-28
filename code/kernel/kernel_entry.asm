@@ -34,7 +34,6 @@ _start:
 
     mov rsp, stack_top
     and rsp, 0xFFFFFFF0
-    sub rsp, 4
 
     ; Marker 1: segments + stack ready. Kernel started
     mov dword [VIDEO_MEMORY], 0x2F312F31
