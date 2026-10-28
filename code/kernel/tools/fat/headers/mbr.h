@@ -21,7 +21,24 @@ typedef struct {
     uint32_t size;
 } __attribute__((packed)) mbr_entry_t;
 
-void mbr_detect_part(partition_t* part, DISK* disk, void* part_entry);
-boolean part_read_sectors(partition_t* part, uint32_t lba, uint8_t sectors, void* lower_data_out);
+void mbr_detect_part(
+    partition_t * part, 
+    DISK * disk, 
+    void * part_entry
+);
+
+boolean part_read_sectors(
+    partition_t * part, 
+    uint32_t lba, 
+    uint8_t sectors, 
+    void * lower_data_out
+);
+
+boolean part_write_sectors(
+    partition_t * part, 
+    uint32_t lba, 
+    uint8_t sectors, 
+    const void * data_in
+);
 
 #endif 
