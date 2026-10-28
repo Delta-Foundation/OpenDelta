@@ -5,6 +5,8 @@
 #include "../kernel-lib/screen.h"
 #include "../kernel-lib/keyboard.h"
 #include "../kernel-lib/ports.h"
+#include "../mem/header/memory.h"
+#include "../tools/fat/headers/fat.h"
 #include "./header/min_dltsh.h"
 
 #define MCL 255
@@ -84,8 +86,8 @@ static void command_lower(int argc, char ** argv) {
         for (int j = 0; argv[i][j] != '\0'; j++) {
             char ch[2];
 
-            ch[0] = (int)lower(argv[i][j]);
-            ch[1] != '\0';
+            ch[0] = (char)lower((unsigned char)argv[i][j]);
+            ch[1] = '\0';
             prints(ch, WHITE);
         }
     }
@@ -118,6 +120,30 @@ static void command_reverse(int argc, char ** argv) {
     prints("\n", WHITE);
 }
 
+static void command_len(int argc, char ** argv) {
+    for (int i = argc - 1; i >= 1; i--) {
+        if (argc != 2 || argv == 0 || argv[1] == 0) {
+            prints("Usage: len <string>\n", WHITE);
+        }
+        
+        usize len = strlen(argv[1]);
+        char out[sizeof(usize) * 3 + 2];
+        
+        out[sizeof(out) - 1] = '\n';
+        usize pos = sizeof(out);
+
+        do {
+            out[--pos] = (char)('0' + len % 10);
+            len /= 10;
+        } while (len != 0);
+
+        prints("length of string: \n", WHITE);
+        prints(out + pos, WHITE, sizeof(out) - pos);
+    }
+
+    prints("\n", WHITE);
+}
+
 static void command_colors(void) {
     prints("Base colors: \n", WHITE);
     prints("    |######| \n", LGRAY);
@@ -139,17 +165,106 @@ static void command_colors(void) {
     prints("    |######| \n", LCYAN);
 }
 
+static int read_double(const char ** pp, double * out) {
+    const char * p = *pp;
+    double value = 0.0;
+    int negative = 0;
+    int digits = 0;
+
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+
+    if (*p == '+' || *p == '-') {
+        negative = (*p == '-');
+        p++;
+    }
+
+    while (*p >= '0' && *p <= '9') {
+        value = value * 10.0 + (double)(*p - '0');
+        digits++;
+        p++;
+    }
+
+    if (*p == '.') {
+        double place = 0.1;
+
+        p++;
+        while (*p >= '0' && *p <= '9') {
+            value += (double)(*p - '0') * place;
+            place /= 10.0;
+            digits++;
+            p++;
+        }
+    }
+
+    if (digits == 0) {
+        return 0;
+    }
+
+    *out = negative ? -value : value;
+    *pp = p;
+    return 1;
+}
+
+static void print_double(double value) {
+    long long scaled;
+
+    if (value < 0.0) {
+        prints("-", GREEN);
+        value = -value;
+    }
+
+    scaled = (long long)(value * 100.0 + 0.5);
+    printf("%lld.%02lld", scaled / 100, scaled % 100);
+}
+
 static void command_calc(void) {
     prints("[CALCULATOR]\n", BLUE);
+    prints("usage: <number> <operation> <number>, e.g. 2 + 2\n", LGRAY);
 
+    char line[MCL + 1];
+    prints("matematix > ", WHITE);
+
+    int len = console_readline(line, sizeof(line));
+    if (len <= 0) {
+        prints("[ERROR]: [Empty input]\n", RED);
+        return;
+    }
+
+    const char * p = line;
     double first_num;
     double second_num;
     char operation;
 
-    int input_result = scanf(" %lf\n %c\n %lf", &first_num, &operation, &second_num);
-    if (input_result != 3) {
-        prints("[ERROR]: Wrong input", RED);
-        while (console_getchar() != '\n');
+    if (!read_double(&p, &first_num)) {
+        prints("[ERROR]: [Wrong first number]\n", RED);
+        return;
+    }
+
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+
+    operation = *p;
+    if (operation == '\0') {
+        prints("[ERROR]: [Wrong symbol of operation]\n", RED);
+        return;
+    }
+    p++;
+
+    if (!read_double(&p, &second_num)) {
+        prints("[ERROR]: [Wrong second number]\n", RED);
+        return;
+    }
+
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+
+    if (*p != '\0') {
+        prints("[ERROR]: [Wrong input]\n", RED);
+        return;
     }
 
     double result;
@@ -168,9 +283,9 @@ static void command_calc(void) {
         break;
 
         case '/':
-            if (second_num == 0) {
+            if (second_num == 0.0) {
                 prints("[ERROR]: [Division by zero!]\n", RED);
-                while (console_getchar() != '\n');
+                return;
             }
 
             result = first_num / second_num;
@@ -178,30 +293,32 @@ static void command_calc(void) {
 
         default:
             prints("[ERROR]: [Wrong symbol of operation]\n", RED);
-            while (console_getchar() != '\n');
+            return;
         break;
     }
 
     prints("[result]: ", GREEN);
-    printf("%.2lf \n", result);
+    print_double(result);
+    prints("\n", GREEN);
     prints("[CALCULATOR TERMINATED]\n", BLUE);
 }
 
 static void print_help(void) {
     prints("dltsh built-in commands:\n", WHITE);
-    prints("  help      show this help\n", LGRAY);
-    prints("  fetch     show system information\n", LGRAY);
-    prints("  about     shell/kernel version\n", LGRAY);
-    prints("  echo ...  print arguments\n", LGRAY);
-    prints("  clear     clear the screen\n", LGRAY);
-    prints("  reboot    restart the machine\n", LGRAY);
-    prints("  poweroff  power the machine off\n", LGRAY);
-    prints("  exit      leave the shell\n", LGRAY);
-    prints("  calc      calculator\n", LGRAY);
-    prints("  upper     converting text from lower to upper case\n", LGRAY);
-    prints("  lower     converting text from upper to lower case\n", LGRAY);
-    prints("  reverse   works like echo, but the text is displayed upside down\n", LGRAY);
-    prints("  colors    output all vga colors in tty\n", LGRAY);
+    prints("  help        show this help\n", LGRAY);
+    prints("  fetch       show system information\n", LGRAY);
+    prints("  about       shell/kernel version\n", LGRAY);
+    prints("  echo    ... print arguments\n", LGRAY);
+    prints("  clear       clear the screen\n", LGRAY);
+    prints("  reboot      restart the machine\n", LGRAY);
+    prints("  poweroff    power the machine off\n", LGRAY);
+    prints("  exit        leave the shell\n", LGRAY);
+    prints("  calc        calculator\n", LGRAY);
+    prints("  upper   ... converting text from lower to upper case\n", LGRAY);
+    prints("  lower   ... converting text from upper to lower case\n", LGRAY);
+    prints("  reverse ... works like echo, but the text is displayed upside down\n", LGRAY);
+    prints("  colors      output all vga colors in tty\n", LGRAY);
+    prints("  len     ... output length of string\n", LGRAY);
 }
 
 static void print_about(void) {
@@ -287,6 +404,9 @@ void min_dltsh(void) {
         }
         else if (strcmp(argv[0], "echo") == 0) {
             command_echo(argc, argv);
+        }
+        else if (strcmp(argv[0], "len") == 0) {
+            command_len(argc, argv);
         }
         else if (strcmp(argv[0], "reverse") == 0) {
             command_reverse(argc, argv);
