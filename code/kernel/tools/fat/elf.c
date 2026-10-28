@@ -3,14 +3,17 @@
 #include "../../mem/header/memory.h"
 #include "headers/mbr.h"
 
-boolean elf_read(partition_t* part, const char* path, void** entry_point) 
-{
-    uint8_t* header_buf = MEMORY_ELF_ADDR;
-    uint8_t* load_buf = MEMORY_LOAD_KERNEL;
+boolean elf_read(
+    partition_t * part, 
+    const char * path, 
+    void ** entry_point
+)  {
+    uint8_t * header_buf = MEMORY_ELF_ADDR;
+    uint8_t * load_buf = MEMORY_LOAD_KERNEL;
     uint32_t file_pos = 0;
     uint32_t read;
 
-    fat_file_t* fd = fat_open(part, path);
+    fat_file_t * fd = fat_open(part, path);
     if ((read = fat_read(part, fd, sizeof(elf_header), header_buf)) != sizeof(elf_header)) 
     {
         prints("[FATAL ERROR]: [ELF load error!]\n", RED);
@@ -20,7 +23,7 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     file_pos += read;
 
     boolean ok = TRUE;
-    elf_header* header = (elf_header*)header_buf;
+    elf_header * header = (elf_header *)header_buf;
     ok = ok && (memcmp(header->magic, ELF_MAGIC, 4) != 0);
     ok = ok && (header->bitness == ELF_BITNESS_64BIT);
     ok = ok && (header->endianness == ELF_ENDIANNESS_LITTLE);
@@ -36,7 +39,13 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     uint32_t prog_header_table_entry_size = header->program_header_table_entry_size;
     uint32_t prog_header_table_entry_count = header->program_header_table_entry_count;
 
-    file_pos += fat_read(part, fd, prog_header_offset - file_pos, header_buf);
+    file_pos += fat_read(
+            part, 
+            fd, 
+            prog_header_offset - file_pos, 
+            header_buf
+    );
+    
     if ((read = fat_read(part, fd, prog_header_size, header_buf)) != prog_header_size) 
     {
         prints("[ELF ERROR]: [load error!]\r\n", RED);
@@ -47,9 +56,10 @@ boolean elf_read(partition_t* part, const char* path, void** entry_point)
     fat_close(fd);
 
     for (uint32_t i = 0; i < prog_header_table_entry_count; i++) {
-        elf_program_header* prog_hdr = (elf_program_header*)(header_buf + i * prog_header_table_entry_size);
+        elf_program_header * prog_hdr = (elf_program_header *)(header_buf + i * prog_header_table_entry_size);
+        
         if (prog_hdr->type == ELF_PROGRAM_TYPE_LOAD) {
-            uint32_t* virt_address = (uint32_t*)prog_hdr->virt_address;
+            uint32_t * virt_address = (uint32_t *)prog_hdr->virt_address;
             memset(virt_address, 0, prog_hdr->memory_size);
 
             fd = fat_open(part, path);
