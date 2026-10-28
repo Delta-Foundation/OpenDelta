@@ -140,7 +140,7 @@ $(IMG): $(BOOT_MAIN) $(BOOT_STAGE2) $(KERNEL_BIN)
 		echo "error: $(KERNEL_BIN) is $$size bytes, bootloader limit is $$max bytes" >&2; \
 		exit 1; \
 	fi
-	dd if=/dev/zero of=$@ bs=512 count=4096 status=none
+	dd if=/dev/zero of=$@ bs=512 count=$(IMAGE_SECTORS) status=none
 	dd if=$(BOOT_MAIN) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(BOOT_STAGE2) of=$@ conv=notrunc bs=512 count=5 seek=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=$(KERNEL_SECTORS) seek=6
