@@ -31,31 +31,33 @@ typedef signed long intptr_t;
 /*---mode_t-type-realization---*/
 typedef unsigned int mode_t;
 
+typedef __SIZE_TYPE__ usize;
+
 /*--off_t-type-realization---*/
 #if defined(__LP64__) || defined(__LLP64__) || defined(_WIN64)
-typedef long off_t;
-#define OFF_T_MAX LONG_MAX
-#define OFF_T_MIN LONG_MIN
+    typedef long off_t;
+    #define OFF_T_MAX LONG_MAX
+    #define OFF_T_MIN LONG_MIN
 #elif defined(__ILP32__) || defined(_WIN32)
-typedef int off_t;
-#define OFF_T_MAX LLONG_MAX
-#define OFF_T_MIN LLONG_MIN
+    typedef int off_t;
+    #define OFF_T_MAX LLONG_MAX
+    #define OFF_T_MIN LLONG_MIN
 #else
-#error "Unsupported architecture for off_t"
+    #error "Unsupported architecture for off_t"
 #endif
 
 #ifndef __SIZE_T_DEFINED__
 #define __SIZE_T_DEFINED__
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || defined(__powerpc64__)
-typedef unsigned long size_t;
-#define SIZE_MAX 18446744073709551615UL
+    typedef unsigned long size_t;
+    #define SIZE_MAX 18446744073709551615UL
 #elif defined(__i386__) || defined(_M_IX86)
-typedef unsigned int size_t;
-#define SIZE_MAX 4293967295U
+    typedef unsigned int size_t;
+    #define SIZE_MAX 4293967295U
 #else
-typedef unsigned long size_t;
-#define SIZESIZE_MAX 18446744073709551615UL
+    typedef unsigned long size_t;
+    #define SIZESIZE_MAX 18446744073709551615UL
 #endif
 
 #define SIZEOF(type) ((size_t)(&((type*)0)[1] - (type*)0))
