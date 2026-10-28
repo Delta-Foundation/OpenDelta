@@ -73,11 +73,17 @@ int strncmp(
 }
 
 unsigned int strlen(const char * str) {
-	unsigned int len = 0;
-	while(str[len]) {
-		len++;
-	}
-	return len;
+	usize len = 0;
+	
+    if (str == 0) {
+        return 0;
+    }
+    
+    while (str[len] != '\0') {
+        len++;
+    }
+    
+    return len;
 }
 
 unsigned int strnlen(
