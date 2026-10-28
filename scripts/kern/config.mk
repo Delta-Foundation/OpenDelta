@@ -14,19 +14,20 @@ OBJCOPY = llvm-objcopy
 FLAGS = --target=x86_64-unknown-elf -m64 -std=c17 \
 	-ffreestanding -nostdlib \
 	-fno-builtin -fno-stack-protector -nodefaultlibs \
-        -O2 -g -Wall -I~/OpenDelta/code/kernel/libc/include
+    -O2 -g -Wall -I~/OpenDelta/code/kernel/libc/include
 
-# Linker flags 
+# Linker flags
 LD_FLAGS = -z noexecstack -T link64.ld -Map kernel.map
 
 # Image file
 IMG = img/open-delta.img
 
-# QEMU and QEMU flags 
+# QEMU and QEMU flags
 QEMU = qemu-system-x86_64
 QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
 			 -d int,cpu_reset \
 			 -no-reboot -no-shutdown \
              -display gtk,full-screen=off,gl=off,show-cursor=on
 
+IMAGE_SECTORS := 8192
 KERNEL_SECTORS := 256
