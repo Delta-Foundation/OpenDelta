@@ -39,6 +39,20 @@ boolean disk_read(
     void * lower_data_out
 );
 
+boolean disk_read_lba(
+    uint8_t drive,
+    uint32_t lba,
+    uint8_t count,
+    void * lower_data_out
+);
+
+boolean disk_write_lba(
+    uint8_t drive,
+    uint32_t lba,
+    uint8_t count,
+    const void * lower_data_in
+);
+
 int get_next_block(
     e820_mem_block * block, 
     uint32_t * continuation_id
