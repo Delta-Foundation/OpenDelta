@@ -9,6 +9,7 @@
 #include "../tools/fat/headers/fat.h"
 #include "./header/fs_shell.h"
 #include "./header/min_dltsh.h"
+#include "./header/dexide.h"
 
 #define MCL 255
 #define MAX_ARGS 10
@@ -319,6 +320,7 @@ static void print_help(void) {
     prints("  reverse ... works like echo, but the text is displayed upside down\n", LGRAY);
     prints("  colors      output all vga colors in tty\n", LGRAY);
     prints("  len     ... output length of string\n", LGRAY);
+    prints("  dexide      minimal text editor\n", LGRAY);
     fs_shell_help();
 }
 
@@ -405,6 +407,9 @@ void min_dltsh(void) {
         }
         else if (strcmp(argv[0], "echo") == 0) {
             command_echo(argc, argv);
+        }
+        else if (strcmp(argv[0], "dexide") == 0) {
+            dexide_run(argc, argv);
         }
         else if (strcmp(argv[0], "len") == 0) {
             command_len(argc, argv);
