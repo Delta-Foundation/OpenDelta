@@ -1,10 +1,8 @@
 #include "./headers/elf.h"
 #include "./headers/fat.h"
 #include "../../mem/header/memory.h"
-#include "headers/mbr.h"
 
 boolean elf_read(
-    partition_t * part, 
     const char * path, 
     void ** entry_point
 )  {
@@ -13,10 +11,16 @@ boolean elf_read(
     uint32_t file_pos = 0;
     uint32_t read;
 
-    fat_file_t * fd = fat_open(part, path);
-    if ((read = fat_read(part, fd, sizeof(elf_header), header_buf)) != sizeof(elf_header)) 
+    fat_file_t * fd = fat_open(path);
+    if (fd == NULL) {
+        prints("[FATAL ERROR]: [ELF file not found!]\n", RED);
+        return FALSE;
+    }
+
+    if ((read = fat_read(fd, sizeof(elf_header), header_buf)) != sizeof(elf_header)) 
     {
         prints("[FATAL ERROR]: [ELF load error!]\n", RED);
+        fat_close(fd);
         return FALSE;
     }
 
@@ -40,15 +44,15 @@ boolean elf_read(
     uint32_t prog_header_table_entry_count = header->program_header_table_entry_count;
 
     file_pos += fat_read(
-            part, 
             fd, 
             prog_header_offset - file_pos, 
             header_buf
     );
     
-    if ((read = fat_read(part, fd, prog_header_size, header_buf)) != prog_header_size) 
+    if ((read = fat_read(fd, prog_header_size, header_buf)) != prog_header_size) 
     {
         prints("[ELF ERROR]: [load error!]\r\n", RED);
+        fat_close(fd);
         return FALSE;
     }
 
@@ -62,14 +66,17 @@ boolean elf_read(
             uint32_t * virt_address = (uint32_t *)prog_hdr->virt_address;
             memset(virt_address, 0, prog_hdr->memory_size);
 
-            fd = fat_open(part, path);
+            fd = fat_open(path);
             while (prog_hdr->offset > 0) 
             {
-                uint32_t should_read = min(prog_hdr->offset, MEMORY_LOAD_SIZE);
-                read = fat_read(part, fd, should_read, load_buf);
+                uint32_t should_read = prog_hdr->offset < MEMORY_LOAD_SIZE
+                    ? prog_hdr->offset
+                    : MEMORY_LOAD_SIZE;
+                read = fat_read(fd, should_read, load_buf);
                 
                 if (read != should_read) {
                     prints("[ELF ERROR]: [load error!]\n", RED);
+                    fat_close(fd);
                     return FALSE;
                 }
 
@@ -78,11 +85,14 @@ boolean elf_read(
 
             while (prog_hdr->file_size > 0) 
             {
-                uint32_t should_read = min(prog_hdr->file_size, MEMORY_LOAD_SIZE);
-                read = fat_read(part, fd, should_read, load_buf);
+                uint32_t should_read = prog_hdr->file_size < MEMORY_LOAD_SIZE
+                    ? prog_hdr->file_size
+                    : MEMORY_LOAD_SIZE;
+                read = fat_read(fd, should_read, load_buf);
 
                 if (read != should_read) {
                     prints("[ELF ERROR]: [load error!]\n", RED);
+                    fat_close(fd);
                     return FALSE;
                 }
 
