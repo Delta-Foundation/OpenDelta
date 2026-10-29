@@ -164,7 +164,7 @@ void shed_init(void);
 int process_create(void (* entry)(), void * stack);
 
 void switch_context(
-    proc_context_t * old,
+    proc_context_t * old, 
     proc_context_t * new
 );
 
