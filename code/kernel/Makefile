@@ -2,7 +2,7 @@ include ../../scripts/kern/make/binaries.mk
 include ../../scripts/kern/make/sources.mk
 include ../../scripts/kern/config.mk
 
-all: 
+all:
 	$(MAKE) $(BOOT_MAIN)
 	$(MAKE) $(BOOT_STAGE2)
 	$(MAKE) $(KERNEL_ELF)
@@ -113,22 +113,43 @@ libc/src/%.o: libc/src/%.c
 $(TTY): $(TTY_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(MIN_DLTSH): $(MIN_DLTSH_SRC) tty/header/fs_shell.h tools/fat/headers/fat.h
+$(MIN_DLTSH): $(MIN_DLTSH_SRC) \
+		tty/header/dexide.h \
+		tty/header/fs_shell.h \
+		tools/fat/headers/fat.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(FS_SHELL): $(FS_SHELL_SRC) tty/header/fs_shell.h tools/fat/headers/fat.h
+$(FS_SHELL): $(FS_SHELL_SRC) \
+		tty/header/dexide.h \
+		tty/header/fs_shell.h \
+		tools/fat/headers/fat.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(FAT): $(FAT_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
-		tools/fat/headers/mbr.h tools/fat/headers/disk.h
+$(DEXIDE): $(DEXIDE_SRC) \
+		tty/header/dexide.h \
+		tty/header/fs_shell.h \
+		tools/fat/headers/fat.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(FAT_DIR): $(FAT_DIR_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
-		tools/fat/headers/mbr.h tools/fat/headers/disk.h
+$(FAT): $(FAT_SRC) \
+		tools/fat/headers/fat.h \
+		tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h \
+		tools/fat/headers/disk.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(FAT_FILE): $(FAT_FILE_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
-		tools/fat/headers/mbr.h tools/fat/headers/disk.h
+$(FAT_DIR): $(FAT_DIR_SRC) \
+		tools/fat/headers/fat.h \
+		tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h \
+		tools/fat/headers/disk.h
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(FAT_FILE): $(FAT_FILE_SRC) \
+		tools/fat/headers/fat.h \
+		tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h \
+		tools/fat/headers/disk.h
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(ELF): $(ELF_SRC)
