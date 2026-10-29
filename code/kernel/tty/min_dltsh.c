@@ -7,6 +7,7 @@
 #include "../kernel-lib/ports.h"
 #include "../mem/header/memory.h"
 #include "../tools/fat/headers/fat.h"
+#include "./header/fs_shell.h"
 #include "./header/min_dltsh.h"
 
 #define MCL 255
@@ -121,25 +122,24 @@ static void command_reverse(int argc, char ** argv) {
 }
 
 static void command_len(int argc, char ** argv) {
-    for (int i = argc - 1; i >= 1; i--) {
-        if (argc != 2 || argv == 0 || argv[1] == 0) {
-            prints("Usage: len <string>\n", WHITE);
-        }
-        
-        usize len = strlen(argv[1]);
-        char out[sizeof(usize) * 3 + 2];
-        
-        out[sizeof(out) - 1] = '\n';
-        usize pos = sizeof(out);
-
-        do {
-            out[--pos] = (char)('0' + len % 10);
-            len /= 10;
-        } while (len != 0);
-
-        prints("length of string: \n", WHITE);
-        prints(out + pos, WHITE, sizeof(out) - pos);
+    if (argc < 2 || argv == NULL || argv[1] == NULL) {
+        prints("Usage: len <string>\n", WHITE);
+        return;
     }
+
+    usize len = strlen(argv[1]);
+    char out[sizeof(usize) * 3 + 2];
+
+    out[sizeof(out) - 1] = '\0';
+    usize pos = sizeof(out) - 1;
+
+    do {
+        out[--pos] = (char)('0' + len % 10);
+        len /= 10;
+    } while (len != 0);
+
+    prints("length of string: \n", WHITE);
+    prints(out + pos, WHITE);
 
     prints("\n", WHITE);
 }
@@ -319,6 +319,7 @@ static void print_help(void) {
     prints("  reverse ... works like echo, but the text is displayed upside down\n", LGRAY);
     prints("  colors      output all vga colors in tty\n", LGRAY);
     prints("  len     ... output length of string\n", LGRAY);
+    fs_shell_help();
 }
 
 static void print_about(void) {
@@ -429,6 +430,9 @@ void min_dltsh(void) {
             prints("auf wiedersehen!\n", WHITE);
             delay();
             system_poweroff();
+        }
+        else if (fs_shell_execute(argc, argv)) {
+            continue;
         }
         else {
             prints("[ERROR]: command not found: ", RED);
