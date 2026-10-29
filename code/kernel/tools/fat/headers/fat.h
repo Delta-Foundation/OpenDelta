@@ -79,11 +79,19 @@ boolean fat_delete_dir(const char * path);
 
 /* File access. */
 fat_file_t * fat_open(const char * path);
+
 uint32_t fat_read(
     fat_file_t * file,
     uint32_t count,
     void * data_out
 );
+
+boolean fat_write_file(
+    const char * path,
+    const void * data,
+    uint32_t size
+);
+
 void fat_close(fat_file_t * file);
 
 #endif
