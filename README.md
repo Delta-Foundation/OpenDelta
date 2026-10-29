@@ -17,6 +17,7 @@
 ![relu](./doc/assets/reverse-echo-lower-upper.png)
 ![aae](./doc/assets/about-and-exit.png)
 ![fat32](./doc/assets/fat32-delta-commands.png)
+![dexide](./doc/assets/dexide.png)
 ![help](./doc/assets/help.png)
 ![colors](./doc/assets/colors.png)
 ![len](./doc/assets/len.png)
