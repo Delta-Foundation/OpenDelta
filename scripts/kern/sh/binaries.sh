@@ -1,48 +1,50 @@
 OBJS=(
     obj/entry.o
     obj/kernel.o
-    obj/gdt_asm.o 
-    obj/gdt.o 
-    obj/idt_asm.o 
+    obj/gdt_asm.o
+    obj/gdt.o
+    obj/idt_asm.o
     obj/ints_asm.o
-    obj/idt.o 
+    obj/idt.o
     obj/isr.o
-    obj/ints.o 
+    obj/ints.o
     obj/pic.o
     obj/hal.o
     obj/ports.o
     obj/fpu.o
-    obj/screen.o 
-    obj/speaker.o 
+    obj/screen.o
+    obj/speaker.o
     obj/mouse.o
     obj/time.o
     obj/kbd.o
-    obj/mem.o 
-    obj/shm.o 
-    obj/sys.o 
-    obj/task.o 
-    obj/proc.o 
-    obj/fs.o 
+    obj/mem.o
+    obj/shm.o
+    obj/sys.o
+    obj/task.o
+    obj/proc.o
+    obj/fs.o
     obj/list.o
     obj/pipe.o
-    obj/stdbase.o 
+    obj/stdbase.o
     obj/stdlib.o
     obj/ctype.o
     obj/types.o
     obj/string.o
     obj/debug.o
-    obj/tty.o 
-    obj/min_dltsh.o 
+    obj/tty.o
+    obj/min_dltsh.o
     obj/fat.o
     obj/fs_shell.o
+    obj/dexide.o
     obj/fat_file.o
-    obj/fat_dir.o 
+    obj/fat_dir.o
     obj/elf.o
     obj/mbr.o
     obj/disk.o
     obj/tools_asm.o
     obj/cinit.o
 )
+
 
 BINS=(
     img/boot.bin
