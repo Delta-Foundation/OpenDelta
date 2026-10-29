@@ -6,8 +6,8 @@
 ------------------------------------------------------------------
 
 # Версии утилит и программ в OpenDelta.
-* OpenDelta: v0.2-a
-* dltkernel: v0.1.0-a 
+* OpenDelta: v0.2-a. Кодовое имя - Via.
+* dltkernel: v0.1.0-a
 * dltsh: v0.0.14-d 
 
 ------------------------------------------------------------------
@@ -62,7 +62,7 @@ qemu-system-x86_64 -drive format=raw,file=open-delta-unix.img,media=disk,if=ide 
 
 ``` 
 # arch 
-sudo pacman -S clang lld llvm nasm
+sudo pacman -S clang lld llvm nasm make
 ```
 
 ``` 
@@ -72,16 +72,16 @@ doas pkg install nasm gmake
 
 ``` 
 # void 
-sudo xbps-install -S clang nasm llvm ld.lld
+sudo xbps-install -S clang nasm llvm ld.lld make
 ```
 
 ``` 
 # debian
-sudo apt install nasm clang llvm lld
+sudo apt install nasm clang llvm lld make
 ```
 
-### Качаем репозиторий (ветка `master-i386`, но можно также `master-x86-64`):
-`git clone -b master-i386 https://github.com/Delta-Foundation/OpenDelta.git`
+### Качаем репозиторий (ветка `master-x86-86`):
+`git clone -b master-x86-64 https://github.com/Delta-Foundation/OpenDelta.git`
 
 ### Переходим в папку я ядром, создаём две необходимые папки и запускаем сборку ядра:
 `cd ~/OpenDelta/code/kernel && mkdir img/ && mkdir obj/ && make`
