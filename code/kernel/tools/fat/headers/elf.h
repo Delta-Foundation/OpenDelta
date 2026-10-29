@@ -83,7 +83,6 @@ enum ELFProgramType {
 };
 
 boolean elf_read(
-    partition_t * part,
     const char * path,
     void ** entry_point
 );
