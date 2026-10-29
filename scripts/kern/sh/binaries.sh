@@ -34,6 +34,9 @@ OBJS=(
     obj/tty.o 
     obj/min_dltsh.o 
     obj/fat.o
+    obj/fs_shell.o
+    obj/fat_file.o
+    obj/fat_dir.o 
     obj/elf.o
     obj/mbr.o
     obj/disk.o
