@@ -35,13 +35,13 @@ $(IDT_ASM): $(IDT_ASM_SRC)
 $(INTS_ASM): $(INTS_ASM_SRC) cpu/asm/isr.asm cpu/asm/irq.asm
 	$(AS) $< -f elf64 -o $@
 
-$(TOOLS): $(TOOLS_SRC)
+$(TOOLS): $(TOOLS_SRC) tools/fat/asm/macros.asm
 	$(AS) $< -f elf64 -o $@
 
 # ===================
 # | Building C code |
 # ===================
-$(KERNEL_OBJ): $(KERNEL_SRC)
+$(KERNEL_OBJ): $(KERNEL_SRC) tools/fat/headers/fat.h
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(GDT): $(GDT_SRC)
@@ -113,19 +113,31 @@ libc/src/%.o: libc/src/%.c
 $(TTY): $(TTY_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(MIN_DLTSH): $(MIN_DLTSH_SRC)
+$(MIN_DLTSH): $(MIN_DLTSH_SRC) tty/header/fs_shell.h tools/fat/headers/fat.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(FAT): $(FAT_SRC)
+$(FS_SHELL): $(FS_SHELL_SRC) tty/header/fs_shell.h tools/fat/headers/fat.h
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(FAT): $(FAT_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h tools/fat/headers/disk.h
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(FAT_DIR): $(FAT_DIR_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h tools/fat/headers/disk.h
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(FAT_FILE): $(FAT_FILE_SRC) tools/fat/headers/fat.h tools/fat/headers/fat_internal.h \
+		tools/fat/headers/mbr.h tools/fat/headers/disk.h
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(ELF): $(ELF_SRC)
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(MBR): $(MBR_SRC)
+$(MBR): $(MBR_SRC) tools/fat/headers/mbr.h tools/fat/headers/disk.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(DISK): $(DISK_SRC)
+$(DISK): $(DISK_SRC) tools/fat/headers/disk.h
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(CINIT): $(CINIT_SRC)
@@ -144,6 +156,7 @@ $(IMG): $(BOOT_MAIN) $(BOOT_STAGE2) $(KERNEL_BIN)
 	dd if=$(BOOT_MAIN) of=$@ conv=notrunc bs=512 count=1 status=none
 	dd if=$(BOOT_STAGE2) of=$@ conv=notrunc bs=512 count=5 seek=1 status=none
 	dd if=$(KERNEL_BIN) of=$@ conv=notrunc bs=512 count=$(KERNEL_SECTORS) seek=6
+	python3 ../../scripts/kern/py/mkfat32.py $@
 
 # Running
 run: img/open-delta.img
