@@ -42,6 +42,11 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
+
+; 64-bit mode lgdt reads a 10-byte operand.
+gdt_descriptor64:
+    dw gdt_end - gdt_start - 1
+    dq gdt_start
 %endmacro
 
 ; +-------------------------------------------------+
@@ -133,7 +138,10 @@ gdt_descriptor:
 %macro ENTER_REAL_MODE 0
     [bits 64]
     cli
-    
+
+    lea rax, [rel gdt_descriptor64]
+    lgdt [rax]
+
     push qword GDT_CODE32
     lea rax, [rel %%compat32]
     push rax 
