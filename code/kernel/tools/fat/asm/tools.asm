@@ -6,6 +6,8 @@ OP_DISK_GET_DRIVE_PARAMS equ 0
 OP_DISK_RESET            equ 1
 OP_DISK_READ             equ 2
 OP_GET_NEXT_BLOCK        equ 3
+OP_DISK_READ_LBA         equ 4
+OP_DISK_WRITE_LBA        equ 5
 
 section .bss
     [bits 64]
@@ -36,6 +38,13 @@ rm_arg_buf:
     times 31 db 0
 
 align 4
+rm_dap:
+    times 16 db 0
+
+rm_dap_op:
+    db 0
+
+align 4
 enter_real_mode:
     ENTER_REAL_MODE
 
@@ -50,6 +59,10 @@ rmode_dispatcher:
     je rmode_disk_read
     cmp al, OP_GET_NEXT_BLOCK
     je rmode_get_next_block
+    cmp al, OP_DISK_READ_LBA
+    je rmode_disk_read_lba
+    cmp al, OP_DISK_WRITE_LBA
+    je rmode_disk_write_lba
     jmp error_loop
 
 align 4
@@ -124,6 +137,49 @@ rmode_disk_read:
     jmp enter_long_mode
 
 align 4
+rmode_disk_read_lba:
+    mov ah, 0x42
+    jmp rmode_disk_lba
+
+align 4
+rmode_disk_write_lba:
+    mov ah, 0x43
+
+align 4
+rmode_disk_lba:
+    mov [rm_dap_op], ah
+
+    mov byte [rm_dap + 0], 0x10
+    mov byte [rm_dap + 1], 0
+
+    mov al, [rm_arg_buf + 6]
+    mov [rm_dap + 2], al
+
+    mov ax, [rm_arg_buf + 10]
+    mov [rm_dap + 4], ax
+
+    mov ax, [rm_arg_buf + 8]
+    mov [rm_dap + 6], ax
+
+    mov eax, [rm_arg_buf + 2]
+    mov [rm_dap + 8], eax
+    mov dword [rm_dap + 12], 0
+
+    mov dl, [rm_arg_buf + 1]
+    mov si, rm_dap
+    mov ah, [rm_dap_op]
+
+    stc
+    int 0x13
+
+    mov al, 0
+    jnc .ok
+    mov al, 1
+.ok:
+    mov [rm_arg_buf + 7], al
+    jmp enter_long_mode
+
+align 4
 rmode_get_next_block:
     mov es, [rm_arg_buf + 1]
     mov di, [rm_arg_buf + 3]
@@ -173,6 +229,8 @@ section .text
     global disk_get_drive_params
     global disk_reset
     global disk_read
+    global disk_read_lba
+    global disk_write_lba
     global get_next_block
 
 linear_to_seg_offset:
@@ -183,6 +241,60 @@ linear_to_seg_offset:
     shr rax, 4
     and rax, 0xFFFF
     pop rbx
+    ret
+
+; +-------------------------------------------------------------+
+; | disk_read_lba(drive, lba, count, buffer)                    |
+; | disk_write_lba(drive, lba, count, buffer)                   |
+; | BIOS extended read/write. Buffer must be below 1 MiB.       |
+; +-------------------------------------------------------------+
+disk_read_lba:
+    mov byte [rel rm_arg_buf + 0], OP_DISK_READ_LBA
+    jmp disk_lba_common
+
+disk_write_lba:
+    mov byte [rel rm_arg_buf + 0], OP_DISK_WRITE_LBA
+
+disk_lba_common:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov r12, rdi
+    mov r13, rsi
+    mov r14, rdx
+    mov r15, rcx
+
+    mov [lmode_stack_backup], rsp
+
+    mov byte [rm_arg_buf + 1], r12b
+    mov [rm_arg_buf + 2], r13d
+    mov byte [rm_arg_buf + 6], r14b
+
+    mov rax, r15
+    call linear_to_seg_offset
+    mov [rm_arg_buf + 8], ax
+    mov [rm_arg_buf + 10], dx
+
+    mov rax, .return
+    mov [rm_return_addr], rax
+
+    jmp enter_real_mode
+
+.return:
+    mov rsp, [lmode_stack_backup]
+    xor rax, rax
+    mov al, [rm_arg_buf + 7]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
     ret
 
 disk_get_drive_params:
