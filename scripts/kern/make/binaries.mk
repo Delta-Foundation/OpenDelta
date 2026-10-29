@@ -1,6 +1,6 @@
 include ~/OpenDelta/scripts/kern/make/sources.mk
 
-# Variables for freestanding binary files 
+# Variables for freestanding binary files
 BOOT_MAIN = img/boot.bin
 BOOT_STAGE2 = img/stage2.bin
 KERNEL_ELF = img/kernel.elf
@@ -13,25 +13,25 @@ GDT = obj/gdt.o
 GDT_ASM = obj/gdt_asm.o
 IDT_ASM = obj/idt_asm.o
 INTS_ASM = obj/ints_asm.o
-IDT = obj/idt.o 
+IDT = obj/idt.o
 ISR = obj/isr.o
-INTS_C = obj/ints.o 
-PIC = obj/pic.o 
-HAL = obj/hal.o 
-PORTS = obj/ports.o 
+INTS_C = obj/ints.o
+PIC = obj/pic.o
+HAL = obj/hal.o
+PORTS = obj/ports.o
 FPU = obj/fpu.o
-SCREEN = obj/screen.o 
+SCREEN = obj/screen.o
 SPEAKER = obj/speaker.o
-MOUSE = obj/mouse.o 
-KEYBOARD = obj/kbd.o 
-MEM = obj/mem.o 
-SHM = obj/shm.o 
-SYS = obj/sys.o 
-TASK = obj/task.o 
-PROC = obj/proc.o 
-FS = obj/fs.o 
-LIST = obj/list.o 
-PIPE = obj/pipe.o 
+MOUSE = obj/mouse.o
+KEYBOARD = obj/kbd.o
+MEM = obj/mem.o
+SHM = obj/shm.o
+SYS = obj/sys.o
+TASK = obj/task.o
+PROC = obj/proc.o
+FS = obj/fs.o
+LIST = obj/list.o
+PIPE = obj/pipe.o
 
 # LIBC
 STDBASE = $(STDBASE_SRC:.c=.o)
@@ -41,19 +41,20 @@ TYPES = $(TYPES_SRC:.c=.o)
 STRING = $(STRING_SRC:.c=.o)
 DEBUG = $(DEBUG_SRC:.c=.o)
 
-TTY = obj/tty.o 
-MIN_DLTSH = obj/min_dltsh.o 
+TTY = obj/tty.o
+MIN_DLTSH = obj/min_dltsh.o
 FS_SHELL = obj/fs_shell.o
-FAT = obj/fat.o 
+DEXIDE = obj/dexide.o
+FAT = obj/fat.o
 FAT_DIR = obj/fat_dir.o
 FAT_FILE = obj/fat_file.o
-ELF = obj/elf.o 
-MBR = obj/mbr.o 
+ELF = obj/elf.o
+MBR = obj/mbr.o
 DISK = obj/disk.o
 TOOLS = obj/tools_asm.o
-CINIT = obj/cinit.o 
+CINIT = obj/cinit.o
 
-# .obj for .elf kernel binary 
+# .obj for .elf kernel binary
 OBJS = $(ENTRY) \
 	   $(KERNEL_OBJ) \
 	   $(GDT_ASM) \
@@ -87,6 +88,7 @@ OBJS = $(ENTRY) \
 	   $(TTY) \
 	   $(MIN_DLTSH) \
 	   $(FS_SHELL) \
+	   $(DEXIDE) \
 	   $(FAT) \
 	   $(FAT_DIR) \
 	   $(FAT_FILE) \
