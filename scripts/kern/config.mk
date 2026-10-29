@@ -24,10 +24,9 @@ IMG = img/open-delta.img
 
 # QEMU and QEMU flags
 QEMU = qemu-system-x86_64
-QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware -s \
-			 -d int,cpu_reset \
+QEMU_FLAGS = -boot c -m 1024 -smp 1 -vga vmware \
 			 -no-reboot -no-shutdown \
              -display gtk,full-screen=off,gl=off,show-cursor=on
 
-IMAGE_SECTORS := 8192
+IMAGE_SECTORS := 131072
 KERNEL_SECTORS := 256
