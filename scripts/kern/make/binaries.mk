@@ -43,7 +43,10 @@ DEBUG = $(DEBUG_SRC:.c=.o)
 
 TTY = obj/tty.o 
 MIN_DLTSH = obj/min_dltsh.o 
+FS_SHELL = obj/fs_shell.o
 FAT = obj/fat.o 
+FAT_DIR = obj/fat_dir.o
+FAT_FILE = obj/fat_file.o
 ELF = obj/elf.o 
 MBR = obj/mbr.o 
 DISK = obj/disk.o
@@ -83,7 +86,10 @@ OBJS = $(ENTRY) \
 	   $(STRING) \
 	   $(TTY) \
 	   $(MIN_DLTSH) \
+	   $(FS_SHELL) \
 	   $(FAT) \
+	   $(FAT_DIR) \
+	   $(FAT_FILE) \
 	   $(ELF) \
 	   $(MBR) \
 	   $(DISK) \
