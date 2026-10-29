@@ -13,6 +13,8 @@
 
 #include "./fpu/fpu.h"
 
+#include "./tools/fat/headers/fat.h"
+
 #include "./tty/header/min_dltsh.h"
 #include "./tty/header/tty.h"
 
@@ -31,13 +33,13 @@ static uint8_t boot_drive = 0x80;
 static void kpanic(const char *panic_msg, ...) {
     volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     const char* msg = "KERNEL PANIC: ";
-    
-    for(int i = 0; msg[i]; i++) {  
-        vga[i] = (uint16_t)(0x4F00 | (uint8_t)msg[i]); 
+
+    for(int i = 0; msg[i]; i++) {
+        vga[i] = (uint16_t)(0x4F00 | (uint8_t)msg[i]);
     }
-    
-    for(int i = 0; panic_msg[i]; i++) { 
-        vga[14 + i] = (uint16_t)(0x4F00 | (uint8_t)panic_msg[i]); 
+
+    for(int i = 0; panic_msg[i]; i++) {
+        vga[14 + i] = (uint16_t)(0x4F00 | (uint8_t)panic_msg[i]);
     }
 
     __asm__ volatile ( "cli" );
@@ -50,10 +52,10 @@ static void kpanic(const char *panic_msg, ...) {
 static inline void dump_gdtr(void) {
     uint8_t buf[6];
     __asm__ __volatile__ ( "sgdt %0" : "=m" (buf));
-    
+
     uint32_t base  = *(uint32_t *)(buf + 2);
     uint16_t limit = *(uint16_t *)(buf);
-    
+
     (void)base;
     (void)limit;
 }
@@ -74,7 +76,7 @@ void kmain(void)
     early_kprint("Welcome to the OpenDelta!\n", CYAN);
     early_kprint("OS: OpenDelta v0.2-a (Via)\n", CYAN);
     early_kprint("Kernel: dltkernel v0.1.0-a\n", CYAN);
-   
+
     early_kprint("[INFO]: Initializing HAL(GDT, IDT, ISR, IRQ)...   ", WHITE);
     hal_init();
     early_kprint("[OK]\n", GREEN);
@@ -94,14 +96,24 @@ void kmain(void)
     fpu_install();
     early_kprint("[OK]\n", GREEN);
 
+    early_kprint("[INFO]: Mounting FAT32...    ", WHITE);
+    if (fat_mount(boot_drive)) {
+        early_kprint("[OK] ", GREEN);
+        early_kprint(fat_volume_label(), LGRAY);
+        early_kprint("\n", WHITE);
+    }
+    else {
+        early_kprint("[FAIL]\n", RED);
+    }
+
     early_kprint("[INFO]: Installing device drivers...    ", WHITE);
     //mouse_install();
     keyboard_install();
     early_kprint("[OK]\n", GREEN);
 
     early_kprint("[INFO]: Enabling interrupts...    ", WHITE);
-    outb(0x21, 0xF8);
-    outb(0xA1, 0xEF);
+    outb(0x21, 0xF9);
+    outb(0xA1, 0xFF);
     __asm__ volatile ( "sti" );
     early_kprint("[OK]\n", GREEN);
 
