@@ -3,11 +3,16 @@
 
 #pragma once
 
-#include "disk.h"
+#include "./disk.h"
 #include "../../../libc/include/types.h"
 
+#define PARTITION_TYPE_FAT32_CHS 0x0B
+#define PARTITION_TYPE_FAT32_LBA 0x0C
+
+#define OPEN_DELTA_FAT32_LBA     2048
+
 typedef struct {
-    DISK* disk;
+    DISK * disk;
     uint32_t part_offset;
     uint32_t part_size;
 } partition_t;
@@ -21,24 +26,23 @@ typedef struct {
     uint32_t size;
 } __attribute__((packed)) mbr_entry_t;
 
-void mbr_detect_part(
-    partition_t * part, 
-    DISK * disk, 
-    void * part_entry
+boolean mbr_find_fat32(
+    partition_t * part,
+    DISK * disk
 );
 
 boolean part_read_sectors(
-    partition_t * part, 
-    uint32_t lba, 
-    uint8_t sectors, 
-    void * lower_data_out
+    partition_t * part,
+    uint32_t lba,
+    uint8_t sectors,
+    void * data_out
 );
 
 boolean part_write_sectors(
-    partition_t * part, 
-    uint32_t lba, 
-    uint8_t sectors, 
+    partition_t * part,
+    uint32_t lba,
+    uint8_t sectors,
     const void * data_in
 );
 
-#endif 
+#endif
