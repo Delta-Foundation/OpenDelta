@@ -1,37 +1,31 @@
 #ifndef _TOOLS_DISK_H
 #define _TOOLS_DISK_H
 
-#include "../../../libc/include/stdbase.h"
-#include "../../../libc/include/types.h"
-
 #pragma once
 
+#include "../../../libc/include/types.h"
+
 typedef struct {
-    FILE * file;
     uint8_t id;
-    uint16_t cylindres;
-    uint16_t sectors;
-    uint16_t heads;
 } DISK;
 
 boolean disk_init(
-    DISK * disk, 
-    const char * filename
-);
-
-void disk_lba2chs(
-    DISK * disk, 
-    uint32_t lba, 
-    uint16_t * cylinder_out, 
-    uint16_t * sector_out,
-    uint16_t head_out
+    DISK * disk,
+    uint8_t drive
 );
 
 boolean disk_read_sects(
-    DISK * disk, 
-    uint32_t lba, 
-    uint8_t sectors, 
+    DISK * disk,
+    uint32_t lba,
+    uint8_t sectors,
     void * data_out
 );
 
-#endif 
+boolean disk_write_sects(
+    DISK * disk,
+    uint32_t lba,
+    uint8_t sectors,
+    const void * data_in
+);
+
+#endif
