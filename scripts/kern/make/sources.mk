@@ -49,10 +49,14 @@ DEBUG_SRC = libc/src/debug/debug.c
 
 TTY_SRC = tty/tty.c
 MIN_DLTSH_SRC = tty/min_dltsh.c
+FS_SHELL_SRC = tty/fs_shell.c
 TOOLS_SRC = tools/fat/asm/tools.asm
 FAT_SRC = tools/fat/fat.c
+FAT_DIR_SRC = tools/fat/fat_dir.c
+FAT_FILE_SRC = tools/fat/fat_file.c
 ELF_SRC = tools/fat/elf.c
 MBR_SRC = tools/fat/mbr.c
 DISK_SRC = tools/fat/disk.c
 TOOLS_SRC = tools/fat/asm/tools.asm
 CINIT_SRC = ../cinit/main.c
+
