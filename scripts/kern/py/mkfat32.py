@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""Create a small FAT32 partition inside the OpenDelta disk image.
-
-The kernel image is stored at the beginning of the raw disk, so the FAT32
-volume lives at a fixed LBA after it (LBA 2048).  This tool is intentionally
-tiny and only creates what the kernel driver needs: one FAT32 volume with a
-root directory and a README.TXT file.
-"""
 
 import os
 import struct
@@ -16,25 +9,34 @@ PART_START = 2048
 SECTORS_PER_CLUSTER = 1
 RESERVED_SECTORS = 32
 FAT_COUNT = 2
+
 ROOT_CLUSTER = 2
 README_CLUSTER = 3
+PROC_CLUSTER = 4
+PROC1_CLUSTER = 5
+PROC2_CLUSTER = 6
+PROC3_CLUSTER = 7
 
 README_DATA = (
     b"OpenDelta FAT32 volume.\n"
-    b"Use: ls, cd, cat, touch, mkdir, rmdir, rmfile.\n"
+    b"Use: ls, pwd, cd, cat, touch, mkdir, rmdir, rmfile.\n"
 )
+
+PROC_FILES = [
+    (b"PROC1   TXT", PROC1_CLUSTER, b"1: CINIT"),
+    (b"PROC2   TXT", PROC2_CLUSTER, b"2: TTY"),
+    (b"PROC3   TXT", PROC3_CLUSTER, b"3: DLTSH"),
+]
 
 
 def partition_size(total_sectors):
     part_size = total_sectors - PART_START
     if part_size <= 0:
         raise RuntimeError("image is too small for a FAT32 partition")
-
     return part_size
 
 
 def fat_layout(total_sectors):
-    """Return (fat_sectors, cluster_count) for the requested volume size."""
     fat_sectors = 1
 
     for _ in range(32):
@@ -110,63 +112,91 @@ def build_fsinfo(free_clusters, next_free):
 
 def build_fat(fat_sectors):
     fat = bytearray(fat_sectors * SECTOR)
-    struct.pack_into("<I", fat, 0, 0x0FFFFFF8)
-    struct.pack_into("<I", fat, 4, 0x0FFFFFFF)
-    struct.pack_into("<I", fat, 8, 0x0FFFFFFF)
-    struct.pack_into("<I", fat, 12, 0x0FFFFFFF)
+
+    for cluster, value in enumerate(
+        [0x0FFFFFF8, 0x0FFFFFFF] + [0x0FFFFFFF] * 6
+    ):
+        struct.pack_into("<I", fat, cluster * 4, value)
+
     return bytes(fat)
 
 
-def build_readme_entry():
+def build_file_entry(name, cluster, data):
     entry = bytearray(32)
-    entry[0:11] = b"README  TXT"
-    entry[11] = 0x20
+    entry[0:11] = name
+    entry[11] = 0x20  # обычный файл
     struct.pack_into("<H", entry, 16, 0x0021)
     struct.pack_into("<H", entry, 18, 0x0021)
     struct.pack_into("<H", entry, 24, 0x0021)
-    struct.pack_into("<H", entry, 26, README_CLUSTER)
-    struct.pack_into("<I", entry, 28, len(README_DATA))
+    struct.pack_into("<H", entry, 26, cluster)
+    struct.pack_into("<I", entry, 28, len(data))
+    return bytes(entry)
+
+
+def build_directory_entry(name, cluster):
+    entry = bytearray(32)
+    entry[0:11] = name
+    entry[11] = 0x10  # каталог
+    struct.pack_into("<H", entry, 26, cluster)
+    return bytes(entry)
+
+
+def build_dot_entry(name, cluster):
+    entry = bytearray(32)
+    entry[0:11] = name
+    entry[11] = 0x10  # каталог
+    struct.pack_into("<H", entry, 26, cluster)
     return bytes(entry)
 
 
 def write_fat32(image, total_sectors):
     fat_sectors, cluster_count = fat_layout(total_sectors)
-    volume_id = 0x4F50454E
-    free_clusters = cluster_count - 2
+
+    free_clusters = cluster_count - 6
+    next_free = 8
 
     part_offset = PART_START * SECTOR
-    boot = build_boot_sector(total_sectors, fat_sectors, volume_id)
-    fsinfo = build_fsinfo(free_clusters, README_CLUSTER + 1)
+    boot = build_boot_sector(total_sectors, fat_sectors, 0x4F50454E)
+    fsinfo = build_fsinfo(free_clusters, next_free)
     fat = build_fat(fat_sectors)
 
-    # Primary boot sector and its backup.
     write_at(image, part_offset, boot)
     write_at(image, part_offset + 6 * SECTOR, boot)
 
-    # FSInfo and its backup.
     write_at(image, part_offset + 1 * SECTOR, fsinfo)
     write_at(image, part_offset + 7 * SECTOR, fsinfo)
 
-    # Both FAT copies.
     fat_offset = part_offset + RESERVED_SECTORS * SECTOR
     write_at(image, fat_offset, fat)
     write_at(image, fat_offset + fat_sectors * SECTOR, fat)
 
     data_offset = fat_offset + FAT_COUNT * fat_sectors * SECTOR
     cluster_bytes = SECTORS_PER_CLUSTER * SECTOR
-    zero_cluster = b"\x00" * cluster_bytes
 
-    # Clear the clusters we reuse so re-formatting an existing image does not
-    # leave old directory entries or file data behind.
-    write_at(image, data_offset, zero_cluster)
-    write_at(image, data_offset + (README_CLUSTER - 2) * cluster_bytes, zero_cluster)
+    def cluster_offset(cluster):
+        return data_offset + (cluster - 2) * cluster_bytes
 
-    write_at(image, data_offset, build_readme_entry())
-    write_at(
-        image,
-        data_offset + (README_CLUSTER - 2) * cluster_bytes,
-        README_DATA,
+    for cluster in range(ROOT_CLUSTER, PROC3_CLUSTER + 1):
+        write_at(image, cluster_offset(cluster), b"\x00" * cluster_bytes)
+
+    root_entries = (
+        build_file_entry(b"README  TXT", README_CLUSTER, README_DATA)
+        + build_directory_entry(b"PROC       ", PROC_CLUSTER)
     )
+    write_at(image, cluster_offset(ROOT_CLUSTER), root_entries)
+
+    write_at(image, cluster_offset(README_CLUSTER), README_DATA)
+
+    proc_entries = (
+        build_dot_entry(b".          ", PROC_CLUSTER)
+        + build_dot_entry(b"..         ", ROOT_CLUSTER)
+    )
+    for name, cluster, data in PROC_FILES:
+        proc_entries += build_file_entry(name, cluster, data)
+    write_at(image, cluster_offset(PROC_CLUSTER), proc_entries)
+
+    for _, cluster, data in PROC_FILES:
+        write_at(image, cluster_offset(cluster), data)
 
     return fat_sectors, cluster_count
 
