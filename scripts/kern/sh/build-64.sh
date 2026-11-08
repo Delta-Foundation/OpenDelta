@@ -1,106 +1,90 @@
 #!/usr/bin/bash
 
-source ~/OpenDelta/scripts/kern/sh/binarise.sh
+set -euo pipefail
 
-# перменная CFLAGS для каждого варианта сборки 32/64 будет разной.
+KERNEL_DIR="$HOME/OpenDelta/code/kernel"
+
 CFLAGS=(
-    --target=x86_64
-    -std=c17
+    --target=x86_64-unknown-elf
     -m64
-    -fno-pie
+    -std=c17
+    -ffreestanding
+    -nostdlib
     -fno-builtin
     -fno-stack-protector
-    -nostdlib
     -nodefaultlibs
-    -ffreestanding
-    -O0
+    -O2
     -g
     -Wall
+    -I"$KERNEL_DIR/libc/include"
 )
 
 function base-actions {
-    cd ~/OpenDelta/code/kernel/
-    if [! -d "./img" ]; then
-        mkdir -p ./img/
-    elif [! -d "./obj" ]; then
-        mkdir -p ./obj/
-    fi
+    cd "$KERNEL_DIR" || return
+    mkdir -p img obj
+
+    rm -f obj/*.o img/kernel.elf
 }
 
 function build-kern-64 {
+    cd "$KERNEL_DIR"
+
     echo "#---building-asm-code---#"
-    nasm boot/x86_64/main.asm    -f bin -o img/boot.bin
-    nasm boot/x86_64/stage2.asm  -f bin -o img/stage2.bin
-    nasm kernel_entry.asm        -f elf -o obj/entry.o
-    nasm arch/gdt/gdt.asm        -f elf -o obj/gdtasm.o
-    nasm cpu/asm/ints.asm        -f elf -o obj/intsasm.o
-    nasm cpu/asm/idt.asm         -f elf -o obj/idtasm.o
-    nasm tools/fat/asm/tools.asm -f elf -o obj/tools.o
+
+    nasm boot/x86_64/main.asm          -f bin   -o img/boot.bin
+    nasm boot/x86_64/second-stage.asm  -f bin   -o img/stage2.bin
+    nasm kernel_entry.asm              -f elf64 -o obj/entry.o
+    nasm arch/gdt/gdt.asm              -f elf64 -o obj/gdtasm.o
+    nasm cpu/asm/ints.asm              -f elf64 -o obj/ints_asm.o
+    nasm cpu/asm/idt.asm               -f elf64 -o obj/idt_asm.o
+    nasm tools/fat/asm/tools.asm       -f elf64 -o obj/tools.o
 
     echo "#---building-c-code---#"
 
-    # Main file
-    clang "${CFLAGS[@]}" -c kernel.c           -o obj/kernel.o
+    declare -A seen=()
+    local src base
+    while IFS= read -r src; do
+        base=${src##*/}
+        base=${base%.c}
 
-    # GDT, IDT, ISR, IRQ, PIC, HAL, FPU
-    clang "${CFLAGS[@]}" -c arch/gdt/gdt.c     -o obj/gdt.o
-    clang "${CFLAGS[@]}" -c cpu/idt.c          -o obj/idt.o
-    clang "${CFLAGS[@]}" -c cpu/isr.c          -o obj/isr.o
-    clang "${CFLAGS[@]}" -c ints/int.c         -o obj/ints.o
-    clang "${CFLAGS[@]}" -c drvs/pic.c         -o obj/pic.o
-    clang "${CFLAGS[@]}" -c hal/hal.c          -o obj/hal.o
-    clang "${CFLAGS[@]}" -c ports/ports.c      -o obj/ports.o
-    clang "${CFLAGS[@]}" -c fpu/fpu.c          -o obj/fpu.o
+        if [[ -n "${seen[$base]:-}" ]]; then
+            echo "error: duplicate object name '$base.o': ${seen[$base]} and $src" >&2
+            exit 1
+        fi
+        seen[$base]=$src
 
-    # Drivers
-    clang "${CFLAGS[@]}" -c drvs/screen.c      -o obj/screen.o
-    clang "${CFLAGS[@]}" -c drvs/speaker.c     -o obj/speaker.o
-    clang "${CFLAGS[@]}" -c drvs/mouse.c       -o obj/mouse.o
-    clang "${CFLAGS[@]}" -c drvs/time.c        -o obj/time.o
-    clang "${CFLAGS[@]}" -c drvs/keyboard.c    -o obj/kbd.o
+        clang "${CFLAGS[@]}" -c "$src" -o "obj/$base.o"
+    done < <(find . -name '*.c' -not -path './obj/*' -not -path './img/*' | sort)
 
-    # Memory
-    clang "${CFLAGS[@]}" -c mem/memory.c        -o obj/mem.o
-    clang "${CFLAGS[@]}" -c mem/shared_memory.c -o obj/shm.o
+    clang "${CFLAGS[@]}" -c ../cinit/main.c -o obj/main.o
 
-    # Syscalls, tasks, processes
-    clang "${CFLAGS[@]}" -c syscall/syscall.c  -o obj/sys.o
-    clang "${CFLAGS[@]}" -c syscall/task.c     -o obj/task.o
-    clang "${CFLAGS[@]}" -c syscall/proc.c     -o obj/proc.o
-
-    # File System
-    clang "${CFLAGS[@]}" -c fs/fs.c             -o obj/fs.o
-    clang "${CFLAGS[@]}" -c fs/list.c           -o obj/list.o
-    clang "${CFLAGS[@]}" -c fs/pipe.c           -o obj/pipe.o
-
-    # Kernel libc
-    clang "${CFLAGS[@]}" -c lib/source/stdbase.c -o obj/stdbase.o
-    clang "${CFLAGS[@]}" -c lib/source/stdlib.c  -o obj/stdlib.o
-    clang "${CFLAGS[@]}" -c lib/source/ctype.c   -o obj/ctype.o
-    clang "${CFLAGS[@]}" -c lib/source/types.c   -o obj/types.o
-    clang "${CFLAGS[@]}" -c lib/source/string.c  -o obj/string.o
-
-    # TTY and Minimal dltsh
-    clang "${CFLAGS[@]}" -c tty/tty.c -o obj/tty.o
-    clang "${CFLAGS[@]}" -c tty/min_dltsh.c -o obj/min_dltsh.o
-
-    # Experimental
-    clang "${CFLAGS[@]}" -c tools/fat/fat.c -o obj/fat.o
-    clang "${CFLAGS[@]}" -c tools/fat/elf.c -o obj/elf.o
-    clang "${CFLAGS[@]}" -c tools/fat/mbr.c -o obj/mbr.o
-    clang "${CFLAGS[@]}" -c tools/fat/disk.c -o obj/disk.o
+    source "$HOME/OpenDelta/scripts/kern/sh/binaries.sh"
 
     echo "#---creating-kernel-elf-binary---#"
-    ld.lld -m elf_x86_64 -z noexecstack -T link64.ld -Map kernel.map "${OBJS[@]}"
+    ld.lld -m elf_x86_64 -z noexecstack \
+        -T link64.ld \
+        -Map kernel.map \
+        -o img/kernel.elf \
+        "${OBJS[@]}"
 
     echo "#---creating-kernel-binary---#"
     llvm-objcopy -O binary img/kernel.elf img/kernel.bin
 
     echo "#---creating-os-image---#"
-    dd if=/dev/zero of=img/open-delta.img bs=512 count=4096 status=none
-    dd if=img/boot.bin of=img/open-delta.img bs=512 count=1 conv=notrunc
-    dd if=img/stage2.bin of=img/open-delta.img bs=512 count=1 conv=notrunc
-    dd if=img/kernel.bin of=img/open-delta.img conv=notrunc seek=1 bs=512
+
+    size=$(stat -c %s img/kernel.bin)
+    max=$((256 * 512))
+
+    if [ "$size" -gt "$max" ]; then
+        echo "error: img/kernel.bin is $size bytes, bootloader limit is $max bytes" >&2
+        exit 1
+    fi
+
+	dd if=/dev/zero of=img/open-delta.img bs=512 count=131072 status=none
+	dd if=img/boot.bin of=img/open-delta.img conv=notrunc bs=512 count=1 status=none
+	dd if=img/stage2.bin of=img/open-delta.img conv=notrunc bs=512 count=5 seek=1 status=none
+	dd if=img/kernel.bin of=img/open-delta.img conv=notrunc bs=512 count=256 seek=6
+	python3 ~/OpenDelta/scripts/kern/py/mkfat32.py img/open-delta.img
 }
 
 function run {
@@ -111,4 +95,4 @@ function run {
 
 base-actions
 build-kern-64
-run
+# run
